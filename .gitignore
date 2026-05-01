@@ -1,0 +1,12 @@
+node_modules/
+dist/
+output/
+public/audio/sfx/
+public/audio/music/
+public/audio/ambience/
+.youtube-token*.json
+config/*-secret.json
+*.mp4
+*.mp3
+*.wav
+logs/

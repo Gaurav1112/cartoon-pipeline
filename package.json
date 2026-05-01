@@ -1,0 +1,31 @@
+{
+  "name": "cartoon-pipeline",
+  "version": "1.0.0",
+  "description": "Fully automated cartoon YouTube channel pipeline — 7 Indian languages",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "build": "tsc --noEmit",
+    "render:episode": "tsx scripts/render-episode.ts",
+    "render:batch": "tsx scripts/batch-render.ts",
+    "upload": "tsx scripts/upload-youtube.ts",
+    "dashboard": "tsx scripts/dashboard.ts"
+  },
+  "dependencies": {
+    "remotion": "4.0.441",
+    "@remotion/cli": "4.0.441",
+    "@remotion/transitions": "4.0.441",
+    "@remotion/paths": "4.0.441",
+    "@remotion/google-fonts": "4.0.441",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "googleapis": "^144.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "tsx": "^4.19.0",
+    "@types/react": "^19.0.0",
+    "@types/node": "^22.0.0"
+  }
+}
