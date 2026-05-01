@@ -1,20 +1,26 @@
-name: Nightly Render Pipeline
+name: Cartoon Pipeline
 
 on:
   schedule:
-    # 2:00 AM IST = 8:30 PM UTC (previous day)
-    - cron: '30 20 * * *'
+    # Mon/Wed/Fri: Render + upload batch 1 (hi, te, ta, en) at 4:30 AM UTC = 10:00 AM IST
+    - cron: '30 4 * * 1,3,5'
+    # Tue/Thu/Sat: Upload batch 2 (kn, mr, bn) at 4:30 AM UTC
+    - cron: '30 4 * * 2,4,6'
   workflow_dispatch:
     inputs:
-      limit:
-        description: 'Number of episodes to render'
+      episode:
+        description: 'Episode number (0 = next unrendered)'
         required: false
-        default: '3'
+        default: '0'
+
+concurrency:
+  group: cartoon-pipeline
+  cancel-in-progress: false
 
 jobs:
-  render:
+  pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -29,11 +35,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install system dependencies
+      - name: Install system deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          pip install edge-tts
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip3 install --quiet edge-tts
 
       - name: Install Rhubarb
         run: |
@@ -41,22 +47,59 @@ jobs:
           unzip -q Rhubarb-Lip-Sync-1.13.0-Linux.zip -d /opt/rhubarb
           echo "/opt/rhubarb" >> $GITHUB_PATH
 
-      - name: Render episodes
+      - name: Determine what to do
+        id: plan
         run: |
-          LIMIT="${{ github.event.inputs.limit || '3' }}"
-          npx tsx scripts/batch-render.ts --limit $LIMIT
+          DAY=$(date -u +%u)  # 1=Mon, 2=Tue, etc.
+          LAST_RENDERED=$(jq '.lastRendered' config/episode-registry.json)
+          LAST_UPLOADED=$(jq '.lastUploaded' config/episode-registry.json)
+          NEXT_EP=$((LAST_RENDERED + 1))
 
-      - name: Upload rendered episodes
-        uses: actions/upload-artifact@v4
-        with:
-          name: rendered-episodes
-          path: output/
-          retention-days: 7
+          INPUT_EP="${{ github.event.inputs.episode || '0' }}"
+          if [ "$INPUT_EP" != "0" ]; then
+            NEXT_EP="$INPUT_EP"
+          fi
 
-      - name: Commit updated registry
+          # Mon/Wed/Fri (1,3,5): render + upload batch 1
+          # Tue/Thu/Sat (2,4,6): upload batch 2 only
+          if [ "$DAY" = "1" ] || [ "$DAY" = "3" ] || [ "$DAY" = "5" ] || [ "$INPUT_EP" != "0" ]; then
+            echo "render=true" >> $GITHUB_OUTPUT
+            echo "upload_langs=hi,te,ta,en" >> $GITHUB_OUTPUT
+          else
+            echo "render=false" >> $GITHUB_OUTPUT
+            echo "upload_langs=kn,mr,bn" >> $GITHUB_OUTPUT
+          fi
+
+          echo "episode=$NEXT_EP" >> $GITHUB_OUTPUT
+
+      - name: Render episode
+        if: steps.plan.outputs.render == 'true'
+        run: npx tsx scripts/batch-render.ts --limit 1
+        timeout-minutes: 60
+
+      - name: Upload to YouTube
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN_HI: ${{ secrets.YOUTUBE_REFRESH_TOKEN_HI }}
+          YOUTUBE_REFRESH_TOKEN_TE: ${{ secrets.YOUTUBE_REFRESH_TOKEN_TE }}
+          YOUTUBE_REFRESH_TOKEN_TA: ${{ secrets.YOUTUBE_REFRESH_TOKEN_TA }}
+          YOUTUBE_REFRESH_TOKEN_KN: ${{ secrets.YOUTUBE_REFRESH_TOKEN_KN }}
+          YOUTUBE_REFRESH_TOKEN_MR: ${{ secrets.YOUTUBE_REFRESH_TOKEN_MR }}
+          YOUTUBE_REFRESH_TOKEN_BN: ${{ secrets.YOUTUBE_REFRESH_TOKEN_BN }}
+          YOUTUBE_REFRESH_TOKEN_EN: ${{ secrets.YOUTUBE_REFRESH_TOKEN_EN }}
+        run: npx tsx scripts/upload-youtube.ts ${{ steps.plan.outputs.episode }}
+
+      - name: Commit registry
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add config/episode-registry.json
-          git diff --cached --quiet || git commit -m "chore: update episode registry after render"
-          git push
+          git pull --rebase origin main
+          git add config/episode-registry.json config/publish-queue.json
+          git diff --cached --quiet || git commit -m "chore: pipeline ep ${{ steps.plan.outputs.episode }}"
+          git push || (git pull --rebase origin main && git push)
+
+      - name: Cleanup old output
+        if: always()
+        run: rm -rf output/

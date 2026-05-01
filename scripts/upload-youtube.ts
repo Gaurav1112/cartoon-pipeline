@@ -39,12 +39,12 @@ async function uploadToChannel(
         title: metadata.title.slice(0, 100), // YouTube title limit
         description: metadata.description.slice(0, 5000),
         tags: metadata.tags.slice(0, 30),
-        categoryId: '24', // Entertainment
-        defaultLanguage: language === 'en' ? 'en' : `${language}-IN`,
+        categoryId: '1', // Film & Animation (better algorithmic placement)
+        defaultLanguage: language === 'en' ? 'en' : language,
       },
       status: {
         privacyStatus: 'public',
-        selfDeclaredMadeForKids: false, // NOT made for kids (higher RPM)
+        selfDeclaredMadeForKids: false, // Family entertainment, not child-directed
       },
     },
     media: {
@@ -55,24 +55,8 @@ async function uploadToChannel(
   const videoId = res.data.id!;
   console.log(`  ✅ Uploaded: https://youtube.com/watch?v=${videoId}`);
 
-  // Pin a comment
-  try {
-    await youtube.commentThreads.insert({
-      part: ['snippet'],
-      requestBody: {
-        snippet: {
-          videoId,
-          topLevelComment: {
-            snippet: {
-              textOriginal: `🎬 ${metadata.title}\n\n❤️ Like and Subscribe for more stories!\n🔔 Turn on notifications!\n\n— Guru Sishya`,
-            },
-          },
-        },
-      },
-    });
-  } catch {
-    console.log('  ⚠️ Could not pin comment');
-  }
+  // Comment pinning removed — saves 50 quota units per video
+  // and automated pinned comments are spam-flagged by YouTube
 
   return videoId;
 }

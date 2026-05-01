@@ -6,9 +6,9 @@ export function generateStoryboard(
   episode: CartoonEpisode,
   _audioTimestamps: WordTimestamp[],
 ): Storyboard {
-  const introFrames = 15 * FPS;   // 15s intro
-  const moralFrames = 10 * FPS;   // 10s moral card
-  const outroFrames = 10 * FPS;   // 10s outro
+  const introFrames = 5 * FPS;    // 5s intro (matches CartoonEpisode.tsx)
+  const moralFrames = 8 * FPS;    // 8s moral card
+  const outroFrames = 6 * FPS;    // 6s outro
 
   let currentFrame = introFrames;
   const scenes: StoryboardScene[] = [];
