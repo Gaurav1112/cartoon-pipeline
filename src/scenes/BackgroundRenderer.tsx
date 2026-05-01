@@ -390,6 +390,19 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
 
   const bg = backgroundMap[locationType] ?? renderGenericBackground(locationType, palette, offset);
 
+  // Time-of-day color wash
+  const TIME_WASH: Record<string, string> = {
+    dawn: 'rgba(255,180,120,0.06)', day: 'rgba(255,255,240,0.03)',
+    dusk: 'rgba(255,120,50,0.08)', night: 'rgba(30,50,120,0.1)',
+  };
+
+  // Drifting clouds (outdoor scenes only)
+  const clouds = locationType !== 'cave' ? [
+    { cx: 300, cy: 120, rx: 90, ry: 30 },
+    { cx: 800, cy: 80, rx: 120, ry: 35 },
+    { cx: 1400, cy: 150, rx: 100, ry: 28 },
+  ] : [];
+
   return (
     <svg
       width="1920"
@@ -399,6 +412,46 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
       style={{ position: 'absolute', top: 0, left: 0 }}
     >
       {bg}
+
+      {/* Clouds */}
+      {clouds.map((cloud, i) => {
+        const drift = (frame * 0.15 + i * 500) % 2200 - 200;
+        return (
+          <g key={i} transform={`translate(${drift}, 0)`} opacity={timeOfDay === 'night' ? 0.12 : 0.4}>
+            <ellipse cx={cloud.cx} cy={cloud.cy} rx={cloud.rx} ry={cloud.ry} fill="white" />
+            <ellipse cx={cloud.cx - cloud.rx * 0.5} cy={cloud.cy + 5} rx={cloud.rx * 0.6} ry={cloud.ry * 0.7} fill="white" />
+            <ellipse cx={cloud.cx + cloud.rx * 0.4} cy={cloud.cy + 3} rx={cloud.rx * 0.7} ry={cloud.ry * 0.8} fill="white" />
+          </g>
+        );
+      })}
+
+      {/* Sun/Moon */}
+      {timeOfDay === 'day' && (
+        <g><circle cx="1600" cy="150" r="45" fill="#FFF176" opacity="0.7" /><circle cx="1600" cy="150" r="120" fill="#FFD700" opacity="0.06" /></g>
+      )}
+      {timeOfDay === 'night' && (
+        <g>
+          <circle cx="300" cy="120" r="35" fill="#F0F0FF" opacity="0.8" />
+          <circle cx="300" cy="120" r="100" fill="rgba(200,220,255,0.08)" />
+          {Array.from({ length: 20 }, (_, i) => (
+            <circle key={i} cx={(i * 97) % 1920} cy={30 + (i * 43) % 300} r={0.8 + (i % 3) * 0.5}
+              fill="white" opacity={0.3 + Math.sin(frame * 0.08 + i) * 0.15} />
+          ))}
+        </g>
+      )}
+
+      {/* Time-of-day color wash */}
+      <rect width="1920" height="1080" fill={TIME_WASH[timeOfDay] ?? TIME_WASH.day} />
+
+      {/* Vignette — darkens corners for cinematic feel */}
+      <defs>
+        <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stopColor="transparent" />
+          <stop offset="70%" stopColor="transparent" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.3)" />
+        </radialGradient>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#vignette)" />
     </svg>
   );
 };

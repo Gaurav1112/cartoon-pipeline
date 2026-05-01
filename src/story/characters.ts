@@ -6,7 +6,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Arjun',
     archetype: 'hero_child',
     description: 'Brave boy, orange outfit, confident pose. Natural leader who stands up for friends.',
-    colors: { primary: '#FF8C00', secondary: '#FFD700', accent: '#8B4513', skin: '#D2A679' },
+    colors: { primary: '#E07B38', secondary: '#F2C94C', accent: '#6B4226', skin: '#C99B6D' },
     voiceProfile: { pitchShift: 3, speedFactor: 1.1, eqProfile: 'none', volume: 0.85 },
   },
   meera: {
@@ -14,7 +14,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Meera',
     archetype: 'smart_girl',
     description: 'Clever girl, blue outfit, book in hand. Solves problems with wit and knowledge.',
-    colors: { primary: '#4169E1', secondary: '#87CEEB', accent: '#FFD700', skin: '#C8A882' },
+    colors: { primary: '#3B6BA5', secondary: '#7EB8D8', accent: '#C4943A', skin: '#C49A78' },
     voiceProfile: { pitchShift: 2, speedFactor: 1.15, eqProfile: 'none', volume: 0.8 },
   },
   bablu: {
@@ -22,7 +22,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Bablu',
     archetype: 'comic_sidekick',
     description: 'Round, always eating, comic relief. Stumbles into trouble but has a good heart.',
-    colors: { primary: '#32CD32', secondary: '#ADFF2F', accent: '#FF6347', skin: '#D2B48C' },
+    colors: { primary: '#6BAF5A', secondary: '#A8D86E', accent: '#8B4513', skin: '#C4A07A' },
     voiceProfile: { pitchShift: 5, speedFactor: 1.3, eqProfile: 'nasal', volume: 0.9 },
   },
   guruji: {
@@ -30,7 +30,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Guruji',
     archetype: 'wise_elder',
     description: 'White beard, staff, calm demeanor. Dispenses wisdom through parables and proverbs.',
-    colors: { primary: '#F5F5DC', secondary: '#DAA520', accent: '#8B0000', skin: '#C4A37A' },
+    colors: { primary: '#EDE4D0', secondary: '#C4943A', accent: '#5C1A2D', skin: '#BA956A' },
     voiceProfile: { pitchShift: -2, speedFactor: 0.85, eqProfile: 'warm', volume: 0.75 },
   },
   kaaliya: {
@@ -38,7 +38,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Kaaliya',
     archetype: 'villain',
     description: 'Dark outfit, sharp features, menacing. Cunning antagonist who learns lessons the hard way.',
-    colors: { primary: '#2F0040', secondary: '#8B008B', accent: '#FF0000', skin: '#B89A6B' },
+    colors: { primary: '#1E0A2E', secondary: '#6B3A7D', accent: '#9B6BAF', skin: '#B08E66' },
     voiceProfile: { pitchShift: -4, speedFactor: 0.9, eqProfile: 'reverb', volume: 0.85 },
   },
   amma: {
@@ -46,7 +46,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Amma',
     archetype: 'mother',
     description: 'Sari, warm smile, gentle. The emotional anchor who cares for everyone.',
-    colors: { primary: '#FF69B4', secondary: '#FFB6C1', accent: '#FFD700', skin: '#C8A882' },
+    colors: { primary: '#C75B7A', secondary: '#E8A87C', accent: '#C4943A', skin: '#C49A78' },
     voiceProfile: { pitchShift: -1, speedFactor: 0.95, eqProfile: 'warm', volume: 0.7 },
   },
   raja: {
@@ -54,7 +54,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Raja',
     archetype: 'king',
     description: 'Crown, royal robes, commanding. Authority figure who must make fair decisions.',
-    colors: { primary: '#FFD700', secondary: '#B22222', accent: '#FFFFFF', skin: '#C4A37A' },
+    colors: { primary: '#8B2942', secondary: '#D4A843', accent: '#E8C876', skin: '#BA956A' },
     voiceProfile: { pitchShift: 0, speedFactor: 1.0, eqProfile: 'none', volume: 0.85 },
   },
   moti: {
@@ -62,7 +62,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     name: 'Moti',
     archetype: 'animal',
     description: 'Animal companion base rig. Changes appearance based on story via skins.',
-    colors: { primary: '#A0522D', secondary: '#DEB887', accent: '#000000', skin: '#D2B48C' },
+    colors: { primary: '#8B6240', secondary: '#D4B896', accent: '#5C3D28', skin: '#A87B5A' },
     voiceProfile: { pitchShift: 4, speedFactor: 1.2, eqProfile: 'nasal', volume: 0.8 },
   },
 };

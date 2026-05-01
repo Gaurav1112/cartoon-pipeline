@@ -106,23 +106,48 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
       }}
     >
       <svg width="140" height="220" viewBox="-70 -120 140 220" xmlns="http://www.w3.org/2000/svg">
-        {/* Drop shadow on ground */}
-        <ellipse cx="0" cy="95" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
+        {/* ─── Gradient definitions for premium look ─── */}
+        <defs>
+          <linearGradient id={`${characterId}-skin`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={lighten(skin, 0.08)} />
+            <stop offset="55%" stopColor={skin} />
+            <stop offset="100%" stopColor={darken(skin, 0.18)} />
+          </linearGradient>
+          <linearGradient id={`${characterId}-cloth`} x1="0%" y1="0%" x2="70%" y2="100%">
+            <stop offset="0%" stopColor={lighten(primary, 0.12)} />
+            <stop offset="50%" stopColor={primary} />
+            <stop offset="100%" stopColor={darken(primary, 0.25)} />
+          </linearGradient>
+          <linearGradient id={`${characterId}-hair`} x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stopColor={lighten(accent, 0.15)} />
+            <stop offset="40%" stopColor={accent} />
+            <stop offset="100%" stopColor={darken(accent, 0.3)} />
+          </linearGradient>
+          <radialGradient id={`${characterId}-eyeW`} cx="45%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#E8EEF4" />
+          </radialGradient>
+        </defs>
+
+        {/* Drop shadow on ground (responsive to breathing) */}
+        <ellipse cx={1 + Math.sin(frame * 0.07) * 0.5} cy="95"
+          rx={30 + Math.abs(breathe) * 0.5} ry={6 - Math.abs(breathe) * 0.2}
+          fill="rgba(0,0,0,0.18)" />
 
         {/* === LEGS === */}
         <g transform={`rotate(${poseData.leftLeg.angle}, -8, 50)`}>
-          <rect x="-16" y="50" width="14" height={cfg.legH} rx="5" fill={primary} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+          <rect x="-16" y="50" width="14" height={cfg.legH} rx="5" fill={`url(#${characterId}-cloth)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
           <ellipse cx="-9" cy={50 + cfg.legH} rx="9" ry="5" fill={accent} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
         </g>
         <g transform={`rotate(${poseData.rightLeg.angle}, 8, 50)`}>
-          <rect x="2" y="50" width="14" height={cfg.legH} rx="5" fill={primary} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+          <rect x="2" y="50" width="14" height={cfg.legH} rx="5" fill={`url(#${characterId}-cloth)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
           <ellipse cx="9" cy={50 + cfg.legH} rx="9" ry="5" fill={accent} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
         </g>
 
         {/* === BODY === */}
         <g transform={`rotate(${poseData.bodyTilt + idleSway * 0.3}, 0, 25) translate(0, ${breathe})`}>
           {/* Torso */}
-          <rect x={-cfg.bodyW / 2} y="5" width={cfg.bodyW} height={cfg.bodyH} rx="12" fill={primary} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+          <rect x={-cfg.bodyW / 2} y="5" width={cfg.bodyW} height={cfg.bodyH} rx="12" fill={`url(#${characterId}-cloth)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
           {/* Clothing detail - collar */}
           <path d={`M${-cfg.bodyW / 2 + 6},10 Q0,20 ${cfg.bodyW / 2 - 6},10`} fill="none" stroke={secondary} strokeWidth="3" />
           {/* Clothing pattern lines */}
@@ -130,7 +155,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
 
           {/* Bablu belly bulge */}
           {characterId === 'bablu' && (
-            <ellipse cx="0" cy="30" rx={cfg.bodyW / 2 + 4} ry="18" fill={primary} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            <ellipse cx="0" cy="30" rx={cfg.bodyW / 2 + 4} ry="18" fill={`url(#${characterId}-cloth)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
           )}
 
           {/* Amma sari pallu */}
@@ -159,21 +184,21 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           {/* === ARMS === */}
           <g transform={`rotate(${poseData.leftArm.angle}, ${-cfg.bodyW / 2}, 12)`}>
             {/* Upper arm */}
-            <path d={`M${-cfg.bodyW / 2 - 2},8 L${-cfg.bodyW / 2 - 12},8 L${-cfg.bodyW / 2 - 11},24 L${-cfg.bodyW / 2 - 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} rx="4" />
+            <path d={`M${-cfg.bodyW / 2 - 2},8 L${-cfg.bodyW / 2 - 12},8 L${-cfg.bodyW / 2 - 11},24 L${-cfg.bodyW / 2 - 1},24 Z`} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} rx="4" />
             {/* Forearm */}
             <path d={`M${-cfg.bodyW / 2 - 11},24 L${-cfg.bodyW / 2 - 10},38 L${-cfg.bodyW / 2 - 1},38 L${-cfg.bodyW / 2 - 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={1.5} />
             {/* Mitt hand (not a circle!) */}
-            <path d={`M${-cfg.bodyW / 2 - 11},37 Q${-cfg.bodyW / 2 - 13},42 ${-cfg.bodyW / 2 - 10},46 Q${-cfg.bodyW / 2 - 5},48 ${-cfg.bodyW / 2},45 Q${-cfg.bodyW / 2 + 1},41 ${-cfg.bodyW / 2 - 1},37 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            <path d={`M${-cfg.bodyW / 2 - 11},37 Q${-cfg.bodyW / 2 - 13},42 ${-cfg.bodyW / 2 - 10},46 Q${-cfg.bodyW / 2 - 5},48 ${-cfg.bodyW / 2},45 Q${-cfg.bodyW / 2 + 1},41 ${-cfg.bodyW / 2 - 1},37 Z`} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
             {/* Thumb indication */}
             <path d={`M${-cfg.bodyW / 2 - 1},40 Q${-cfg.bodyW / 2 + 2},38 ${-cfg.bodyW / 2 + 1},42`} fill="none" stroke={OUTLINE_COLOR} strokeWidth="1" opacity="0.5" />
           </g>
           <g transform={`rotate(${poseData.rightArm.angle}, ${cfg.bodyW / 2}, 12)`}>
             {/* Upper arm */}
-            <path d={`M${cfg.bodyW / 2 + 2},8 L${cfg.bodyW / 2 + 12},8 L${cfg.bodyW / 2 + 11},24 L${cfg.bodyW / 2 + 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            <path d={`M${cfg.bodyW / 2 + 2},8 L${cfg.bodyW / 2 + 12},8 L${cfg.bodyW / 2 + 11},24 L${cfg.bodyW / 2 + 1},24 Z`} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
             {/* Forearm */}
             <path d={`M${cfg.bodyW / 2 + 1},24 L${cfg.bodyW / 2 + 1},38 L${cfg.bodyW / 2 + 10},38 L${cfg.bodyW / 2 + 11},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={1.5} />
             {/* Mitt hand */}
-            <path d={`M${cfg.bodyW / 2 + 1},37 Q${cfg.bodyW / 2 - 1},41 ${cfg.bodyW / 2},45 Q${cfg.bodyW / 2 + 5},48 ${cfg.bodyW / 2 + 10},46 Q${cfg.bodyW / 2 + 13},42 ${cfg.bodyW / 2 + 11},37 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            <path d={`M${cfg.bodyW / 2 + 1},37 Q${cfg.bodyW / 2 - 1},41 ${cfg.bodyW / 2},45 Q${cfg.bodyW / 2 + 5},48 ${cfg.bodyW / 2 + 10},46 Q${cfg.bodyW / 2 + 13},42 ${cfg.bodyW / 2 + 11},37 Z`} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
             {/* Thumb indication */}
             <path d={`M${cfg.bodyW / 2 + 1},40 Q${cfg.bodyW / 2 - 2},38 ${cfg.bodyW / 2 - 1},42`} fill="none" stroke={OUTLINE_COLOR} strokeWidth="1" opacity="0.5" />
 
@@ -194,7 +219,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
             <rect x="-6" y="-8" width="12" height="16" rx="4" fill={skin} />
 
             {/* Head shape */}
-            <ellipse cx="0" cy={-cfg.headH - 4} rx={cfg.headW} ry={cfg.headH} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            <ellipse cx="0" cy={-cfg.headH - 4} rx={cfg.headW} ry={cfg.headH} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
 
             {/* Cheek blush (when happy/embarrassed) */}
             {(expression === 'happy' || expression === 'surprised') && (
@@ -413,6 +438,14 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
     </div>
   );
 };
+
+function lighten(hex: string, amount: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.min(255, ((num >> 16) & 0xFF) + (255 - ((num >> 16) & 0xFF)) * amount);
+  const g = Math.min(255, ((num >> 8) & 0xFF) + (255 - ((num >> 8) & 0xFF)) * amount);
+  const b = Math.min(255, (num & 0xFF) + (255 - (num & 0xFF)) * amount);
+  return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+}
 
 function darken(hex: string, amount: number): string {
   const num = parseInt(hex.replace('#', ''), 16);
