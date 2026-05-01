@@ -1,0 +1,62 @@
+name: Nightly Render Pipeline
+
+on:
+  schedule:
+    # 2:00 AM IST = 8:30 PM UTC (previous day)
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Number of episodes to render'
+        required: false
+        default: '3'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install edge-tts
+
+      - name: Install Rhubarb
+        run: |
+          wget -q https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.13.0/Rhubarb-Lip-Sync-1.13.0-Linux.zip
+          unzip -q Rhubarb-Lip-Sync-1.13.0-Linux.zip -d /opt/rhubarb
+          echo "/opt/rhubarb" >> $GITHUB_PATH
+
+      - name: Render episodes
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '3' }}"
+          npx tsx scripts/batch-render.ts --limit $LIMIT
+
+      - name: Upload rendered episodes
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-episodes
+          path: output/
+          retention-days: 7
+
+      - name: Commit updated registry
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/episode-registry.json
+          git diff --cached --quiet || git commit -m "chore: update episode registry after render"
+          git push

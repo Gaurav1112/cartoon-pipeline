@@ -1,0 +1,8 @@
+{
+  "queue": [],
+  "schedule": {
+    "days": ["monday", "wednesday", "friday"],
+    "time": "18:15",
+    "timezone": "Asia/Kolkata"
+  }
+}

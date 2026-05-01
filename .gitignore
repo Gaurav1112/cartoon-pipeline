@@ -10,3 +10,7 @@ config/*-secret.json
 *.mp3
 *.wav
 logs/
+output/
+node_modules/
+*.mp3
+*.mp4

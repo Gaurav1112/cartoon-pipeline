@@ -1,0 +1,9 @@
+[
+  { "language": "hi", "channelId": "guru-sishya-cartoon-hi", "name": "Guru Sishya - हिंदी", "playlistPrefix": "GS_HI" },
+  { "language": "te", "channelId": "guru-sishya-cartoon-te", "name": "Guru Sishya - తెలుగు", "playlistPrefix": "GS_TE" },
+  { "language": "ta", "channelId": "guru-sishya-cartoon-ta", "name": "Guru Sishya - தமிழ்", "playlistPrefix": "GS_TA" },
+  { "language": "kn", "channelId": "guru-sishya-cartoon-kn", "name": "Guru Sishya - ಕನ್ನಡ", "playlistPrefix": "GS_KN" },
+  { "language": "mr", "channelId": "guru-sishya-cartoon-mr", "name": "Guru Sishya - मराठी", "playlistPrefix": "GS_MR" },
+  { "language": "bn", "channelId": "guru-sishya-cartoon-bn", "name": "Guru Sishya - বাংলা", "playlistPrefix": "GS_BN" },
+  { "language": "en", "channelId": "guru-sishya-cartoon-en", "name": "Guru Sishya - English", "playlistPrefix": "GS_EN" }
+]
