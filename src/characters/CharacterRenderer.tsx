@@ -1,10 +1,10 @@
 import React from 'react';
-import { useCurrentFrame, interpolate } from 'remotion';
-import type { CharacterId, Pose, EmotionType, MouthShape } from '../types';
+import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
+import type { CharacterId, Pose, EmotionType, MouthShape, PoseData } from '../types';
 import { CHARACTERS } from '../story/characters';
 import { getPose } from './poses';
 import { getExpression } from './expressions';
-import { getMouthShape } from './lip-sync';
+import { getMouthShape, interpolateMouth } from './lip-sync';
 
 interface CharacterRendererProps {
   characterId: CharacterId;
@@ -45,22 +45,52 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   flipX = false,
 }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const character = CHARACTERS[characterId];
-  const poseData = getPose(pose);
-  const exprData = getExpression(expression);
   const mouth = getMouthShape(mouthShape);
   const { primary, secondary, accent, skin } = character.colors;
   const cfg = BODY_CONFIGS[characterId];
 
-  // Animations
-  const breathe = Math.sin(frame * 0.07) * 2;
-  const idleSway = Math.sin(frame * 0.03) * 1.5;
-  // Irregular blink: use golden ratio to avoid mechanical feel
-  const blinkCycle = (frame + characterId.charCodeAt(0) * 13) % 127;
-  const blink = blinkCycle < 3 || (blinkCycle > 60 && blinkCycle < 63);
-  // Subtle head bob when talking
+  // ─── Pose interpolation (smooth transitions, not snapping) ───
+  const basePose = getPose(pose);
   const isTalking = mouthShape !== 'B';
-  const talkBob = isTalking ? Math.sin(frame * 0.15) * 2 : 0;
+
+  // Walk cycle: animate legs/arms sinusoidally when in walk_cycle pose
+  const walkPhase = (frame % 24) / 24; // 24-frame cycle = 0.8s per step
+  const walkAngle = Math.sin(walkPhase * Math.PI * 2);
+  const isWalking = pose === 'walk_cycle';
+
+  const poseData: PoseData = isWalking ? {
+    leftArm:  { angle: -20 * walkAngle, x: basePose.leftArm.x, y: Math.abs(walkAngle) * -3 },
+    rightArm: { angle: 20 * walkAngle, x: basePose.rightArm.x, y: Math.abs(walkAngle) * -3 },
+    leftLeg:  { angle: 25 * walkAngle, x: basePose.leftLeg.x, y: Math.abs(walkAngle) * 3 },
+    rightLeg: { angle: -25 * walkAngle, x: basePose.rightLeg.x, y: Math.abs(walkAngle) * 3 },
+    bodyTilt: 2 * Math.sin(walkPhase * Math.PI * 4), // double-freq bob
+    headTilt: -1 * Math.sin(walkPhase * Math.PI * 4),
+  } : isTalking ? {
+    // Talk gesture: gentle arm movement + head bob
+    ...basePose,
+    rightArm: { ...basePose.rightArm, angle: basePose.rightArm.angle + Math.sin(frame * 0.08) * 8 },
+    headTilt: basePose.headTilt + Math.sin(frame * 0.12) * 3,
+    bodyTilt: basePose.bodyTilt + Math.sin(frame * 0.1) * 1.5,
+  } : basePose;
+
+  // Expression data (with smooth pupil drift for liveliness)
+  const exprData = getExpression(expression);
+
+  // ─── Animations ───
+  const breathe = Math.sin(frame * 0.07) * 3; // increased from 2 to 3
+  const idleSway = Math.sin(frame * 0.03) * 1.5;
+  // Irregular blink using golden ratio
+  const blinkCycle = (frame + characterId.charCodeAt(0) * 13) % 127;
+  const blink = blinkCycle < 4 || (blinkCycle > 60 && blinkCycle < 64); // 4 frames not 3
+  // Head bob when talking
+  const talkBob = isTalking ? Math.sin(frame * 0.12) * 2.5 : 0;
+  // Pupil drift (eyes look alive)
+  const pupilDriftX = Math.sin(frame * 0.04 + characterId.charCodeAt(0)) * 1.5;
+  const pupilDriftY = Math.cos(frame * 0.03 + characterId.charCodeAt(1) || 0) * 0.8;
+  // Walk bob (vertical bounce when walking)
+  const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
 
   const skinDark = darken(skin, 0.15);
   const primaryDark = darken(primary, 0.2);
@@ -70,7 +100,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
       style={{
         position: 'absolute',
         left: position.x,
-        top: position.y,
+        top: position.y + walkBob,
         transform: `scale(${scale * (flipX ? -1 : 1)}, ${scale})`,
         transformOrigin: 'center bottom',
       }}
@@ -128,12 +158,24 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
 
           {/* === ARMS === */}
           <g transform={`rotate(${poseData.leftArm.angle}, ${-cfg.bodyW / 2}, 12)`}>
-            <rect x={-cfg.bodyW / 2 - 10} y="8" width="11" height="30" rx="5" fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
-            <circle cx={-cfg.bodyW / 2 - 5} cy="40" r="6" fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            {/* Upper arm */}
+            <path d={`M${-cfg.bodyW / 2 - 2},8 L${-cfg.bodyW / 2 - 12},8 L${-cfg.bodyW / 2 - 11},24 L${-cfg.bodyW / 2 - 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} rx="4" />
+            {/* Forearm */}
+            <path d={`M${-cfg.bodyW / 2 - 11},24 L${-cfg.bodyW / 2 - 10},38 L${-cfg.bodyW / 2 - 1},38 L${-cfg.bodyW / 2 - 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={1.5} />
+            {/* Mitt hand (not a circle!) */}
+            <path d={`M${-cfg.bodyW / 2 - 11},37 Q${-cfg.bodyW / 2 - 13},42 ${-cfg.bodyW / 2 - 10},46 Q${-cfg.bodyW / 2 - 5},48 ${-cfg.bodyW / 2},45 Q${-cfg.bodyW / 2 + 1},41 ${-cfg.bodyW / 2 - 1},37 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            {/* Thumb indication */}
+            <path d={`M${-cfg.bodyW / 2 - 1},40 Q${-cfg.bodyW / 2 + 2},38 ${-cfg.bodyW / 2 + 1},42`} fill="none" stroke={OUTLINE_COLOR} strokeWidth="1" opacity="0.5" />
           </g>
           <g transform={`rotate(${poseData.rightArm.angle}, ${cfg.bodyW / 2}, 12)`}>
-            <rect x={cfg.bodyW / 2 - 1} y="8" width="11" height="30" rx="5" fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
-            <circle cx={cfg.bodyW / 2 + 5} cy="40" r="6" fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            {/* Upper arm */}
+            <path d={`M${cfg.bodyW / 2 + 2},8 L${cfg.bodyW / 2 + 12},8 L${cfg.bodyW / 2 + 11},24 L${cfg.bodyW / 2 + 1},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            {/* Forearm */}
+            <path d={`M${cfg.bodyW / 2 + 1},24 L${cfg.bodyW / 2 + 1},38 L${cfg.bodyW / 2 + 10},38 L${cfg.bodyW / 2 + 11},24 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={1.5} />
+            {/* Mitt hand */}
+            <path d={`M${cfg.bodyW / 2 + 1},37 Q${cfg.bodyW / 2 - 1},41 ${cfg.bodyW / 2},45 Q${cfg.bodyW / 2 + 5},48 ${cfg.bodyW / 2 + 10},46 Q${cfg.bodyW / 2 + 13},42 ${cfg.bodyW / 2 + 11},37 Z`} fill={skin} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
+            {/* Thumb indication */}
+            <path d={`M${cfg.bodyW / 2 + 1},40 Q${cfg.bodyW / 2 - 2},38 ${cfg.bodyW / 2 - 1},42`} fill="none" stroke={OUTLINE_COLOR} strokeWidth="1" opacity="0.5" />
 
             {/* Guruji staff */}
             {characterId === 'guruji' && (
@@ -272,8 +314,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx="-9" cy={-cfg.headH - 1} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx="-7" cy={-cfg.headH - 3} r="2" fill="white" />
+                <circle cx={-9 + pupilDriftX} cy={-cfg.headH - 1 + pupilDriftY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={-7 + pupilDriftX} cy={-cfg.headH - 3 + pupilDriftY} r="2" fill="white" />
 
                 {/* Right eye */}
                 <ellipse cx="9" cy={-cfg.headH - 2}
@@ -281,8 +323,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx="9" cy={-cfg.headH - 1} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx="11" cy={-cfg.headH - 3} r="2" fill="white" />
+                <circle cx={9 + pupilDriftX} cy={-cfg.headH - 1 + pupilDriftY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={11 + pupilDriftX} cy={-cfg.headH - 3 + pupilDriftY} r="2" fill="white" />
               </>
             )}
 

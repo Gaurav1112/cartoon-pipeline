@@ -5,34 +5,14 @@ import { IntroSequence } from './IntroSequence';
 import { OutroSequence } from './OutroSequence';
 import { SceneRenderer } from './SceneRenderer';
 import { MoralCard } from './MoralCard';
+import { TransitionEffect, getTransitionType } from './TransitionEffects';
 
 export const FPS = 30;
 export const INTRO_FRAMES = 5 * FPS;    // 5 seconds — branded but quick
 export const MORAL_FRAMES = 8 * FPS;    // 8 seconds — time to absorb the lesson
 export const OUTRO_FRAMES = 6 * FPS;    // 6 seconds — subscribe CTA
 
-// Scene-to-scene transition overlay
-const SceneTransition: React.FC<{ type: number }> = ({ type }) => {
-  const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  const opacity =
-    progress < 0.5
-      ? interpolate(progress, [0, 0.5], [0, 1])
-      : interpolate(progress, [0.5, 1], [1, 0]);
-
-  const colors = ['#1a1a2e', '#FF8C00', '#2E1760', '#0f3460', '#4A0E3C'];
-  const bg = colors[type % colors.length];
-
-  return (
-    <AbsoluteFill
-      style={{ backgroundColor: bg, opacity, zIndex: 200 }}
-    />
-  );
-};
+// Uses the real TransitionEffect component (was dead code before — now wired in)
 
 export const CartoonEpisode: React.FC<CartoonEpisodeProps> = ({
   episode,
@@ -62,11 +42,11 @@ export const CartoonEpisode: React.FC<CartoonEpisodeProps> = ({
 
     currentFrame += duration;
 
-    // Transition between scenes (not after last scene)
+    // Real transitions (was dead code — now wired to TransitionEffects.tsx)
     if (idx < episode.scenes.length - 1) {
       sceneElements.push(
         <Sequence key={`trans-${idx}`} from={currentFrame - 8} durationInFrames={TRANSITION_FRAMES}>
-          <SceneTransition type={idx} />
+          <TransitionEffect type={getTransitionType(idx)} durationFrames={TRANSITION_FRAMES} />
         </Sequence>,
       );
     }

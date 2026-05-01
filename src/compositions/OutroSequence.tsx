@@ -62,7 +62,7 @@ export const OutroSequence: React.FC = () => {
           marginTop: 40,
           opacity: interpolate(frame, [120, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
         }}>
-          Next episode coming soon!
+          अगली कहानी जल्दी आ रही है!
         </p>
       </div>
 
