@@ -1,0 +1,90 @@
+{
+  "arjun": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "meera": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "bablu": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "guruji": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "kaaliya": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "amma": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "raja": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  },
+  "moti": {
+    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
+    "talk_gesture": ["neutral", "happy", "angry", "determined"],
+    "point": ["angry", "determined", "surprised"],
+    "surprised": ["surprised", "scared"],
+    "sad": ["sad"],
+    "laugh": ["happy"],
+    "think": ["thinking"],
+    "wave": ["happy"],
+    "celebrate": ["happy"]
+  }
+}

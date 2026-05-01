@@ -31,6 +31,8 @@ import jatakaStories from './story-bank/jataka.json';
 import hitopadeshaStories from './story-bank/hitopadesha.json';
 import tenaliRamanStories from './story-bank/tenali-raman.json';
 import akbarBirbalStories from './story-bank/akbar-birbal.json';
+import vikramBetalStories from './story-bank/vikram-betal.json';
+import singhasanBattisiStories from './story-bank/singhasan-battisi.json';
 
 // ─── Deterministic PRNG ───────────────────────────────────────────────────
 
@@ -77,6 +79,8 @@ const ALL_STORIES: StoryBankEntry[] = [
   ...(hitopadeshaStories as StoryBankEntry[]),
   ...(tenaliRamanStories as StoryBankEntry[]),
   ...(akbarBirbalStories as StoryBankEntry[]),
+  ...(vikramBetalStories as StoryBankEntry[]),
+  ...(singhasanBattisiStories as StoryBankEntry[]),
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────

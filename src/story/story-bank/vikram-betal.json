@@ -1,0 +1,327 @@
+[
+  {
+    "id": "vb-001",
+    "title": "The Three Suitors",
+    "summary": "A beautiful woman dies and three suitors each use their powers to revive her. Betal asks Vikram — who deserves to marry her?",
+    "characters": ["king", "suitors", "woman"],
+    "setting": "palace",
+    "moral": "True love is selfless sacrifice",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells the tale of three men who each loved the same woman" },
+      { "name": "debate", "summary": "Vikram considers each suitor's claim — one preserved her ashes, one found the mantra, one recited it" },
+      { "name": "answer", "summary": "Vikram rules that the one who recited the mantra is like a father, the ash-keeper like a son, and only the finder is the true husband" }
+    ]
+  },
+  {
+    "id": "vb-002",
+    "title": "The Transposed Heads",
+    "summary": "Two friends' heads are accidentally swapped onto each other's bodies. Betal asks — which resulting man is the woman's husband?",
+    "characters": ["king", "friends", "woman"],
+    "setting": "temple",
+    "moral": "Identity lies in the mind, not the body",
+    "acts": [
+      { "name": "riddle", "summary": "Betal narrates how two friends sacrificed themselves at a temple and were revived with swapped heads" },
+      { "name": "debate", "summary": "Vikram weighs whether the husband is defined by his head or his body" },
+      { "name": "answer", "summary": "Vikram declares the man with the husband's head is the true husband, for the head governs the person" }
+    ]
+  },
+  {
+    "id": "vb-003",
+    "title": "The Father and Son Who Married Mother and Daughter",
+    "summary": "A father marries the daughter and his son marries the mother. What is the relationship between their children?",
+    "characters": ["king", "father", "son", "women"],
+    "setting": "village",
+    "moral": "Relationships must be examined beyond surface appearances",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes the unusual cross-generational marriages" },
+      { "name": "debate", "summary": "Vikram untangles the complex family relationships" },
+      { "name": "answer", "summary": "Vikram explains the paradoxical kinship — each child is simultaneously uncle and nephew to the other" }
+    ]
+  },
+  {
+    "id": "vb-004",
+    "title": "The King Who Sacrificed His Son",
+    "summary": "A king must sacrifice his own son to save his kingdom from a demon. Was the king right to do so?",
+    "characters": ["king", "prince", "demon"],
+    "setting": "palace",
+    "moral": "A ruler's duty to his people can demand the ultimate sacrifice",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells of a king whose kingdom was cursed unless he offered his son's blood" },
+      { "name": "debate", "summary": "Vikram weighs a father's love against a king's duty" },
+      { "name": "answer", "summary": "Vikram judges the king was righteous — dharma demanded he place his kingdom above personal grief" }
+    ]
+  },
+  {
+    "id": "vb-005",
+    "title": "The Faithful Wife",
+    "summary": "A devoted wife follows her dead husband's spirit, braving demons and darkness. Betal asks if her devotion was wisdom or folly.",
+    "characters": ["woman", "husband", "spirits"],
+    "setting": "forest",
+    "moral": "True devotion transcends even death",
+    "acts": [
+      { "name": "riddle", "summary": "Betal narrates how the wife entered the cremation ground to retrieve her husband's soul" },
+      { "name": "debate", "summary": "Vikram considers whether such extreme devotion is virtuous or reckless" },
+      { "name": "answer", "summary": "Vikram praises her courage — love that conquers fear of death is the highest virtue" }
+    ]
+  },
+  {
+    "id": "vb-006",
+    "title": "The Merchant's Generous Son",
+    "summary": "A merchant's son gives away everything he owns, even his own flesh, to help others. Is he noble or a fool?",
+    "characters": ["merchant", "son", "beggars"],
+    "setting": "market",
+    "moral": "Generosity without wisdom leads to ruin",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes a young man who gave his wealth, his house, and finally his own body to those in need" },
+      { "name": "debate", "summary": "Vikram considers the line between selfless charity and self-destruction" },
+      { "name": "answer", "summary": "Vikram declares that charity must be measured — giving that destroys the giver helps no one in the end" }
+    ]
+  },
+  {
+    "id": "vb-007",
+    "title": "The Brave Princess Who Chose Death",
+    "summary": "A princess chooses to die rather than marry a wicked king. Betal asks if she was brave or wasteful of life.",
+    "characters": ["princess", "king", "guards"],
+    "setting": "palace",
+    "moral": "Honor and freedom are worth more than a life of subjugation",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells of a princess captured by a tyrant who chose poison over marriage" },
+      { "name": "debate", "summary": "Vikram weighs whether preserving life or preserving honor matters more" },
+      { "name": "answer", "summary": "Vikram honors her choice — a life without dignity is no life at all" }
+    ]
+  },
+  {
+    "id": "vb-008",
+    "title": "The Four Gifted Brothers",
+    "summary": "Four brothers with supernatural skills — bone-reader, assembler, flesh-giver, life-giver — resurrect a lion that kills them. Who is to blame?",
+    "characters": ["brothers", "lion"],
+    "setting": "forest",
+    "moral": "Knowledge without wisdom is dangerous",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how four learned brothers each used their gift on a pile of bones, creating a lion" },
+      { "name": "debate", "summary": "Vikram considers which brother bears the most guilt for the deadly outcome" },
+      { "name": "answer", "summary": "Vikram blames the life-giver — he had the final chance to stop and should have used judgment" }
+    ]
+  },
+  {
+    "id": "vb-009",
+    "title": "The Hermit's Daughter",
+    "summary": "A hermit transforms his daughter into different forms to test three suitors. Who truly loved her?",
+    "characters": ["hermit", "daughter", "suitors"],
+    "setting": "forest",
+    "moral": "True love sees beyond external beauty",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes how the hermit turned his daughter ugly, old, and then invisible" },
+      { "name": "debate", "summary": "Vikram evaluates which suitor loved the woman herself versus her form" },
+      { "name": "answer", "summary": "Vikram chooses the one who searched for her even when invisible — he loved her soul" }
+    ]
+  },
+  {
+    "id": "vb-010",
+    "title": "The Thief Who Became a King",
+    "summary": "A skilled thief steals for the poor and eventually saves the kingdom. Should he be punished or rewarded?",
+    "characters": ["thief", "king", "villagers"],
+    "setting": "village",
+    "moral": "Actions must be judged by their intent and outcome",
+    "acts": [
+      { "name": "riddle", "summary": "Betal narrates how a notorious thief robbed the corrupt rich to feed starving villages" },
+      { "name": "debate", "summary": "Vikram weighs justice against compassion — theft is wrong, but the cause was noble" },
+      { "name": "answer", "summary": "Vikram rules that intent matters — the thief's dharma was higher than the law he broke" }
+    ]
+  },
+  {
+    "id": "vb-011",
+    "title": "The Parrot and the Maina",
+    "summary": "A parrot and a maina bird debate whether men or women are more virtuous. Each tells stories to prove their point.",
+    "characters": ["parrot", "maina", "king"],
+    "setting": "garden",
+    "moral": "Virtue knows no gender — it lives in individual hearts",
+    "acts": [
+      { "name": "riddle", "summary": "Betal presents the debate between the two birds before King Vikram" },
+      { "name": "debate", "summary": "Vikram hears tales of virtuous men and women from each bird" },
+      { "name": "answer", "summary": "Vikram declares that virtue belongs to individuals, not to any group" }
+    ]
+  },
+  {
+    "id": "vb-012",
+    "title": "The Prince Who Married a Demoness",
+    "summary": "A prince unknowingly marries a rakshasi who eats humans at night. When he discovers the truth, what should he do?",
+    "characters": ["prince", "demoness", "advisor"],
+    "setting": "palace",
+    "moral": "Appearances can deceive; vigilance protects the innocent",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how the prince discovered his beautiful wife feasting in the cremation ground" },
+      { "name": "debate", "summary": "Vikram considers duty to a spouse versus duty to protect the people she devours" },
+      { "name": "answer", "summary": "Vikram declares the prince must stop her — protecting the innocent outweighs marital loyalty to evil" }
+    ]
+  },
+  {
+    "id": "vb-013",
+    "title": "The Brahmin and the Three Boons",
+    "summary": "A brahmin receives three boons from a god but wastes them through poor choices. Who is truly at fault?",
+    "characters": ["brahmin", "god", "wife"],
+    "setting": "temple",
+    "moral": "Hasty wishes bring lasting regret",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes how the brahmin wasted each boon — one on greed, one on anger, one undoing the first two" },
+      { "name": "debate", "summary": "Vikram considers whether the god was cruel to grant boons to a fool, or the man was simply unworthy" },
+      { "name": "answer", "summary": "Vikram blames the brahmin — wisdom must precede power, or power destroys itself" }
+    ]
+  },
+  {
+    "id": "vb-014",
+    "title": "The Soldier and the Sanyasi",
+    "summary": "A soldier protects a sanyasi who later refuses to bless him, saying violence taints the soul. Who lived more righteously?",
+    "characters": ["soldier", "sanyasi", "bandits"],
+    "setting": "road",
+    "moral": "Righteous action in the world is equal to righteous renunciation",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how a soldier fought off bandits to save a meditating sanyasi" },
+      { "name": "debate", "summary": "Vikram weighs the sanyasi's purity of non-violence against the soldier's protective violence" },
+      { "name": "answer", "summary": "Vikram sides with the soldier — dharma performed in action is no less than dharma in meditation" }
+    ]
+  },
+  {
+    "id": "vb-015",
+    "title": "The Ungrateful Goldsmith",
+    "summary": "A man saves a goldsmith, a snake, a tiger, and a monkey from a well. The animals repay him but the goldsmith betrays him.",
+    "characters": ["traveler", "goldsmith", "animals"],
+    "setting": "forest",
+    "moral": "Beasts may show more gratitude than humans",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes how each rescued creature responded — the animals with gifts, the goldsmith with treachery" },
+      { "name": "debate", "summary": "Vikram reflects on human nature versus animal instinct" },
+      { "name": "answer", "summary": "Vikram declares that gratitude is a measure of character, and the goldsmith proved himself lower than beasts" }
+    ]
+  },
+  {
+    "id": "vb-016",
+    "title": "The Two Princes and the Enchanted Pool",
+    "summary": "Two princes drink from a pool — one becomes a woman. They must decide who rules the kingdom now.",
+    "characters": ["princes", "sage", "queen"],
+    "setting": "pond",
+    "moral": "True kingship is earned by wisdom, not by form",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells of the enchanted pool that transformed the elder prince" },
+      { "name": "debate", "summary": "Vikram considers whether the transformed prince retains the right to rule" },
+      { "name": "answer", "summary": "Vikram declares that the crown belongs to the wiser ruler regardless of form" }
+    ]
+  },
+  {
+    "id": "vb-017",
+    "title": "The Devoted Servant",
+    "summary": "A servant turns himself to stone to save his master from a prophecy. Was the master worthy of such sacrifice?",
+    "characters": ["servant", "master", "oracle"],
+    "setting": "palace",
+    "moral": "Loyalty must be earned, not demanded",
+    "acts": [
+      { "name": "riddle", "summary": "Betal narrates how the servant overheard a deadly prophecy and sacrificed himself to prevent it" },
+      { "name": "debate", "summary": "Vikram questions whether the master ever showed equal care for the servant" },
+      { "name": "answer", "summary": "Vikram says the servant's nobility shames the master — true loyalty flows both ways" }
+    ]
+  },
+  {
+    "id": "vb-018",
+    "title": "The Gambler's Wife",
+    "summary": "A gambler loses everything including his wife in a bet. She wins herself back through her own cleverness.",
+    "characters": ["gambler", "wife", "rival"],
+    "setting": "market",
+    "moral": "A person's freedom can never rightfully be wagered by another",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how the wife was staked and lost, then challenged the winner to a contest of wits" },
+      { "name": "debate", "summary": "Vikram considers the ethics of wagering another person's liberty" },
+      { "name": "answer", "summary": "Vikram rules that no person can be another's property — the bet was void from the start" }
+    ]
+  },
+  {
+    "id": "vb-019",
+    "title": "The Painted Bride",
+    "summary": "An artist paints a portrait so beautiful that a king falls in love with it. But the real woman looks nothing like the painting.",
+    "characters": ["king", "artist", "woman"],
+    "setting": "palace",
+    "moral": "Love born from illusion cannot survive reality",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how the king married the woman sight unseen based on the portrait" },
+      { "name": "debate", "summary": "Vikram considers who is at fault — the king for his shallow love or the artist for his flattering brush" },
+      { "name": "answer", "summary": "Vikram blames the king — he fell in love with paint, not a person" }
+    ]
+  },
+  {
+    "id": "vb-020",
+    "title": "The Yogi and the King's Daughter",
+    "summary": "A yogi uses magic to possess a dead king's body to marry a princess. Is this love or deception?",
+    "characters": ["yogi", "princess", "dead_king"],
+    "setting": "palace",
+    "moral": "Love obtained through deception is built on sand",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how the yogi abandoned his body and entered the king's corpse to win the princess" },
+      { "name": "debate", "summary": "Vikram weighs whether the yogi's devotion justifies the means" },
+      { "name": "answer", "summary": "Vikram condemns the yogi — love requires truth, and the princess married a lie" }
+    ]
+  },
+  {
+    "id": "vb-021",
+    "title": "The Three Sensitive Queens",
+    "summary": "Three queens each claim supreme sensitivity — one bruised by a flower petal, one burned by moonlight, one hurt by the sound of a pestle. Who is most delicate?",
+    "characters": ["king", "queens"],
+    "setting": "palace",
+    "moral": "Excessive delicacy is a weakness disguised as refinement",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes the three queens' extraordinary sensitivities" },
+      { "name": "debate", "summary": "Vikram ranks the claims, questioning which sensitivity is genuine" },
+      { "name": "answer", "summary": "Vikram declares all three equally absurd — true strength is in resilience, not fragility" }
+    ]
+  },
+  {
+    "id": "vb-022",
+    "title": "The Mendicant and the Jewel",
+    "summary": "A mendicant finds a priceless jewel and must choose between keeping it and remaining pure. What does renunciation truly mean?",
+    "characters": ["mendicant", "merchant", "king"],
+    "setting": "road",
+    "moral": "True renunciation is freedom from attachment, not avoidance of objects",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how the mendicant found the jewel and agonized over it for days" },
+      { "name": "debate", "summary": "Vikram considers whether touching wealth taints a holy man" },
+      { "name": "answer", "summary": "Vikram says true renunciation means the jewel has no power over him — he can give it away without a thought" }
+    ]
+  },
+  {
+    "id": "vb-023",
+    "title": "The Clever Thief and the Brahmin",
+    "summary": "A thief tricks a brahmin out of his sacrificial goat through three separate deceptions. Who is the bigger fool?",
+    "characters": ["thief", "brahmin", "accomplices"],
+    "setting": "road",
+    "moral": "A man who doubts his own eyes is easily robbed",
+    "acts": [
+      { "name": "riddle", "summary": "Betal tells how three men each told the brahmin his goat was actually a dog" },
+      { "name": "debate", "summary": "Vikram weighs whether the brahmin's trust was naive or the thieves' trick was brilliant" },
+      { "name": "answer", "summary": "Vikram faults the brahmin — he abandoned his own senses for the word of strangers" }
+    ]
+  },
+  {
+    "id": "vb-024",
+    "title": "The Girl Who Was Revived Twice",
+    "summary": "A girl dies twice and is revived by two different men. Each claims to be her destined partner.",
+    "characters": ["girl", "suitors", "sage"],
+    "setting": "village",
+    "moral": "Destiny is not ownership — saving a life does not buy a soul",
+    "acts": [
+      { "name": "riddle", "summary": "Betal describes the two revivals — once by a physician, once by a yogi" },
+      { "name": "debate", "summary": "Vikram considers whether saving a life creates an obligation of love" },
+      { "name": "answer", "summary": "Vikram says neither man owns her — the girl must choose for herself" }
+    ]
+  },
+  {
+    "id": "vb-025",
+    "title": "The Final Riddle — Vikram's Silence",
+    "summary": "Betal poses a riddle so perfectly balanced that no answer can be given. Vikram finally stays silent, and Betal is captured at last.",
+    "characters": ["king", "betal"],
+    "setting": "forest",
+    "moral": "Sometimes the wisest answer is silence",
+    "acts": [
+      { "name": "riddle", "summary": "Betal poses his final impossible dilemma to Vikram" },
+      { "name": "debate", "summary": "Vikram recognizes that any answer will be wrong — the trap is in answering" },
+      { "name": "answer", "summary": "Vikram stays silent; Betal, unable to return to the tree, is finally captured" }
+    ]
+  }
+]

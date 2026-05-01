@@ -1,0 +1,262 @@
+[
+  {
+    "id": "sb-001",
+    "title": "Ratnamanjari and the Test of Generosity",
+    "summary": "The first statue Ratnamanjari challenges King Bhoja and tells how Vikramaditya gave away his entire kingdom to a beggar without hesitation.",
+    "characters": ["king", "beggar", "courtiers"],
+    "setting": "palace",
+    "moral": "True generosity expects nothing in return",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Ratnamanjari stops King Bhoja from ascending the throne" },
+      { "name": "tale", "summary": "She narrates how Vikramaditya gave his kingdom to a brahmin who asked for it" },
+      { "name": "judgment", "summary": "Bhoja admits he cannot match such selfless generosity" }
+    ]
+  },
+  {
+    "id": "sb-002",
+    "title": "Chitra Rekha and the Golden Mongoose",
+    "summary": "The second statue tells of a golden mongoose who tested charity at a great yajna, and only Vikramaditya's kitchen passed the test.",
+    "characters": ["king", "mongoose", "priests"],
+    "setting": "temple",
+    "moral": "The value of charity lies in the sacrifice behind it",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Chitra Rekha challenges Bhoja's worthiness" },
+      { "name": "tale", "summary": "She tells of the mongoose who judged every offering until it found Vikram's — given during famine from his own last meal" },
+      { "name": "judgment", "summary": "Bhoja reflects on whether his charity has ever truly cost him anything" }
+    ]
+  },
+  {
+    "id": "sb-003",
+    "title": "Chandra Kala and the Honest Woodcutter",
+    "summary": "Vikramaditya disguises himself as a common man and encounters a woodcutter who returns a bag of gold to its rightful owner despite his poverty.",
+    "characters": ["king", "woodcutter", "merchant"],
+    "setting": "forest",
+    "moral": "Honesty is the wealth of the poor and the duty of all",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Chandra Kala questions if Bhoja values honesty above all" },
+      { "name": "tale", "summary": "She narrates how Vikram witnessed and rewarded the woodcutter's integrity" },
+      { "name": "judgment", "summary": "Bhoja acknowledges that rewarding honesty is itself a virtue" }
+    ]
+  },
+  {
+    "id": "sb-004",
+    "title": "Kama Khandala and the Fearless King",
+    "summary": "Vikramaditya walks alone into a den of dacoits to rescue a kidnapped child, armed only with his courage.",
+    "characters": ["king", "bandits", "child"],
+    "setting": "cave",
+    "moral": "Courage is not the absence of fear but action in spite of it",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Kama Khandala asks Bhoja if he has ever risked his life for a stranger" },
+      { "name": "tale", "summary": "She tells how Vikram entered the bandits' cave alone and freed the child through sheer bravery" },
+      { "name": "judgment", "summary": "Bhoja confesses that he has always sent soldiers rather than going himself" }
+    ]
+  },
+  {
+    "id": "sb-005",
+    "title": "Leelavati and the Impartial Judge",
+    "summary": "Vikramaditya must judge a case where his own son has committed a crime. He punishes his son as he would any citizen.",
+    "characters": ["king", "prince", "villager"],
+    "setting": "palace",
+    "moral": "Justice must be blind even to one's own blood",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Leelavati asks Bhoja if he can judge without favor" },
+      { "name": "tale", "summary": "She tells how Vikram sentenced his own son to the same punishment as a commoner" },
+      { "name": "judgment", "summary": "Bhoja sees that impartial justice demands superhuman detachment" }
+    ]
+  },
+  {
+    "id": "sb-006",
+    "title": "Ravi Bhama and the Patient King",
+    "summary": "A courtier insults Vikramaditya publicly. Instead of punishing him, the king listens, discovers a legitimate grievance, and corrects it.",
+    "characters": ["king", "courtier", "minister"],
+    "setting": "palace",
+    "moral": "Patience and humility reveal the truth that anger would hide",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Ravi Bhama asks if Bhoja can bear insult with grace" },
+      { "name": "tale", "summary": "She narrates how Vikram turned a public humiliation into a moment of just reform" },
+      { "name": "judgment", "summary": "Bhoja admits that his pride would have demanded punishment first" }
+    ]
+  },
+  {
+    "id": "sb-007",
+    "title": "Kaumudi and the Keeper of Promises",
+    "summary": "Vikramaditya promises a dying enemy safe passage for his family. Despite pressure from ministers, he honors the vow completely.",
+    "characters": ["king", "enemy", "ministers"],
+    "setting": "palace",
+    "moral": "A king's word is his bond, even to an enemy",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Kaumudi asks Bhoja if his promises are unbreakable" },
+      { "name": "tale", "summary": "She tells how Vikram protected his dead enemy's family against his own advisors' wishes" },
+      { "name": "judgment", "summary": "Bhoja realizes that a promise honored under pressure is the only promise that matters" }
+    ]
+  },
+  {
+    "id": "sb-008",
+    "title": "Pushpavati and the Demon's Boon",
+    "summary": "A demon offers Vikramaditya unlimited power in exchange for one innocent life. The king refuses and defeats the demon through wit.",
+    "characters": ["king", "demon", "sage"],
+    "setting": "forest",
+    "moral": "Power gained through injustice is poison disguised as nectar",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Pushpavati asks if Bhoja would refuse absolute power" },
+      { "name": "tale", "summary": "She narrates how Vikram outwitted the demon without sacrificing anyone" },
+      { "name": "judgment", "summary": "Bhoja acknowledges the temptation of easy power and the strength needed to refuse it" }
+    ]
+  },
+  {
+    "id": "sb-009",
+    "title": "Madanavati and the Compassionate Warrior",
+    "summary": "After a great battle, Vikramaditya tends to wounded enemy soldiers with the same care as his own. His generals are outraged.",
+    "characters": ["king", "soldiers", "generals"],
+    "setting": "village",
+    "moral": "Compassion for the defeated is the mark of a true victor",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Madanavati asks if Bhoja shows mercy to enemies" },
+      { "name": "tale", "summary": "She tells how Vikram personally bandaged enemy soldiers and fed them from the royal stores" },
+      { "name": "judgment", "summary": "Bhoja sees that war ends on the battlefield but humanity must never end" }
+    ]
+  },
+  {
+    "id": "sb-010",
+    "title": "Vijaya Sundari and the Wise Arbitrator",
+    "summary": "Two neighboring kingdoms are about to go to war over a river. Vikramaditya arrives and resolves the dispute so both kingdoms prosper.",
+    "characters": ["king", "rival_kings", "villagers"],
+    "setting": "river",
+    "moral": "The wisest victory is one where no blood is shed",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Vijaya Sundari asks if Bhoja seeks peace before war" },
+      { "name": "tale", "summary": "She narrates how Vikram proposed a canal system that shared water equally" },
+      { "name": "judgment", "summary": "Bhoja learns that creative solutions prevent more suffering than any army" }
+    ]
+  },
+  {
+    "id": "sb-011",
+    "title": "Sundarvati and the Disguised King",
+    "summary": "Vikramaditya disguises himself as a peasant to learn the true condition of his people, and is humbled by what he discovers.",
+    "characters": ["king", "villagers", "farmer"],
+    "setting": "village",
+    "moral": "A king who does not know his people's suffering is no king at all",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Sundarvati asks Bhoja when he last walked among common folk" },
+      { "name": "tale", "summary": "She tells how Vikram lived as a farmer for a week and reformed corrupt tax collectors" },
+      { "name": "judgment", "summary": "Bhoja is shamed into realizing he rules from a distance" }
+    ]
+  },
+  {
+    "id": "sb-012",
+    "title": "Trilochana and the Truthful King",
+    "summary": "A rival king offers peace if Vikramaditya will tell a single lie. Vikram refuses and wins the war through truth alone.",
+    "characters": ["king", "rival_king", "spy"],
+    "setting": "palace",
+    "moral": "Truth is the most powerful weapon a just ruler possesses",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Trilochana asks if Bhoja has ever compromised truth for convenience" },
+      { "name": "tale", "summary": "She narrates how Vikram's absolute truthfulness earned the loyalty of even his enemy's soldiers" },
+      { "name": "judgment", "summary": "Bhoja understands that credibility is built over a lifetime and lost in a moment" }
+    ]
+  },
+  {
+    "id": "sb-013",
+    "title": "Padmini and the Selfless Protector",
+    "summary": "During a plague, Vikramaditya stays in the city nursing the sick while his court flees. He nearly dies but saves thousands.",
+    "characters": ["king", "healer", "villagers"],
+    "setting": "village",
+    "moral": "A leader who abandons his people in crisis is no leader",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Padmini asks Bhoja if he would stay when danger comes" },
+      { "name": "tale", "summary": "She tells how Vikram organized medicine, burned infected cloth, and held dying hands" },
+      { "name": "judgment", "summary": "Bhoja realizes leadership means being the last to leave, not the first" }
+    ]
+  },
+  {
+    "id": "sb-014",
+    "title": "Kirtimati and the Learned King",
+    "summary": "Vikramaditya settles a debate between scholars by demonstrating that true knowledge serves the people, not the ego.",
+    "characters": ["king", "scholars", "student"],
+    "setting": "palace",
+    "moral": "Knowledge that does not serve others is vanity",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Kirtimati asks if Bhoja values learning or the appearance of learning" },
+      { "name": "tale", "summary": "She tells how Vikram silenced proud scholars by asking what their knowledge had done for the hungry" },
+      { "name": "judgment", "summary": "Bhoja reflects on the difference between wisdom and mere scholarship" }
+    ]
+  },
+  {
+    "id": "sb-015",
+    "title": "Sunanda and the Forgiving King",
+    "summary": "An assassin sent to kill Vikramaditya is captured. Instead of execution, Vikram forgives him and gives him land to farm.",
+    "characters": ["king", "assassin", "guards"],
+    "setting": "palace",
+    "moral": "Forgiveness can transform an enemy into a friend",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Sunanda asks if Bhoja could forgive someone who tried to kill him" },
+      { "name": "tale", "summary": "She narrates how the forgiven assassin became one of Vikram's most loyal subjects" },
+      { "name": "judgment", "summary": "Bhoja admits he would have ordered execution without a second thought" }
+    ]
+  },
+  {
+    "id": "sb-016",
+    "title": "Manohari and the Just Taxman",
+    "summary": "Vikramaditya discovers his own tax minister has been exploiting the poor. He personally returns every coin and reforms the system.",
+    "characters": ["king", "minister", "farmers"],
+    "setting": "village",
+    "moral": "A ruler is responsible for the actions of those who serve in his name",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Manohari asks if Bhoja knows what his ministers do in his name" },
+      { "name": "tale", "summary": "She tells how Vikram went village to village returning stolen taxes from his own treasury" },
+      { "name": "judgment", "summary": "Bhoja sees that delegation without oversight is abdication of duty" }
+    ]
+  },
+  {
+    "id": "sb-017",
+    "title": "Anuradha and the Humble King",
+    "summary": "A child asks Vikramaditya a question he cannot answer. Instead of pretending, the king admits ignorance and asks the child to teach him.",
+    "characters": ["king", "child", "courtiers"],
+    "setting": "garden",
+    "moral": "Humility to learn is the beginning of true wisdom",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Anuradha asks if Bhoja can admit when he is wrong" },
+      { "name": "tale", "summary": "She tells how Vikram knelt before a shepherd boy to learn about the stars" },
+      { "name": "judgment", "summary": "Bhoja recognizes that his courtiers never hear him say 'I don't know'" }
+    ]
+  },
+  {
+    "id": "sb-018",
+    "title": "Dharmavati and the Night Patrol",
+    "summary": "Vikramaditya patrols his city at night in disguise and rescues a woman being robbed, fighting the thieves himself.",
+    "characters": ["king", "woman", "thieves"],
+    "setting": "road",
+    "moral": "Duty does not sleep when the sun goes down",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Dharmavati asks what Bhoja does while his city sleeps" },
+      { "name": "tale", "summary": "She narrates how Vikram made nightly rounds ensuring every citizen was safe" },
+      { "name": "judgment", "summary": "Bhoja understands that a king's duty is a full-time devotion, not a daytime occupation" }
+    ]
+  },
+  {
+    "id": "sb-019",
+    "title": "Varunini and the Bridge Builder",
+    "summary": "Vikramaditya labors alongside common workers to build a bridge after a flood, refusing to let his status excuse him from physical work.",
+    "characters": ["king", "workers", "minister"],
+    "setting": "river",
+    "moral": "A leader who will not share his people's toil has no right to share their harvest",
+    "acts": [
+      { "name": "challenge", "summary": "Statue Varunini asks if Bhoja has ever dirtied his hands for his people" },
+      { "name": "tale", "summary": "She tells how Vikram carried stones alongside laborers for seven days" },
+      { "name": "judgment", "summary": "Bhoja looks at his unblistered hands and understands the statue's point" }
+    ]
+  },
+  {
+    "id": "sb-020",
+    "title": "Jaya Lakshmi and the Final Test",
+    "summary": "The last statue tells King Bhoja that hearing all thirty-two tales and understanding them IS the test. Bhoja bows and walks away from the throne.",
+    "characters": ["king", "statues"],
+    "setting": "palace",
+    "moral": "The one who knows he is unworthy of power is the one most worthy of it",
+    "acts": [
+      { "name": "challenge", "summary": "The final statue asks Bhoja what he has learned from all the stories" },
+      { "name": "tale", "summary": "Bhoja recounts each virtue — generosity, courage, justice, humility, compassion, truth, patience, forgiveness" },
+      { "name": "judgment", "summary": "Bhoja chooses not to sit on the throne, proving himself worthy — the throne rises to heaven" }
+    ]
+  }
+]

@@ -34,20 +34,12 @@ else:
 
 print(f"Using device: {DEVICE}")
 
-# Model path
-MODEL_PATH = Path.home() / "ComfyUI" / "models" / "checkpoints" / "animagine-xl-3.1.safetensors"
-if not MODEL_PATH.exists():
-    # Try HuggingFace hub
-    MODEL_ID = "cagliostrolab/animagine-xl-3.1"
-    print(f"Loading model from HuggingFace: {MODEL_ID}")
-    pipe = StableDiffusionXLPipeline.from_pretrained(
-        MODEL_ID, torch_dtype=DTYPE, variant="fp16"
-    )
-else:
-    print(f"Loading model from: {MODEL_PATH}")
-    pipe = StableDiffusionXLPipeline.from_single_file(
-        str(MODEL_PATH), torch_dtype=DTYPE
-    )
+# Always use HuggingFace pretrained (from_single_file crashes on Python 3.14)
+MODEL_ID = "cagliostrolab/animagine-xl-3.1"
+print(f"Loading model from HuggingFace: {MODEL_ID}")
+pipe = StableDiffusionXLPipeline.from_pretrained(
+    MODEL_ID, torch_dtype=DTYPE, use_safetensors=True
+)
 
 pipe = pipe.to(DEVICE)
 if DEVICE == "mps":

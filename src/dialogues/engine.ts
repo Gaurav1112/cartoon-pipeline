@@ -104,7 +104,7 @@ export function selectDialogueSequence(
     if (fresh.length > 0) matches = fresh;
 
     const idx = Math.floor(rng() * matches.length);
-    const selected = matches[idx] ?? bank.lines[0];
+    const selected = matches[idx] ?? bank.lines.filter(l => l.character === query.character)[0] ?? bank.lines[0];
     usedIds.add(selected.id);
     return selected;
   });

@@ -3,7 +3,14 @@ import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
 import type { EpisodeScene, CharacterId, MouthCue } from '../types';
 import { BackgroundRenderer } from '../scenes/BackgroundRenderer';
 import { CharacterRenderer } from '../characters/CharacterRenderer';
+import { AICharacterRenderer } from '../characters/AICharacterRenderer';
 import { DialogueBubble } from './DialogueBubble';
+
+// Set to true once AI-generated PNG frames are available in public/characters/
+// When false, falls back to the original SVG CharacterRenderer
+const USE_AI_CHARACTERS = false;
+
+const ActiveCharacterRenderer = USE_AI_CHARACTERS ? AICharacterRenderer : CharacterRenderer;
 
 interface SceneRendererProps {
   scene: EpisodeScene;
@@ -85,7 +92,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
 
         {/* Characters */}
         {scene.characters.map((char) => (
-          <CharacterRenderer
+          <ActiveCharacterRenderer
             key={char.characterId}
             characterId={char.characterId}
             pose={char.pose}
