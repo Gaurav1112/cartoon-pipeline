@@ -127,6 +127,54 @@ function archetypeToEmotion(archetype: CharacterArchetype, mood: string): Emotio
   return 'neutral';
 }
 
+// ─── Story Beat → Dialogue Context Mapping ────────────────────────────────
+
+/** Map story act names to dialogue contexts so dialogue reflects the actual narrative */
+function inferContextsFromBeat(beatName: string): SceneContext[] {
+  const lower = beatName.toLowerCase();
+  const map: Record<string, SceneContext[]> = {
+    friendship: ['greeting', 'introduction', 'comfort'],
+    bond: ['greeting', 'introduction', 'comfort'],
+    welcome: ['greeting', 'introduction'],
+    plan: ['discovery', 'challenge'],
+    strategy: ['discovery', 'challenge'],
+    betrayal: ['conflict', 'threat', 'reaction'],
+    plot: ['conflict', 'threat'],
+    escape: ['challenge', 'conflict', 'reaction'],
+    rescue: ['challenge', 'conflict', 'resolution'],
+    trap: ['threat', 'conflict', 'challenge'],
+    deception: ['conflict', 'threat', 'discovery'],
+    flight: ['challenge', 'conflict'],
+    fall: ['reaction', 'conflict'],
+    trick: ['discovery', 'challenge', 'reaction'],
+    victory: ['celebration', 'resolution'],
+    defeat: ['resolution', 'moral'],
+    lesson: ['moral', 'resolution', 'farewell'],
+    moral: ['moral', 'resolution'],
+    wisdom: ['moral', 'narration'],
+    exposure: ['discovery', 'reaction', 'resolution'],
+    truth: ['discovery', 'resolution', 'moral'],
+    greed: ['conflict', 'threat'],
+    kindness: ['comfort', 'resolution'],
+    courage: ['challenge', 'conflict'],
+    fear: ['conflict', 'reaction'],
+    curiosity: ['discovery', 'reaction'],
+    problem: ['conflict', 'challenge'],
+    solution: ['resolution', 'discovery'],
+    reward: ['celebration', 'resolution'],
+    punishment: ['resolution', 'moral'],
+    chase: ['conflict', 'challenge'],
+    dispute: ['conflict', 'challenge'],
+    judgment: ['resolution', 'moral'],
+  };
+
+  // Find first matching key in the beat name
+  for (const [key, contexts] of Object.entries(map)) {
+    if (lower.includes(key)) return contexts;
+  }
+  return ['narration', 'reaction']; // fallback
+}
+
 // ─── Story-First Helpers ──────────────────────────────────────────────────
 
 /** Score a template against a story for compatibility */
@@ -193,15 +241,19 @@ export function generateEpisode(topicId: number, episodeNumber: number): Cartoon
   const storyLocation = LOCATIONS.find((l) => l.id === story.setting) ?? seededPick(LOCATIONS, rng);
   const secondaryLocations = seededShuffle(LOCATIONS, rng).slice(0, 3);
 
-  // 5. Select moral
-  const moral = seededPick(
-    MORALS.filter((m) => m.category === template.moralCategory).length > 0
-      ? MORALS.filter((m) => m.category === template.moralCategory)
-      : MORALS,
-    rng,
-  );
+  // 5. Select moral — prefer one whose relatedConflicts match available conflicts
+  const categoryMorals = MORALS.filter((m) => m.category === template.moralCategory);
+  const moral = seededPick(categoryMorals.length > 0 ? categoryMorals : MORALS, rng);
 
-  // 6. Generate scenes
+  // 6. Select conflict from CONFLICTS (was dead code — now wired in)
+  const relatedConflicts = CONFLICTS.filter((c) =>
+    moral.relatedConflicts.includes(c.id),
+  );
+  const episodeConflict = relatedConflicts.length > 0
+    ? seededPick(relatedConflicts, rng)
+    : seededPick(CONFLICTS, rng);
+
+  // 7. Generate scenes
   const scenes: EpisodeScene[] = [];
   let sceneIndex = 0;
 
@@ -218,7 +270,12 @@ export function generateEpisode(topicId: number, episodeNumber: number): Cartoon
 
       const timeOfDay = seededPick(TIMES_OF_DAY, rng);
       const weather = seededPick(WEATHERS, rng);
-      const contexts = moodToContexts(act.mood);
+
+      // USE storyAct to drive dialogue context — not just template mood
+      const storyBeatContexts = inferContextsFromBeat(storyAct.name);
+      const moodContexts = moodToContexts(act.mood);
+      // Merge: story-specific contexts first, then mood-based fallbacks
+      const contexts = [...new Set([...storyBeatContexts, ...moodContexts])];
 
       // Determine which characters appear in this scene
       const sceneArchetypes = act.requiredArchetypes ?? template.requiredCharacters;
@@ -259,10 +316,11 @@ export function generateEpisode(topicId: number, episodeNumber: number): Cartoon
         intensity: 0.3 + rng() * 0.5,
       };
 
-      // SFX keywords from location + mood
+      // SFX keywords from location + mood + conflict category
       const sfxKeywords = [
         ...(LOCATIONS.find((l) => l.id === location)?.defaultProps ?? []),
         act.mood,
+        episodeConflict.category,
       ];
 
       // Kid-friendly pacing: ~5s per dialogue line + 3s scene breathing room
