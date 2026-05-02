@@ -98,9 +98,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'day',
     dur: 'auto',
     chars: [
-      { id: 'guruji', pos: 'center', pose: 'talk_gesture', expr: 'sad' },
+      { id: 'guruji', pos: 'center', pose: 'talk_gesture', expr: 'neutral' },
       { id: 'bablu', pos: 'right', pose: 'surprised', expr: 'scared', flip: true },
-      { id: 'meera', pos: 'left', pose: 'idle_stand', expr: 'thinking' },
+      { id: 'meera', pos: 'left', pose: 'talk_gesture', expr: 'thinking' },
     ],
     cam: 'drift',
     camI: 0.4,
@@ -143,7 +143,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'meera', pos: 'left', pose: 'talk_gesture', expr: 'surprised' },
     ],
     cam: 'zoom_in',
-    camI: 0.6,
+    camI: 0.7,
     shortsCutScene: true,
     dialogue: [
       {
@@ -240,8 +240,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dur: 'auto',
     chars: [
       { id: 'arjun', pos: 'left', pose: 'point', expr: 'determined' },
-      { id: 'kaaliya', pos: 'right', pose: 'idle_stand', expr: 'angry', flip: true },
-      { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'neutral' },
+      { id: 'kaaliya', pos: 'right', pose: 'angry', expr: 'angry', flip: true },
+      { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'surprised' },
     ],
     cam: 'zoom_in',
     camI: 0.9,
@@ -306,7 +306,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'meera', pos: 'left', pose: 'wave', expr: 'happy' },
     ],
     cam: 'drift',
-    camI: 0.5,
+    camI: 0.7,
     shortsCutScene: true,
     dialogue: [
       {
@@ -349,7 +349,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'bablu', pos: 'right', pose: 'idle_stand', expr: 'happy', flip: true },
     ],
     cam: 'zoom_in',
-    camI: 0.5,
+    camI: 0.6,
     dialogue: [
       {
         char: 'guruji',
