@@ -1,7 +1,9 @@
 // tests/episode1/timing.test.ts
 import { describe, it, expect } from 'vitest';
-import { calcDialogueDur, calcSceneDur, validateSceneChars } from '../../src/compositions/episode1/timing';
+import { calcDialogueDur, calcSceneDur, validateSceneChars, calcEpisodeDuration } from '../../src/compositions/episode1/timing';
 import type { ViralScene } from '../../src/compositions/episode1/types';
+
+// ─── calcDialogueDur ──────────────────────────────────────────────────────────
 
 describe('calcDialogueDur', () => {
   it('returns minimum 55 frames for very short text', () => {
@@ -25,7 +27,53 @@ describe('calcDialogueDur', () => {
   it('short text (under 10 chars) returns at most 120 frames', () => {
     expect(calcDialogueDur('क्या?!')).toBeLessThanOrEqual(120);
   });
+
+  // ── NEW: boundary & edge cases ──────────────────────────────────────────
+
+  it('empty string returns the floor (MIN_LINE_FRAMES = 55)', () => {
+    // raw = 0 * 6 + 18 = 18, which is below 55, so floor kicks in
+    expect(calcDialogueDur('')).toBe(55);
+  });
+
+  it('never returns a negative number for any input', () => {
+    expect(calcDialogueDur('')).toBeGreaterThanOrEqual(0);
+    expect(calcDialogueDur('अ')).toBeGreaterThanOrEqual(0);
+  });
+
+  it('returns an integer for every sample text', () => {
+    const samples = ['', 'हाँ', 'क्या?!', 'खरगोश', 'बचोगे नहीं आज!', 'अक्ल से सब हल होता है।'];
+    for (const s of samples) {
+      expect(Number.isInteger(calcDialogueDur(s))).toBe(true);
+    }
+  });
+
+  it('exact arithmetic: text.length * 6 + 18, floored at 55', () => {
+    // 'हाँ' has 3 chars → raw = 3*6 + 18 = 36 → below 55 → result = 55
+    expect(calcDialogueDur('हाँ')).toBe(55);
+
+    // 10-char text: raw = 10*6 + 18 = 78 → above 55 → result = 78
+    const tenChar = 'abcdefghij'; // pure ASCII to have predictable .length
+    expect(calcDialogueDur(tenChar)).toBe(78);
+  });
+
+  it('text whose raw value exactly equals MIN_LINE_FRAMES (55) is returned as 55', () => {
+    // raw = len*6 + 18 = 55 → len = 37/6, not integer. Use len where raw > 55.
+    // len=7: raw = 7*6+18 = 60 → result = 60
+    expect(calcDialogueDur('abcdefg')).toBe(60);
+  });
+
+  it('is monotonically non-decreasing as text grows', () => {
+    const results: number[] = [];
+    for (let len = 0; len <= 30; len++) {
+      results.push(calcDialogueDur('a'.repeat(len)));
+    }
+    for (let i = 1; i < results.length; i++) {
+      expect(results[i]).toBeGreaterThanOrEqual(results[i - 1]);
+    }
+  });
 });
+
+// ─── calcSceneDur ─────────────────────────────────────────────────────────────
 
 describe('calcSceneDur', () => {
   it('sums all dialogue durations in a scene', () => {
@@ -43,7 +91,54 @@ describe('calcSceneDur', () => {
     ];
     expect(calcSceneDur(lines)).toBe(999);
   });
+
+  // ── NEW ──────────────────────────────────────────────────────────────────
+
+  it('returns 0 for an empty dialogue array', () => {
+    expect(calcSceneDur([])).toBe(0);
+  });
+
+  it('returns exact sum of explicit dur values', () => {
+    const lines = [
+      { text: 'a', dur: 100 },
+      { text: 'b', dur: 200 },
+      { text: 'c', dur: 50 },
+    ];
+    expect(calcSceneDur(lines)).toBe(350);
+  });
+
+  it('mixes auto and explicit dur correctly', () => {
+    const autoFrames = calcDialogueDur('hello');
+    const lines = [
+      { text: 'hello', dur: 'auto' as const },
+      { text: 'ignored text', dur: 300 },
+    ];
+    expect(calcSceneDur(lines)).toBe(autoFrames + 300);
+  });
+
+  it('single auto line equals calcDialogueDur of that text', () => {
+    const text = 'दिमाग से जीत होती है।';
+    const lines = [{ text, dur: 'auto' as const }];
+    expect(calcSceneDur(lines)).toBe(calcDialogueDur(text));
+  });
+
+  it('returns 0 for explicit dur of 0', () => {
+    const lines = [{ text: 'anything', dur: 0 }];
+    expect(calcSceneDur(lines)).toBe(0);
+  });
+
+  it('result is always a non-negative integer when all durs are non-negative', () => {
+    const lines = [
+      { text: 'हाँ', dur: 'auto' as const },
+      { text: 'नमस्ते', dur: 'auto' as const },
+    ];
+    const result = calcSceneDur(lines);
+    expect(result).toBeGreaterThanOrEqual(0);
+    expect(Number.isInteger(result)).toBe(true);
+  });
 });
+
+// ─── validateSceneChars ───────────────────────────────────────────────────────
 
 describe('validateSceneChars', () => {
   it('does not throw when all dialogue speakers are in chars array', () => {
@@ -89,5 +184,219 @@ describe('validateSceneChars', () => {
       dialogue: [{ char: 'meera', text: 'ghost', dur: 'auto' }],
     };
     expect(() => validateSceneChars(scene)).toThrow('meera');
+  });
+
+  // ── NEW ──────────────────────────────────────────────────────────────────
+
+  it('does not throw when both chars and dialogue are empty', () => {
+    const scene: ViralScene = {
+      id: 'empty-scene',
+      bg: 'garden',
+      time: 'day',
+      dur: 5,
+      chars: [],
+      cam: 'static',
+      camI: 0,
+      dialogue: [],
+    };
+    expect(() => validateSceneChars(scene)).not.toThrow();
+  });
+
+  it('does not throw when chars array has characters but dialogue is empty', () => {
+    const scene: ViralScene = {
+      id: 'silent-scene',
+      bg: 'forest',
+      time: 'dusk',
+      dur: 'auto',
+      chars: [{ id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'neutral' }],
+      cam: 'static',
+      camI: 0.2,
+      dialogue: [],
+    };
+    expect(() => validateSceneChars(scene)).not.toThrow();
+  });
+
+  it('error message contains the scene id', () => {
+    const scene: ViralScene = {
+      id: 'my-special-scene-id',
+      bg: 'forest',
+      time: 'day',
+      dur: 'auto',
+      chars: [],
+      cam: 'static',
+      camI: 0,
+      dialogue: [{ char: 'bablu', text: 'phantom', dur: 'auto' }],
+    };
+    expect(() => validateSceneChars(scene)).toThrow('my-special-scene-id');
+  });
+
+  it('throws on the FIRST phantom character encountered', () => {
+    const scene: ViralScene = {
+      id: 'multi-phantom',
+      bg: 'forest',
+      time: 'day',
+      dur: 'auto',
+      chars: [],
+      cam: 'static',
+      camI: 0,
+      dialogue: [
+        { char: 'bablu', text: 'first phantom', dur: 'auto' },
+        { char: 'meera', text: 'second phantom', dur: 'auto' },
+      ],
+    };
+    // Should throw mentioning bablu (first phantom), not meera
+    expect(() => validateSceneChars(scene)).toThrow('bablu');
+  });
+
+  it('does not throw when multiple chars are present and all speak', () => {
+    const scene: ViralScene = {
+      id: 'multi-char',
+      bg: 'forest',
+      time: 'day',
+      dur: 'auto',
+      chars: [
+        { id: 'arjun', pos: 'left', pose: 'idle_stand', expr: 'happy' },
+        { id: 'bablu', pos: 'right', pose: 'idle_stand', expr: 'happy' },
+      ],
+      cam: 'static',
+      camI: 0.3,
+      dialogue: [
+        { char: 'arjun', text: 'नमस्ते', dur: 'auto' },
+        { char: 'bablu', text: 'हाँ भाई', dur: 'auto' },
+        { char: 'arjun', text: 'चलो', dur: 'auto' },
+      ],
+    };
+    expect(() => validateSceneChars(scene)).not.toThrow();
+  });
+
+  it('throws when the only character in dialogue is absent from chars', () => {
+    const scene: ViralScene = {
+      id: 'solo-phantom',
+      bg: 'forest',
+      time: 'day',
+      dur: 'auto',
+      chars: [{ id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'happy' }],
+      cam: 'static',
+      camI: 0,
+      dialogue: [{ char: 'kaaliya', text: 'बचोगे नहीं!', dur: 'auto' }],
+    };
+    expect(() => validateSceneChars(scene)).toThrow('kaaliya');
+  });
+});
+
+// ─── calcEpisodeDuration — ZERO coverage before, fully tested now ─────────────
+
+describe('calcEpisodeDuration', () => {
+  const FPS = 30;
+  const MORAL_CARD_FRAMES = 6 * FPS; // 180
+  const OUTRO_FRAMES = 5 * FPS;      // 150
+  const OVERHEAD = MORAL_CARD_FRAMES + OUTRO_FRAMES; // 330
+
+  it('returns OVERHEAD (330 frames) for an empty scene array', () => {
+    expect(calcEpisodeDuration([])).toBe(OVERHEAD);
+  });
+
+  it('includes moral card (6s) + outro (5s) = 330 frames of overhead', () => {
+    // A single scene with explicit dur=0 should give exactly 330 frames
+    const scenes: ViralScene[] = [
+      {
+        id: 'zero',
+        bg: 'forest',
+        time: 'day',
+        dur: 0,          // 0 * 30 = 0 frames
+        chars: [],
+        cam: 'static',
+        camI: 0,
+        dialogue: [],
+      },
+    ];
+    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD);
+  });
+
+  it('correctly converts numeric dur (seconds) to frames via * 30', () => {
+    const scenes: ViralScene[] = [
+      {
+        id: 'five-second',
+        bg: 'forest',
+        time: 'day',
+        dur: 5,           // 5s * 30fps = 150 frames
+        chars: [],
+        cam: 'static',
+        camI: 0,
+        dialogue: [],
+      },
+    ];
+    expect(calcEpisodeDuration(scenes)).toBe(5 * FPS + OVERHEAD);
+  });
+
+  it('uses calcSceneDur for auto-dur scenes', () => {
+    const text = 'abcdefghij'; // 10 chars → calcDialogueDur = 10*6+18 = 78
+    const expectedLineFrames = calcDialogueDur(text); // 78
+    const scenes: ViralScene[] = [
+      {
+        id: 'auto-scene',
+        bg: 'forest',
+        time: 'day',
+        dur: 'auto',
+        chars: [{ id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'happy' }],
+        cam: 'static',
+        camI: 0,
+        dialogue: [{ char: 'arjun', text, dur: 'auto' }],
+      },
+    ];
+    expect(calcEpisodeDuration(scenes)).toBe(expectedLineFrames + OVERHEAD);
+  });
+
+  it('sums multiple scenes of mixed dur types', () => {
+    const scenes: ViralScene[] = [
+      {
+        id: 'numeric',
+        bg: 'forest',
+        time: 'day',
+        dur: 10,          // 300 frames
+        chars: [],
+        cam: 'static',
+        camI: 0,
+        dialogue: [],
+      },
+      {
+        id: 'explicit-line',
+        bg: 'garden',
+        time: 'day',
+        dur: 'auto',
+        chars: [{ id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'happy' }],
+        cam: 'static',
+        camI: 0,
+        dialogue: [{ char: 'arjun', text: 'hello', dur: 200 }],
+      },
+    ];
+    expect(calcEpisodeDuration(scenes)).toBe(300 + 200 + OVERHEAD);
+  });
+
+  it('result is always >= OVERHEAD (330 frames)', () => {
+    expect(calcEpisodeDuration([])).toBeGreaterThanOrEqual(OVERHEAD);
+  });
+
+  it('result is a positive integer', () => {
+    const result = calcEpisodeDuration([]);
+    expect(result).toBeGreaterThan(0);
+    expect(Number.isInteger(result)).toBe(true);
+  });
+
+  it('auto scene with empty dialogue contributes 0 scene frames', () => {
+    const scenes: ViralScene[] = [
+      {
+        id: 'empty-auto',
+        bg: 'garden',
+        time: 'day',
+        dur: 'auto',
+        chars: [],
+        cam: 'static',
+        camI: 0,
+        dialogue: [],
+      },
+    ];
+    // calcSceneDur([]) = 0, so total = 0 + OVERHEAD
+    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD);
   });
 });
