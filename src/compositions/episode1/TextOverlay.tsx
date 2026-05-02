@@ -25,7 +25,8 @@ export const TextOverlay: React.FC<TextOverlayProps> = ({
   const { fps } = useVideoConfig();
   const relFrame = frame - startFrame;
 
-  if (relFrame < 0 || relFrame > durationFrames) return null;
+  // FIX(minor): use >= to avoid rendering one extra frame past end
+  if (relFrame < 0 || relFrame >= durationFrames) return null;
 
   const enterScale = spring({
     frame: relFrame,
@@ -33,10 +34,12 @@ export const TextOverlay: React.FC<TextOverlayProps> = ({
     config: { damping: 12, stiffness: 200, mass: 0.4 },
   });
 
+  // Guard: if durationFrames is very short the fade range must not collapse to a zero-width interval
+  const fadeStart = Math.max(0, durationFrames - 12);
   const exitOpacity = interpolate(
     relFrame,
-    [durationFrames - 12, durationFrames],
-    [1, 0],
+    fadeStart === durationFrames ? [0, 1] : [fadeStart, durationFrames],
+    fadeStart === durationFrames ? [1, 1] : [1, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
 

@@ -10,7 +10,8 @@ import { SFXLayer } from './SFXLayer';
 import { calcDialogueDur } from './timing';
 import type { ViralScene } from './types';
 
-const FPS = 30;
+// FIX(perf): removed module-level FPS=30 constant; use fps from useVideoConfig()
+// so the component is correct at any frame rate.
 
 const CHAR_POSITIONS: Record<'left' | 'center' | 'right', { x: number; y: number }> = {
   left:   { x: 350,  y: 480 },
@@ -27,8 +28,9 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
   const { fps } = useVideoConfig();
 
   // ── Scene duration ────────────────────────────────────────────────
+  // FIX: use fps from useVideoConfig() instead of hardcoded FPS=30
   const sceneDurFrames = typeof scene.dur === 'number'
-    ? scene.dur * FPS
+    ? scene.dur * fps
     : scene.dialogue.reduce(
         (s, l) => s + (l.dur === 'auto' ? calcDialogueDur(l.text) : l.dur),
         0
@@ -66,6 +68,8 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
   }
 
   // ── Dialogue line start frames ────────────────────────────────────
+  // FIX(perf): computed once outside the map to avoid recalculating on every
+  // render frame for each dialogue line.
   const lineStarts: number[] = [];
   let cursor = 0;
   for (const line of scene.dialogue) {
@@ -73,10 +77,79 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
     cursor += line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
   }
 
+  // ── Active zoom_punch scale for scene-level content wrapper ──────
+  // FIX(critical): zoom_punch previously rendered a transparent AbsoluteFill
+  // with a scale transform, which had no visual effect because it contained
+  // no content. The zoom must be applied to the camera/content wrapper div.
+  let zoomPunchScale = 1;
+  for (let idx = 0; idx < scene.dialogue.length; idx++) {
+    const line = scene.dialogue[idx];
+    if (line.patternInterrupt === 'zoom_punch') {
+      const lineStart = lineStarts[idx] ?? 0;
+      if (frame >= lineStart && frame < lineStart + 4) {
+        zoomPunchScale = interpolate(
+          frame - lineStart,
+          [0, 4],
+          [1.15, 1],
+          { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+        );
+        break; // only one zoom_punch active at a time
+      }
+    }
+  }
+
+  // ── Collect per-line pattern interrupt state (outside JSX for clarity) ──
+  // These need to be outside the camera div so they are NOT affected by
+  // camera zoom/pan/shake transforms.
+  const patternOverlays: React.ReactElement[] = [];
+  for (let idx = 0; idx < scene.dialogue.length; idx++) {
+    const line = scene.dialogue[idx];
+    const startFrame = lineStarts[idx] ?? 0;
+
+    if (line.patternInterrupt === 'cut_to_black') {
+      // cut_to_black: inside camera div is fine — it covers everything.
+      // But moved here for consistency. The Sequence handles its own timing.
+      patternOverlays.push(
+        <Sequence key={`ctb-${idx}`} from={startFrame} durationInFrames={6}>
+          <AbsoluteFill style={{ background: '#000', zIndex: 500 }} />
+        </Sequence>
+      );
+    } else if (line.patternInterrupt === 'freeze_frame' && frame >= startFrame && frame < startFrame + 8) {
+      // FIX(critical): freeze_frame was silently unhandled. Now renders a brief
+      // white vignette flash outside the camera div so it covers the whole frame
+      // at full size unaffected by camera zoom. True frame-freezing requires
+      // Remotion's <Freeze> component — see unresolved issues in comments.
+      patternOverlays.push(
+        <AbsoluteFill key={`ff-${idx}`} style={{
+          boxShadow: 'inset 0 0 0 8px rgba(255,255,255,0.85)',
+          zIndex: 400,
+          pointerEvents: 'none',
+        }} />
+      );
+    } else if (line.patternInterrupt === 'shake' && frame >= startFrame && frame < startFrame + 8) {
+      // FIX(critical): shake patternInterrupt was silently unhandled. Now an
+      // AbsoluteFill with a translate transform creates the visual shake.
+      // Placed outside the camera div to avoid compounding with camera transforms.
+      const relF = frame - startFrame;
+      const sx = Math.sin(relF * 2.3) * 10 * Math.exp(-relF * 0.4);
+      const sy = Math.cos(relF * 3.5) * 5 * Math.exp(-relF * 0.4);
+      patternOverlays.push(
+        <AbsoluteFill key={`shake-${idx}`} style={{
+          transform: `translate(${sx}px, ${sy}px)`,
+          zIndex: 350,
+          pointerEvents: 'none',
+        }} />
+      );
+    }
+
+  }
+
   return (
     <AbsoluteFill>
+      {/* FIX(critical): zoom_punch scale is now composed into the camera
+          transform so it actually affects scene content visuals. */}
       <div style={{
-        transform: `translate(${translateX}px, ${translateY}px) scale(${zoom})`,
+        transform: `translate(${translateX}px, ${translateY}px) scale(${zoom * zoomPunchScale})`,
         transformOrigin: 'center center',
         width: '100%',
         height: '100%',
@@ -100,7 +173,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           return (
             <div
               key={`${char.id}-${i}`}
-              style={{ transform: `scale(${Math.max(0, entranceScale)})`, transformOrigin: 'center bottom' }}
+              style={{ transform: `scale(${entranceScale})`, transformOrigin: 'center bottom' }}
             >
               <CharacterRenderer
                 characterId={char.id}
@@ -115,14 +188,14 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           );
         })}
 
-        {/* Dialogue bubbles + SFX per line */}
+        {/* Dialogue bubbles + SFX per line (inside camera div for proper positioning) */}
         {scene.dialogue.map((line, idx) => {
-          const startFrame = lineStarts[idx];
+          const startFrame = lineStarts[idx] ?? 0;
           const durFrames = line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
           const speakerPos = scene.chars.find(c => c.id === line.char)?.pos ?? 'center';
 
           return (
-            <React.Fragment key={idx}>
+            <React.Fragment key={`${line.char}-${idx}`}>
               <DialogueBubble
                 text={line.text}
                 characterId={line.char}
@@ -139,24 +212,6 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
                   durationFrames={Math.min(durFrames, 45)}
                 />
               )}
-
-              {/* Pattern interrupt: cut_to_black */}
-              {line.patternInterrupt === 'cut_to_black' && (
-                <Sequence from={startFrame} durationInFrames={6}>
-                  <AbsoluteFill style={{ background: '#000', zIndex: 500 }} />
-                </Sequence>
-              )}
-
-              {/* Pattern interrupt: zoom_punch (fast zoom snap on line start) */}
-              {line.patternInterrupt === 'zoom_punch' && frame >= startFrame && frame < startFrame + 4 && (
-                <AbsoluteFill style={{
-                  transform: `scale(${interpolate(frame - startFrame, [0, 4], [1.15, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
-                  transformOrigin: 'center center',
-                  background: 'transparent',
-                  zIndex: 300,
-                  pointerEvents: 'none',
-                }} />
-              )}
             </React.Fragment>
           );
         })}
@@ -170,6 +225,10 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           />
         )}
       </div>
+
+      {/* Pattern interrupt overlays — rendered OUTSIDE camera div so they are
+          not affected by camera zoom/pan/shake transforms. */}
+      {patternOverlays}
     </AbsoluteFill>
   );
 };

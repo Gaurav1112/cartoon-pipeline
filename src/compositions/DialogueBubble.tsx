@@ -41,30 +41,35 @@ export const DialogueBubble: React.FC<DialogueBubbleProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const relativeFrame = frame - startFrame;
+
+  // FIX(minor): use >= to avoid rendering one extra frame past end
+  if (relativeFrame < 0 || relativeFrame >= durationFrames) return null;
+
   const colors = BUBBLE_COLORS[characterId];
   const pos = POSITIONS[position];
 
   // Appear/disappear — gentle for kids, not snappy
   const appearScale = spring({ frame: relativeFrame, fps, config: { damping: 15, stiffness: 80 } });
+  // Guard: if durationFrames < 20 the fade range collapses — keep it valid
+  const fadeBubbleStart = Math.max(0, durationFrames - 20);
   const disappearOpacity = interpolate(
     relativeFrame,
-    [durationFrames - 20, durationFrames],  // 20 frames (0.67s) fade — gentle exit
-    [1, 0],
+    fadeBubbleStart === durationFrames ? [0, 1] : [fadeBubbleStart, durationFrames],
+    fadeBubbleStart === durationFrames ? [1, 1] : [1, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
 
   // Kid-friendly typewriter: ~8 chars/second (not 15)
   // Kids read slower, and many are pre-readers watching with parents
-  const typewriterDuration = Math.min(durationFrames * 0.5, text.length * 4); // 4 frames per char = ~8 chars/sec
-  const charsToShow = Math.floor(
+  // Guard against empty text or zero-length range (would cause interpolate to throw)
+  const typewriterDuration = Math.max(1, Math.min(durationFrames * 0.5, text.length * 4)); // 4 frames per char = ~8 chars/sec
+  const charsToShow = text.length === 0 ? 0 : Math.floor(
     interpolate(relativeFrame, [10, 10 + typewriterDuration], [0, text.length], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     }),
   );
   const displayText = text.slice(0, charsToShow);
-
-  if (relativeFrame < 0 || relativeFrame > durationFrames) return null;
 
   return (
     <div style={{
