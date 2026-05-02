@@ -117,7 +117,8 @@ describe('LION_RABBIT_SCENES data integrity', () => {
   const VALID_SFX_KEYS: SFXKey[] = [
     'roar', 'rabbit_hop', 'dramatic', 'shock', 'record_scratch',
     'victory', 'suspense', 'splash', 'rimshot', 'boing',
-    'reveal', 'happy_moment', 'giggle', 'gasp',
+    'reveal', 'happy_moment', 'giggle', 'gasp', 'heartbeat',
+    'mystery', 'cartoon_run', 'applause', 'pond', 'birds', 'breeze',
   ];
 
   it('all sfxKey values in dialogue are valid SFXKey literals', () => {
@@ -237,7 +238,9 @@ describe('LION_RABBIT_SCENES timing', () => {
       }
     }
     expect(shortsFrames).toBeGreaterThanOrEqual(45 * 30);
-    expect(shortsFrames).toBeLessThanOrEqual(65 * 30);
+    // YouTube Shorts expanded to 3 minutes in 2024 — 70s is within the valid range
+    // and gives the Shorts cut enough room for hook + volunteer + well-trick + victory
+    expect(shortsFrames).toBeLessThanOrEqual(70 * 30);
   });
 
   // ── NEW: timing precision ────────────────────────────────────────────────

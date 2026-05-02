@@ -16,7 +16,14 @@ export type SFXKey =
   | 'reveal'        // sfx/drama/reveal_sting.mp3
   | 'happy_moment'  // sfx/drama/happy_chime.mp3
   | 'giggle'        // sfx/comedy/giggle.mp3
-  | 'gasp';         // sfx/drama/crowd_gasp.mp3
+  | 'gasp'          // sfx/drama/crowd_gasp.mp3
+  | 'heartbeat'     // sfx/drama/heartbeat.mp3
+  | 'mystery'       // sfx/drama/mystery_tone.mp3
+  | 'cartoon_run'   // sfx/comedy/cartoon_run.mp3
+  | 'applause'      // sfx/drama/applause.mp3
+  | 'pond'          // sfx/nature/pond_splash.mp3 (ambient water)
+  | 'birds'         // sfx/nature/birds_chirp.mp3 (forest ambient)
+  | 'breeze';       // sfx/nature/gentle_breeze.mp3 (outdoor ambient)
 
 export type PatternInterruptType =
   | 'freeze_frame'   // camera freeze + zoom punch on this line's start
