@@ -38,10 +38,14 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'kaaliya',
-        text: 'बचोगे नहीं आज!',
+        // WHY: Specific visceral threat ("you are my food today") > vague menace.
+        // "आज तुम मेरा खाना हो!" sets immediate life-or-death stakes in 3s.
+        text: 'आज तुम मेरा खाना हो!',
         dur: 'auto',
         sfxKey: 'roar',
-        textOverlay: '🦁 एक ऐसा शेर...',
+        // WHY: Outcome paradox ("a rabbit defeated this lion") triggers "how??"
+        // instantly — it's the curiosity gap AND the hook in one textOverlay.
+        textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
       },
@@ -57,7 +61,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'dusk',
     dur: 'auto',
     chars: [
-      { id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'determined' },
+      // WHY pose:'point' — rabbit pointing off-screen signals agency + plan.
+      // calm 'determined' expression under death-threat IS the scroll-stopper.
+      { id: 'arjun', pos: 'center', pose: 'point', expr: 'determined' },
     ],
     cam: 'zoom_in',
     camI: 0.8,
@@ -65,10 +71,16 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'arjun',
-        text: 'शेर जी... रुकिए।',
+        // WHY: "एक मिनट" is casual, bored. A rabbit saying "one minute" to a
+        // lion who wants to eat it inverts the power dynamic — the scroll-stopper
+        // is the audacity, not a polite request ("रुकिए" was just asking permission).
+        text: 'एक मिनट, शेर जी।',
         dur: 'auto',
         sfxKey: 'record_scratch',
-        textOverlay: 'जिसे खरगोश ने हराया 🐰',
+        // WHY: Remove outcome spoiler — "जिसे खरगोश ने हराया" killed all suspense
+        // at second 5. "पर कैसे??" mirrors the viewer's exact thought, making them
+        // feel understood and keeping them watching to find the answer.
+        textOverlay: '🐰 एक छोटा खरगोश... पर कैसे??',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },
@@ -82,7 +94,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     id: 'intro',
     bg: 'garden',
     time: 'day',
-    dur: 5,
+    // WHY 3s: 5s of static branding after a charged 8s hook creates a drop-off
+    // cliff. 3s is sufficient for logo recognition. Subscribe CTA goes in victory.
+    dur: 3,
     chars: [],
     cam: 'static',
     camI: 0,
@@ -137,7 +151,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       {
         char: 'meera',
         // Meera's line seeds the volunteer scene: collective decision = no escape.
-        text: 'सबने मिलकर तय किया।',
+        // WHY: "बारी" (one's turn) is the word that makes a child's stomach drop.
+        // "तय किया" is past-tense bureaucratic; "हर रोज़ एक की बारी" is present,
+        // inevitable, personal — the lottery coming for YOU.
+        text: 'इसीलिए हर रोज़ एक की बारी।',
         dur: 'auto',
         textOverlay: '🎲 लॉटरी में नाम आएगा...',
       },
@@ -200,7 +217,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       {
         char: 'arjun',
         // The moral thesis. freeze_frame locks this in. Keep concise.
-        text: 'दिमाग बड़ा है।',
+        // WHY "सबसे": Bablu just said "बहुत छोटा" — Arjun flips the adjective.
+        // "सबसे" (above all) is the complete, quotable, absolute claim.
+        // "बड़ा है" (fragment) vs "सबसे बड़ा है" (complete sentence that answers directly).
+        text: 'दिमाग सबसे बड़ा है।',
         dur: 'auto',
         sfxKey: 'reveal',
         textOverlay: '🧠 > 💪',
@@ -258,7 +278,12 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // AFTER: anger + immediate death threat. "मैं खाऊँगा!" makes the
         // danger visceral and peaks menace — the contrast with Arjun's
         // breezy next line becomes comedic gold.
-        text: 'देर से क्यों आए?! मैं खाऊँगा!',
+        // WHY: "आए" is honorific plural — a lion doesn't address its lunch
+        // respectfully. "इतनी देर क्यों लगाई?!" is informal outrage-Hindi,
+        // "लगाई" = took/caused a delay. Maximises anger-to-calm contrast with
+        // Arjun's apology on the next line. Roar SFX + shake patternInterrupt
+        // carry the lethal threat without the dialogue needing to spell it out.
+        text: 'इतनी देर क्यों लगाई?!',
         dur: 'auto',
         sfxKey: 'roar',
         textOverlay: '🦁 गुस्से में शेर!',
@@ -382,7 +407,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       },
       {
         char: 'meera',
-        text: 'दिमाग से जीत होती है।',
+        // WHY: Active voice mirrors Arjun's cadence. Passive "दिमाग से जीत होती है"
+        // reads like a blackboard caption. "ताकत से नहीं — अक्ल से।" is what
+        // someone says AFTER watching something happen. The dash creates a beat.
+        text: 'ताकत से नहीं — अक्ल से।',
         dur: 'auto',
         textOverlay: '💡 Brains > Brawn',
         shortsFlag: true,
@@ -463,10 +491,13 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'kaaliya',
-        text: 'बचोगे नहीं तुम!',
+        // WHY "आज नहीं बचोगे!": echoes the hook's "आज तुम मेरा खाना हो!" — both
+        // start with "आज", creating a bookend that rewards rewatchers. Correct
+        // Hindi stress (आज at front = emphasis on TODAY, not on escaping).
+        text: 'आज नहीं बचोगे!',
         dur: 'auto',
         sfxKey: 'roar',
-        textOverlay: '🦁 शुरू से देखो...',
+        textOverlay: '🦁 याद है ये शेर? शुरू से देखो!',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
       },
