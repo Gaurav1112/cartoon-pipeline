@@ -34,22 +34,14 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     ],
     cam: 'zoom_in',
     camI: 1.0,
-    ambientSfx: 'breeze',       // Forest dusk ambience under the hook
     shortsCutScene: true,
     dialogue: [
       {
         char: 'kaaliya',
-        // WHY: "आज तुम मेरा खाना हो!" shifts the threat from abstract
-        // ("you won't escape") to visceral and specific — the viewer
-        // instantly understands: this rabbit is about to be eaten RIGHT NOW.
-        // Specific stakes land harder than vague menace on a 3-second hook.
-        text: 'आज तुम मेरा खाना हो!',
+        text: 'बचोगे नहीं आज!',
         dur: 'auto',
         sfxKey: 'roar',
-        // WHY: "इस शेर को एक खरगोश ने मात दी" replaces a vague genre label
-        // with a specific outcome paradox. It creates an immediate "how??"
-        // reaction — the textOverlay itself IS the curiosity gap opener.
-        textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
+        textOverlay: '🦁 एक ऐसा शेर...',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
       },
@@ -65,12 +57,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'dusk',
     dur: 'auto',
     chars: [
-      // WHY expr change: 'determined' over 'surprised'. The rabbit already
-      // knows his plan — he is not confused, he is calm. That calm in the
-      // face of a lion threatening to eat him is the scroll-stopper.
-      // pose changed to 'point' to signal agency: he is pointing at something
-      // off-screen (the well, though the viewer doesn't know that yet).
-      { id: 'arjun', pos: 'center', pose: 'point', expr: 'determined' },
+      { id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'determined' },
     ],
     cam: 'zoom_in',
     camI: 0.8,
@@ -78,18 +65,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'arjun',
-        // WHY: "मेरे पास एक राज़ है, शेर जी।" is audacious, not polite.
-        // It withholds the information (what secret?) while communicating
-        // power — the rabbit has leverage the lion doesn't know about.
-        // The original "रुकिए" was a request; this is a negotiation opening.
-        text: 'मेरे पास एक राज़ है, शेर जी।',
+        text: 'शेर जी... रुकिए।',
         dur: 'auto',
         sfxKey: 'record_scratch',
-        // WHY: Remove the outcome spoiler. "जिसे खरगोश ने हराया" told the
-        // viewer the rabbit wins — killing all suspense at second 5.
-        // "पर कैसे??" withholds the answer and ASKS the question the viewer
-        // is already thinking, making them feel understood and keeping them watching.
-        textOverlay: '🐰 एक छोटा खरगोश... पर कैसे??',
+        textOverlay: 'जिसे खरगोश ने हराया 🐰',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },
@@ -97,18 +76,13 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // INTRO: 8–11s — Branding AFTER hook. Not before.
-  // WHY 3s not 5s: 5 seconds of static branding after a charged 8s hook
-  // creates a momentum cliff. Shorts analytics show drop-off spikes at
-  // any energy decrease. 3 seconds is enough for logo recognition without
-  // breaking the dopamine chain built in 0–8s. Subscribe overlay in the
-  // victory scene handles the CTA without requiring a long intro card.
+  // INTRO: 8–13s — Branding AFTER hook. Not before.
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'intro',
     bg: 'garden',
     time: 'day',
-    dur: 3,
+    dur: 5,
     chars: [],
     cam: 'static',
     camI: 0,
@@ -117,6 +91,15 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
 
   // ═══════════════════════════════════════════════════════════════════
   // SETUP: 13–25s — Death lottery. Bablu's best joke FIRST.
+  // ─────────────────────────────────────────────────────────────────
+  // REWRITE (2026-05-02 frame analysis):
+  //   Bablu: "रोज़ एक जानवर?!" → extended with self-aware escape punchline.
+  //          "मैं तो भागूँ!" adds the comedian's relief-fantasy beat that
+  //          the original line was missing. The gasp lands, then the absurd
+  //          self-preservation confession delivers the laugh.
+  //   Guruji: unchanged — "शेर को रोज़ भोजन चाहिए" already states stakes.
+  //   Meera: unchanged — sets up the volunteer scene correctly.
+  //   textOverlay on Guruji's line: updated to match stronger framing.
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'setup',
@@ -124,9 +107,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'day',
     dur: 'auto',
     chars: [
-      { id: 'guruji', pos: 'center', pose: 'talk_gesture', expr: 'neutral' },
+      { id: 'guruji', pos: 'center', pose: 'talk_gesture', expr: 'sad' },
       { id: 'bablu', pos: 'right', pose: 'surprised', expr: 'scared', flip: true },
-      { id: 'meera', pos: 'left', pose: 'talk_gesture', expr: 'thinking' },
+      { id: 'meera', pos: 'left', pose: 'idle_stand', expr: 'thinking' },
     ],
     cam: 'drift',
     camI: 0.4,
@@ -134,24 +117,28 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'bablu',
-        text: 'रोज़ एक जानवर?!',
+        // BEFORE: "रोज़ एक जानवर?!" — gasp with no punchline. Comedy dies.
+        // AFTER: gasp + escape-fantasy confession. Two beats = full joke arc.
+        // "मैं तो भागूँ!" is the relatable self-preservation punchline that
+        // gets the laugh AFTER the shock lands.
+        text: 'रोज़ एक जानवर?! मैं तो भागूँ!',
         dur: 'auto',
-        sfxKey: 'gasp',          // Bablu is terrified (expr: scared) — gasp, not giggle
+        sfxKey: 'giggle',
         textOverlay: '😱 रोज़ एक जानवर!',
         shortsFlag: true,
       },
       {
         char: 'guruji',
+        // Stakes clarified: "रोज़ भोजन चाहिए" — the ongoing, daily threat.
         text: 'हाँ, शेर को रोज़ भोजन चाहिए।',
         dur: 'auto',
-        sfxKey: 'suspense',
         textOverlay: '☠️ रोज़ एक की बलि',
       },
       {
         char: 'meera',
+        // Meera's line seeds the volunteer scene: collective decision = no escape.
         text: 'सबने मिलकर तय किया।',
         dur: 'auto',
-        sfxKey: 'mystery',       // Meera's foreshadowing line — mystery sting
         textOverlay: '🎲 लॉटरी में नाम आएगा...',
       },
     ],
@@ -159,6 +146,17 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
 
   // ═══════════════════════════════════════════════════════════════════
   // RABBIT VOLUNTEERS: 25–40s — Underdog hero moment.
+  // ─────────────────────────────────────────────────────────────────
+  // REWRITE (2026-05-02 frame analysis):
+  //   Arjun 1: unchanged — "मैं जाऊँगा आज।" is the hero declaration.
+  //   Bablu 1: unchanged — reaction to the declaration.
+  //   Meera:   NEW LINE. She was present in chars but silent — silence
+  //            reads as indifference. "अर्जुन... ख़याल रखना।" gives her
+  //            a role, adds emotional weight, and creates the contrast
+  //            that makes Arjun's confident reply land harder.
+  //   Arjun 2: unchanged — "दिमाग बड़ा है।" is the moral thesis. The
+  //            freeze_frame on this line works correctly as-is.
+  //   Bablu 2: unchanged — perfect comedy callback.
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'volunteer',
@@ -171,7 +169,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'meera', pos: 'left', pose: 'talk_gesture', expr: 'surprised' },
     ],
     cam: 'zoom_in',
-    camI: 0.7,
+    camI: 0.6,
     shortsCutScene: true,
     dialogue: [
       {
@@ -191,10 +189,20 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         shortsFlag: true,
       },
       {
+        char: 'meera',
+        // NEW: emotional concern beat. Meera was in chars but had no dialogue.
+        // Her silence read as indifference. This brief worried line gives her
+        // a role and creates emotional stakes before Arjun's confident reply.
+        text: 'अर्जुन... ख़याल रखना।',
+        dur: 'auto',
+        textOverlay: '💙 मीरा की चिंता',
+      },
+      {
         char: 'arjun',
+        // The moral thesis. freeze_frame locks this in. Keep concise.
         text: 'दिमाग बड़ा है।',
         dur: 'auto',
-        sfxKey: 'reveal',        // Brain-over-brawn reveal moment — reveal sting
+        sfxKey: 'reveal',
         textOverlay: '🧠 > 💪',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
@@ -204,13 +212,25 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'गुरुजी बचाओ इसे!',
         dur: 'auto',
         sfxKey: 'rimshot',
-        textOverlay: '😂 बब्लू की दुआ!',
       },
     ],
   },
 
   // ═══════════════════════════════════════════════════════════════════
   // SLOW WALK + LATE ARRIVAL: 40–60s — Comedy + Tension combo.
+  // ─────────────────────────────────────────────────────────────────
+  // REWRITE (2026-05-02 frame analysis):
+  //   Guruji:  KEPT — perfect slow-walk comedy narration.
+  //   Kaaliya: STRENGTHENED — "मैं खाऊँगा!" adds the immediate death
+  //            threat that was missing. Peak menace maximises contrast
+  //            with Arjun's matter-of-fact reply on the next line.
+  //   Arjun:   THE CRITICAL FIX. "दूसरे शेर ने रोका।" (3 words) was the
+  //            episode's most important setup line delivered flat.
+  //            New: calm apology + specific detail = 3x longer delivery.
+  //            "माफ़ करना... रास्ते में दूसरे शेर ने रोका।" sounds like
+  //            Arjun is reporting a traffic delay. His total calm against
+  //            Kaaliya's fury IS the comedy. The contrast lands the joke.
+  //   Kaaliya: "क्या?! दूसरा शेर?!" KEPT — perfect shocked reaction.
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'late-arrival',
@@ -229,12 +249,16 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         char: 'guruji',
         text: 'खरगोश जान-बूझकर देर से आया।',
         dur: 'auto',
-        sfxKey: 'cartoon_run',   // Deliberate slow walk comedy — cartoon_run fits the plodding humor
+        sfxKey: 'boing',
         textOverlay: '🐢 बहुत... धीरे...',
       },
       {
         char: 'kaaliya',
-        text: 'देर से क्यों आए?!',
+        // BEFORE: "देर से क्यों आए?!" — anger without lethal edge.
+        // AFTER: anger + immediate death threat. "मैं खाऊँगा!" makes the
+        // danger visceral and peaks menace — the contrast with Arjun's
+        // breezy next line becomes comedic gold.
+        text: 'देर से क्यों आए?! मैं खाऊँगा!',
         dur: 'auto',
         sfxKey: 'roar',
         textOverlay: '🦁 गुस्से में शेर!',
@@ -243,10 +267,18 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       },
       {
         char: 'arjun',
-        text: 'दूसरे शेर ने रोका।',
+        // BEFORE: "दूसरे शेर ने रोका।" — 3 words, the twist delivered flat.
+        //         This is the setup for the well-trick and it was invisible.
+        // AFTER: calm apology + specific location detail. Arjun sounds like
+        //        he's describing a minor inconvenience. His nonchalance while
+        //        a furious lion threatens to eat him IS the comedy. The longer
+        //        delivery gives Kaaliya — and the viewer — time to process the
+        //        absurdity before the "क्या?!" reaction hits.
+        text: 'माफ़ करना... रास्ते में दूसरे शेर ने रोका।',
         dur: 'auto',
-        sfxKey: 'suspense',     // Big twist reveal — suspense sting before Kaaliya's shock
+        sfxKey: 'suspense',
         textOverlay: '🤯 दूसरा शेर??',
+        patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },
       {
@@ -271,33 +303,20 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dur: 'auto',
     chars: [
       { id: 'arjun', pos: 'left', pose: 'point', expr: 'determined' },
-      { id: 'kaaliya', pos: 'right', pose: 'angry', expr: 'angry', flip: true },
-      { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'surprised' },
+      { id: 'kaaliya', pos: 'right', pose: 'idle_stand', expr: 'angry', flip: true },
+      { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'neutral' },
     ],
     cam: 'zoom_in',
     camI: 0.9,
-    ambientSfx: 'pond',         // Water ambience sets the physical reality of the well
     shortsCutScene: true,
     dialogue: [
-      // FIX (CRITICAL): "कुएँ में है" gave Kaaliya no reason to believe it.
-      // Ego-trap needs (a) WHERE the rival lives and (b) HOW BIG — two beats
-      // that prime the jealousy BEFORE "मुझसे बड़ा?!" can land. Without the
-      // size-brag the lion has no reason to react. Split into two short lines.
       {
         char: 'arjun',
-        text: 'वो शेर उस कुएँ में है।',
+        text: 'वो शेर कुएँ में है।',
         dur: 'auto',
         sfxKey: 'suspense',
         textOverlay: '🕳️ उस कुएँ में...',
         shortsFlag: true,
-      },
-      {
-        char: 'arjun',
-        text: 'बड़ा भी, खतरनाक भी!',
-        dur: 'auto',
-        sfxKey: 'suspense',
-        textOverlay: '😱 तुमसे भी बड़ा?!',
-        // No shortsFlag: size-brag is context for the ego-trap, not a Shorts highlight
       },
       {
         char: 'kaaliya',
@@ -313,14 +332,6 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         dur: 'auto',
         sfxKey: 'suspense',
         textOverlay: '👀 झाँका...',
-        shortsFlag: true,
-      },
-      {
-        char: 'kaaliya',
-        text: '...',
-        dur: 30,
-        sfxKey: 'heartbeat',
-        textOverlay: '💓 ...',
         shortsFlag: true,
       },
       {
@@ -341,16 +352,6 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
       },
-      // FIX: Post-splash silent beat (~1.4s). The SPLASH is the biggest
-      // payoff of the episode. Cutting immediately to victory music robs
-      // viewers of the processing beat. Arjun stares at the well — stillness
-      // after chaos is classic comedy timing (the "takes a moment" beat).
-      {
-        char: 'arjun',
-        text: '...',
-        dur: 36,
-        textOverlay: '🐰 ...',
-      },
     ],
   },
 
@@ -368,8 +369,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'meera', pos: 'left', pose: 'wave', expr: 'happy' },
     ],
     cam: 'drift',
-    camI: 0.7,
-    ambientSfx: 'birds',        // Forest birds enhance the post-victory celebration
+    camI: 0.5,
+    shortsCutScene: true,
     dialogue: [
       {
         char: 'bablu',
@@ -379,27 +380,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🎉 GALAXY BRAIN 🧠',
         shortsFlag: true,
       },
-      // FIX: Bablu's emotional arc callback. He said "गुरुजी बचाओ इसे!" when
-      // Arjun volunteered. Now he confesses how scared he was — this completes
-      // his arc (terrified sidekick → relieved witness) and rewards viewers who
-      // paid attention to that earlier line. Keeps the burst energy going.
-      {
-        char: 'bablu',
-        text: 'मैं डरा था! सच में!',
-        dur: 'auto',
-        sfxKey: 'giggle',
-        textOverlay: '😅 बब्लू था डरा हुआ!',
-        // No shortsFlag: callback arc pays off for full-episode viewers; Shorts
-        // already has enough energy from Bablu's first burst line
-      },
       {
         char: 'meera',
-        // FIX: "दिमाग से जीत होती है" is the academic passive voice. This
-        // punched-up version uses active construction ("दिमाग हो तो") that
-        // mirrors Arjun's imperative cadence — same char count, more punch.
-        text: 'दिमाग हो तो ताकत क्यों चाहिए?',
+        text: 'दिमाग से जीत होती है।',
         dur: 'auto',
-        sfxKey: 'applause',
         textOverlay: '💡 Brains > Brawn',
         shortsFlag: true,
       },
@@ -428,15 +412,11 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'bablu', pos: 'right', pose: 'idle_stand', expr: 'happy', flip: true },
     ],
     cam: 'zoom_in',
-    camI: 0.6,
+    camI: 0.5,
     dialogue: [
       {
         char: 'guruji',
-        // FIX: "क्या सीखा बच्चों?" is an abrupt cold cut from victory energy.
-        // "अब बताओ — क्या सीखा?" starts with the connective "अब" (now/having
-        // seen that) which anchors the lesson to the story just witnessed,
-        // turning the scene break into a natural rhetorical follow-through.
-        text: 'अब बताओ — क्या सीखा?',
+        text: 'क्या सीखा बच्चों?',
         dur: 'auto',
         sfxKey: 'reveal',
         textOverlay: '🎓 आज का पाठ',
@@ -495,10 +475,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'देखते हैं शेर जी!',
         dur: 'auto',
         sfxKey: 'dramatic',
-        // FIX: "फिर से देखो!" is a generic CTA. "याद है ये शेर? 🦁" explicitly
-        // echoes the opening frame — creates the loop recognition that triggers
-        // the rewatch. Viewer's brain connects END → START consciously.
-        textOverlay: '🦁 याद है ये शेर? शुरू से देखो!',
+        textOverlay: '🔁 फिर से देखो!',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },

@@ -88,7 +88,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const talkBob = isTalking ? Math.sin(frame * 0.12) * 2.5 : 0;
   // Pupil drift (eyes look alive)
   const pupilDriftX = Math.sin(frame * 0.04 + characterId.charCodeAt(0)) * 1.5;
-  const pupilDriftY = Math.cos(frame * 0.03 + characterId.charCodeAt(1) || 0) * 0.8;
+  const pupilDriftY = Math.cos(frame * 0.03 + (characterId.charCodeAt(1) || 0)) * 0.8;
   // Walk bob (vertical bounce when walking)
   const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
 
