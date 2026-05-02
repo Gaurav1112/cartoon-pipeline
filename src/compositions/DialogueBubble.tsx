@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import type { CharacterId } from '../types';
+import { TextOverlay } from './episode1/TextOverlay';
 
 interface DialogueBubbleProps {
   text: string;
@@ -8,6 +9,8 @@ interface DialogueBubbleProps {
   position: 'left' | 'center' | 'right';
   startFrame: number;
   durationFrames: number;
+  /** Optional bold on-screen text shown simultaneously. For muted viewers. */
+  textOverlay?: string;
 }
 
 const BUBBLE_COLORS: Record<CharacterId, { bg: string; border: string; text: string }> = {
@@ -33,6 +36,7 @@ export const DialogueBubble: React.FC<DialogueBubbleProps> = ({
   position,
   startFrame,
   durationFrames,
+  textOverlay,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -109,6 +113,14 @@ export const DialogueBubble: React.FC<DialogueBubbleProps> = ({
           <line x1="2" y1="0" x2="28" y2="0" stroke={colors.bg} strokeWidth="5" />
         </svg>
       </div>
+      {textOverlay && (
+        <TextOverlay
+          text={textOverlay}
+          startFrame={startFrame}
+          durationFrames={durationFrames}
+          position="bottom"
+        />
+      )}
     </div>
   );
 };
