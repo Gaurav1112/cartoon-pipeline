@@ -118,11 +118,13 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         char: 'guruji',
         text: 'हाँ, शेर को रोज़ भोजन चाहिए।',
         dur: 'auto',
+        textOverlay: '☠️ रोज़ एक की बलि',
       },
       {
         char: 'meera',
         text: 'सबने मिलकर तय किया।',
         dur: 'auto',
+        textOverlay: '🎲 लॉटरी में नाम आएगा...',
       },
     ],
   },
@@ -157,6 +159,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'पर तू बहुत छोटा है!',
         dur: 'auto',
         sfxKey: 'gasp',
+        textOverlay: '😂 इसकी हिम्मत देखो!',
         shortsFlag: true,
       },
       {
@@ -190,7 +193,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'neutral' },
     ],
     cam: 'pan_right',
-    camI: 0.5,
+    camI: 0.75,
     dialogue: [
       {
         char: 'guruji',
@@ -204,6 +207,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'देर से क्यों आए?!',
         dur: 'auto',
         sfxKey: 'roar',
+        textOverlay: '🦁 गुस्से में शेर!',
         patternInterrupt: 'shake',
         shortsFlag: true,
       },
@@ -211,6 +215,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         char: 'arjun',
         text: 'दूसरे शेर ने रोका।',
         dur: 'auto',
+        textOverlay: '🤯 दूसरा शेर??',
         shortsFlag: true,
       },
       {
@@ -255,6 +260,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'मुझसे बड़ा?! चलो!',
         dur: 'auto',
         sfxKey: 'roar',
+        textOverlay: '🦁 अपनी मौत की तरफ...',
         shortsFlag: true,
       },
       {
@@ -315,6 +321,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         char: 'meera',
         text: 'दिमाग से जीत होती है।',
         dur: 'auto',
+        textOverlay: '💡 Brains > Brawn',
         shortsFlag: true,
       },
       {
@@ -342,19 +349,21 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'bablu', pos: 'right', pose: 'idle_stand', expr: 'happy', flip: true },
     ],
     cam: 'zoom_in',
-    camI: 0.3,
+    camI: 0.5,
     dialogue: [
       {
         char: 'guruji',
         text: 'क्या सीखा बच्चों?',
         dur: 'auto',
         sfxKey: 'reveal',
+        textOverlay: '🎓 आज का पाठ',
       },
       {
         char: 'arjun',
         text: 'अक्ल से सब हल होता है।',
         dur: 'auto',
         sfxKey: 'happy_moment',
+        textOverlay: '🧠 अक्ल = ताकत',
       },
       {
         char: 'bablu',
@@ -369,6 +378,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'पढ़ाई करो बेटा।',
         dur: 'auto',
         sfxKey: 'giggle',
+        textOverlay: '📚 पढ़ाई करो!',
       },
     ],
   },
@@ -382,23 +392,39 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'dusk',
     dur: 'auto',
     chars: [
-      { id: 'arjun', pos: 'center', pose: 'wave', expr: 'happy' },
+      { id: 'arjun', pos: 'center', pose: 'point', expr: 'determined' },
+      { id: 'kaaliya', pos: 'right', pose: 'angry', expr: 'angry', flip: true },
     ],
     cam: 'zoom_in',
-    camI: 0.5,
-    shortsCutScene: true,
+    camI: 0.8,
     dialogue: [
       {
-        char: 'arjun',
-        text: 'फिर मिलेंगे!',
+        char: 'kaaliya',
+        text: 'बचोगे नहीं तुम!',
         dur: 'auto',
         sfxKey: 'roar',
+        textOverlay: '🦁 शुरू से देखो...',
+        patternInterrupt: 'zoom_punch',
+        shortsFlag: true,
+      },
+      {
+        char: 'arjun',
+        text: 'देखते हैं शेर जी!',
+        dur: 'auto',
+        sfxKey: 'dramatic',
         textOverlay: '🔁 फिर से देखो!',
+        patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },
     ],
   },
 ];
 
-/** Index of the intro scene — used by Episode1.tsx to render IntroSequence */
-export const INTRO_SCENE_INDEX = LION_RABBIT_SCENES.findIndex(s => s.id === 'intro');
+/** Index of the intro scene — used by Episode1.tsx to render IntroSequence.
+ *  findIndex returns -1 if not found; guard here so callers get a runtime
+ *  error at startup rather than silent wrong-scene rendering. */
+const _introIdx = LION_RABBIT_SCENES.findIndex(s => s.id === 'intro');
+if (_introIdx === -1) {
+  throw new Error('[scenes-lion-rabbit] No scene with id "intro" found in LION_RABBIT_SCENES.');
+}
+export const INTRO_SCENE_INDEX: number = _introIdx;
