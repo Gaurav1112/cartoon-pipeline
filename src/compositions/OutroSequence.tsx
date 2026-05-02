@@ -1,7 +1,22 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, spring, useVideoConfig, interpolate } from 'remotion';
+import type { SupportedLanguage } from '../types';
 
-export const OutroSequence: React.FC = () => {
+const NEXT_EPISODE_TEXT: Record<SupportedLanguage, string> = {
+  hi: 'अगली कहानी जल्दी आ रही है!',
+  te: 'తదుపరి కథ త్వరలో వస్తోంది!',
+  ta: 'அடுத்த கதை விரைவில் வருகிறது!',
+  kn: 'ಮುಂದಿನ ಕಥೆ ಶೀಘ್ರದಲ್ಲೇ ಬರುತ್ತಿದೆ!',
+  mr: 'पुढची गोष्ट लवकरच येत आहे!',
+  bn: 'পরের গল্প শীঘ্রই আসছে!',
+  en: 'Next story coming soon!',
+};
+
+interface OutroSequenceProps {
+  language?: SupportedLanguage;
+}
+
+export const OutroSequence: React.FC<OutroSequenceProps> = ({ language = 'en' }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -62,7 +77,7 @@ export const OutroSequence: React.FC = () => {
           marginTop: 40,
           opacity: interpolate(frame, [120, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
         }}>
-          अगली कहानी जल्दी आ रही है!
+          {NEXT_EPISODE_TEXT[language]}
         </p>
       </div>
 

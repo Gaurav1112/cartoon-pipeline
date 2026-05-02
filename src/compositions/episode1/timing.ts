@@ -49,6 +49,12 @@ export function validateSceneChars(scene: ViralScene): void {
 
 /**
  * Calculate the total frame count for an entire episode.
+ *
+ * Transitions in Episode1.tsx use a half-overlap pattern: each 16-frame
+ * TransitionEffect starts 8 frames before the scene boundary (`from =
+ * currentFrame - 8`). This means transitions are fully contained within
+ * adjacent scene extents and do NOT add to the total frame count.
+ * Only the moral card and outro extend the timeline beyond the scenes.
  */
 export function calcEpisodeDuration(scenes: ViralScene[]): number {
   const MORAL_CARD_FRAMES = 6 * FPS;

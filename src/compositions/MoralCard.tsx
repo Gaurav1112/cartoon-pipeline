@@ -1,9 +1,20 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, spring, useVideoConfig, interpolate } from 'remotion';
-import type { MoralTemplate } from '../types';
+import type { MoralTemplate, SupportedLanguage } from '../types';
+
+const MORAL_HEADER: Record<SupportedLanguage, string> = {
+  hi: 'कहानी की सीख',
+  te: 'కథ యొక్క నీతి',
+  ta: 'கதையின் நீதி',
+  kn: 'ಕಥೆಯ ನೀತಿ',
+  mr: 'गोष्टीचा बोध',
+  bn: 'গল্পের নীতি',
+  en: 'Moral of the Story',
+};
 
 interface MoralCardProps {
   moral: MoralTemplate;
+  language?: SupportedLanguage;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -12,7 +23,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   gratitude: '🌻',
 };
 
-export const MoralCard: React.FC<MoralCardProps> = ({ moral }) => {
+export const MoralCard: React.FC<MoralCardProps> = ({ moral, language = 'en' }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -46,13 +57,13 @@ export const MoralCard: React.FC<MoralCardProps> = ({ moral }) => {
             {icon}
           </div>
 
-          {/* "Moral of the story" header */}
+          {/* "Moral of the story" header — language-aware */}
           <h2 style={{
             fontFamily: "'Baloo 2', sans-serif",
             fontSize: 36, color: '#FFD700',
             marginBottom: 20, opacity: textOpacity,
           }}>
-            Moral of the Story
+            {MORAL_HEADER[language]}
           </h2>
 
           {/* Moral text */}
