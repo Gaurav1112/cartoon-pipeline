@@ -67,6 +67,11 @@ export interface ViralDialogueLine {
    * overlap when this line and the next belong to the same beat.
    */
   postGapMs?: number;
+  /**
+   * M4.2 (MrBeast cut planner): 0..1 score marking this line as a
+   * stinger-worthy hero moment for cut variants. Default 0 = filler.
+   */
+  heroMomentScore?: number;
 }
 
 export interface ViralSceneChar {

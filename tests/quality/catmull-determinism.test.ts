@@ -59,7 +59,11 @@ describe('Catmull determinism contract — byte-stable across runs', () => {
       // To intentionally rotate this hash: run the generator, paste the
       // new digest, and explain the rationale in the commit message.
       expect(hash).toBe(
-        '148b7b651e165dc7ba1d151815bb62fca61277bce56a00ee58c69cb61b08fe14',
+        // M4.2 re-pin: heroMomentScore field added to DialogueLine and
+        // seeded by context (HERO_SCORE_BY_CONTEXT). Story narrative,
+        // characters, beats unchanged — only an additive metadata field
+        // for the cut planner.
+        'b53f3678b529679dfe848d304ed3a90bb0ddff7704eaf1473fedf6f98fc00f55',
       );
     });
   });

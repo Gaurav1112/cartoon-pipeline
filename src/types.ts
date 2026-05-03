@@ -168,6 +168,12 @@ export interface DialogueLine {
    * Miyazaki "ma": large (400-700) for moral landings.
    */
   postGapMs?: number;
+  /**
+   * M4.2 (MrBeast cut planner): 0..1 score for how "stinger-worthy"
+   * this line is. The cut planner uses these to assemble 15s/30s/60s
+   * variant plans without re-rendering. Default 0 = filler.
+   */
+  heroMomentScore?: number;
 }
 
 export interface EpisodeScene {

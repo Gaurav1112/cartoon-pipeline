@@ -113,6 +113,24 @@ function archetypeToEmotion(archetype: CharacterArchetype, mood: string): Emotio
 
 // ─── Story Beat → Dialogue Context Mapping ────────────────────────────────
 
+/**
+ * M4.2 (MrBeast cut planner): map dialogue context to a base hero
+ * score. Lines tagged 'moral'/'resolution'/'threat'/'discovery' carry
+ * narrative weight and become eligible for stinger reels; all other
+ * contexts stay at 0 (filler) so the cut planner doesn't pad with
+ * exposition.
+ */
+const HERO_SCORE_BY_CONTEXT: Partial<Record<SceneContext, number>> = {
+  threat: 0.95,
+  conflict: 0.7,
+  discovery: 0.92,
+  challenge: 0.6,
+  resolution: 0.8,
+  moral: 0.85,
+  celebration: 0.75,
+  reaction: 0.5,
+};
+
 /** Map story act names to dialogue contexts so dialogue reflects the actual narrative */
 function inferContextsFromBeat(beatName: string): SceneContext[] {
   const lower = beatName.toLowerCase();
@@ -287,11 +305,17 @@ export function generateEpisode(topicId: number, episodeNumber: number): Cartoon
       const dialogue: DialogueLine[] = [];
       for (let d = 0; d < lineCount; d++) {
         const speakerId = seededPick(sceneCharacterIds, rng);
+        const ctx = seededPick(contexts, rng);
         dialogue.push({
           characterId: speakerId,
           text: '', // filled by dialogue engine per language
           emotion: archetypeToEmotion(CHARACTERS[speakerId].archetype, act.mood),
-          context: seededPick(contexts, rng),
+          context: ctx,
+          // M4.2 (MrBeast cut planner): seed a context-derived hero score
+          // so cut variants can be assembled without hand-tagging every
+          // generated episode. Only narrative-load contexts qualify; all
+          // others stay at 0 (filler).
+          heroMomentScore: HERO_SCORE_BY_CONTEXT[ctx] ?? 0,
         });
       }
 

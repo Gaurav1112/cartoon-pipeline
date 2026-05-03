@@ -50,6 +50,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
+        // M4.2 (MrBeast): hook villain threat — top-tier stinger material.
+        heroMomentScore: 0.95,
         // Murch "ma" on the threat — let it land before pivoting to rabbit.
         postGapMs: 250,
       },
@@ -181,6 +183,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // MrBeast 8-sec rule: this is now the LAST line of setup, so it
         // must carry an interrupt to keep the trailing run ≤240fr.
         patternInterrupt: 'freeze_frame',
+        // M4.2 (MrBeast): the thesis line — "brain beats brawn" set-up.
+        heroMomentScore: 0.9,
       },
     ],
   },
@@ -412,6 +416,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🤣 HE BELIEVED IT 💀',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
+        // M4.2 (MrBeast): the well-trick reveal — peak-payoff stinger.
+        heroMomentScore: 1.0,
       },
       // M3.3 (Docter empathic arc): Kaaliya's defeat-recognition beat.
       // The villain disappearing without a single "what just happened?!"
@@ -543,6 +549,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // 600ms post-line silence = the lesson hits a beat of stillness.
         patternInterrupt: 'freeze_frame',
         postGapMs: 600,
+        // M4.2 (MrBeast): the moral statement — quotable closer.
+        heroMomentScore: 0.85,
       },
       {
         char: 'bablu',
