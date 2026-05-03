@@ -126,21 +126,23 @@ export const AICharacterRenderer: React.FC<AICharacterRendererProps> = ({
     <div
       style={{
         position: 'absolute',
-        left: position.x - 70 * scale,
-        top: position.y - 180 * scale + walkBob + talkBob,
-        width: 140 * scale,
-        height: 220 * scale,
+        left: position.x - 110 * scale,
+        top: position.y - 320 * scale + walkBob + talkBob,
+        width: 220 * scale,
+        height: 320 * scale,
         transform: `scaleX(${flipX ? -1 : 1}) scaleY(${1 + breathe}) rotate(${idleSway}deg) scale(${entranceScale})`,
         transformOrigin: 'center bottom',
       }}
     >
-      {/* AI-generated character PNG */}
+      {/* AI-generated character PNG. objectPosition:bottom anchors feet to
+          the bottom of the bbox so position.y is the actual ground line. */}
       <Img
         src={staticFile(imagePath)}
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'contain',
+          objectPosition: 'center bottom',
         }}
       />
 
@@ -170,16 +172,16 @@ export const AICharacterRenderer: React.FC<AICharacterRendererProps> = ({
         </svg>
       )}
 
-      {/* Ground shadow */}
+      {/* Ground shadow — wide ellipse directly under feet */}
       <div style={{
         position: 'absolute',
-        bottom: -4 * scale,
-        left: '15%',
-        width: '70%',
-        height: 8 * scale,
-        background: 'rgba(0,0,0,0.15)',
+        bottom: -8 * scale,
+        left: '12%',
+        width: '76%',
+        height: 16 * scale,
+        background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 80%)',
         borderRadius: '50%',
-        filter: 'blur(3px)',
+        filter: 'blur(4px)',
       }} />
     </div>
   );

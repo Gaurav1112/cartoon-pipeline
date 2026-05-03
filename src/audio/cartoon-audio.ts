@@ -194,12 +194,46 @@ const execFileAsync = promisify(execFile);
 
 // ─── TTS Generation ───────────────────────────────────────────────────────
 
+// Per-line context needed to route to the right TTS backend.
+// Optional fields default to old behaviour for backwards compatibility.
+export interface TTSContext {
+  language?: string;     // ISO code: 'en', 'hi', etc.
+  characterId?: CharacterId;
+}
+
 export async function generateTTS(
   text: string,
   voice: string,
   emotion: EmotionType,
   outputPath: string,
+  ctx: TTSContext = {},
 ): Promise<void> {
+  // ─── PRIMARY ROUTE: piper-tts (local, free, deterministic) ───────────────
+  // Covers en, hi, te. Bit-identical bytes via --noise-scale 0. Cached by
+  // sha256(text + voice + scale) under audio-cache/piper/. First render
+  // populates cache; subsequent renders are zero-cost replays.
+  //
+  // ta/bn/mr/gu fall through to edge-tts below (Microsoft Indian voices are
+  // strong for those languages and edge-tts is free).
+  //
+  // ElevenLabs adapter (`elevenlabs-tts.ts`) is kept on disk for the day a
+  // paid plan is acquired, but is DORMANT in this routing because the free
+  // tier was disabled by ElevenLabs ("detected_unusual_activity").
+  if (ctx.language) {
+    const { piperSupports, getPiperVoice } = await import('./piper-voices');
+    if (piperSupports(ctx.language)) {
+      const choice = getPiperVoice(ctx.language, ctx.characterId);
+      if (choice) {
+        const { generatePiperTTS } = await import('./piper-tts');
+        await generatePiperTTS(
+          { text, modelBasename: choice.modelBasename, lengthScale: choice.lengthScale },
+          outputPath,
+        );
+        return;
+      }
+    }
+  }
+
   // edge-tts accepts --text for plain text (NOT --file)
   // Use SSML prosody via --text with rate/pitch adjustments
   const { getSSMLProsody } = await import('./emotion-prosody');
@@ -328,7 +362,7 @@ export async function generateEffortSound(
   const text = effortTexts[emotion];
   if (!text) return;
 
-  // Use edge-tts with very short text
+  // Effort grunt — short non-dialogue. Stay on edge-tts (cheap, no quota burn).
   const voice = getBaseVoice(characterId, 'en');
   await generateTTS(text, voice, emotion, outputPath);
 }
@@ -396,9 +430,12 @@ export async function generateEpisodeAudio(
       const rawPath = path.join(outputDir, `raw_${scene.sceneIndex}_${lineIdx}.mp3`);
       const transformedPath = path.join(outputDir, `voice_${scene.sceneIndex}_${lineIdx}.wav`);
 
-      // Generate TTS
+      // Generate TTS — EN routes to ElevenLabs (cached), others to edge-tts
       const voice = getBaseVoice(line.characterId, language);
-      await generateTTS(line.text, voice, line.emotion, rawPath);
+      await generateTTS(line.text, voice, line.emotion, rawPath, {
+        language,
+        characterId: line.characterId,
+      });
 
       // Transform voice (pitch, speed, EQ)
       await transformVoice(rawPath, transformedPath, line.characterId);

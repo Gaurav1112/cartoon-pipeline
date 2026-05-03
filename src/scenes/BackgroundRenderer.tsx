@@ -10,6 +10,14 @@ const STOCK_BG_BY_LOCATION: Partial<Record<LocationType, string>> = {
   river:     'backgrounds/river.jpg',
   village:   'backgrounds/well_scene.jpg',
   mountain:  'backgrounds/mountains_far.jpg',
+  hilltop:   'backgrounds/hilltop.jpg',
+  harbor:    'backgrounds/harbor_day.jpg',
+};
+
+// Per time-of-day variants override the base mapping when both location AND time match
+const STOCK_BG_BY_LOCATION_TIME: Record<string, string> = {
+  'forest:night':  'backgrounds/forest_night.jpg',
+  'harbor:night':  'backgrounds/harbor_night.jpg',
 };
 
 // Per time-of-day CSS filter to re-tint the same plate.
@@ -407,7 +415,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   };
 
   const bg = backgroundMap[locationType] ?? renderGenericBackground(locationType, palette, offset);
-  const stockPath = STOCK_BG_BY_LOCATION[locationType];
+  const stockPath = STOCK_BG_BY_LOCATION_TIME[`${locationType}:${timeOfDay}`] ?? STOCK_BG_BY_LOCATION[locationType];
 
   // Time-of-day color wash
   const TIME_WASH: Record<string, string> = {
