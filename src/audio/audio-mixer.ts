@@ -7,14 +7,47 @@ const execFileAsync = promisify(execFile);
 const dbToRatio = (db: number): number => Math.pow(10, db / 20);
 
 /**
+ * Sidechain compressor threshold (linear amplitude) used for ducking
+ * music / SFX under dialogue.
+ *
+ * Calibration source: measured peak amplitude of edge-tts
+ * `hi-IN-MadhurNeural` at default rate/pitch on a representative
+ * dialogue line, 2026-05. Peak ≈ 0.025 linear; threshold = 0.6 * peak
+ * lands at the average dialogue body, ducking the music whenever
+ * Madhur is actually speaking (not on the noise floor).
+ *
+ * For other voices, derive a per-episode threshold via
+ * {@link calibrateDuckThreshold} on the measured TTS peak and pass it
+ * to {@link buildMixCommand}.
+ */
+export const DUCK_THRESHOLD = 0.015;
+
+/**
+ * Map a measured linear peak amplitude to a sidechain threshold.
+ * Returns 0.6 * peak, clamped to [0.005, 0.05]:
+ *   - lower bound 0.005 prevents over-triggering on near-silent input
+ *   - upper bound 0.05 prevents the duck from never engaging
+ */
+export function calibrateDuckThreshold(measuredPeakLinear: number): number {
+  const raw = measuredPeakLinear * 0.6;
+  return Math.max(0.005, Math.min(0.05, raw));
+}
+
+/**
  * Build ffmpeg command for multi-layer audio mixing.
  *
  * FIXES from expert review:
  * 1. amix normalize=0 (prevents auto-division by N inputs)
  * 2. Fade-out uses reverse-fade trick (always fades at end, no duration needed)
  * 3. Sidechain compression for ducking music/SFX during dialogue
+ * 4. Brick-wall alimiter after loudnorm (M1.2)
+ * 5. Calibratable duck threshold (M1.3)
  */
-export function buildMixCommand(outputPath: string, layers: AudioLayer[]): string[] {
+export function buildMixCommand(
+  outputPath: string,
+  layers: AudioLayer[],
+  duckThreshold: number = DUCK_THRESHOLD,
+): string[] {
   if (layers.length === 0) return [];
 
   const args: string[] = [];
@@ -82,7 +115,7 @@ export function buildMixCommand(outputPath: string, layers: AudioLayer[]): strin
 
       duckableIndices.forEach((layerIdx, j) => {
         filterParts.push(
-          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=0.015:ratio=8:attack=10:release=250[dk${layerIdx}]`,
+          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=${duckThreshold}:ratio=8:attack=10:release=250[dk${layerIdx}]`,
         );
         finalLabels.push(`[dk${layerIdx}]`);
       });
