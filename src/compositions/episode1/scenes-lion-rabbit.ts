@@ -41,13 +41,17 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // WHY: Specific visceral threat ("you are my food today") > vague menace.
         // "आज तुम मेरा खाना हो!" sets immediate life-or-death stakes in 3s.
         text: 'आज तुम मेरा खाना हो!',
-        dur: 'auto',
+        // MrBeast hook ≤90 frames (3s) — TikTok max-completion sweet spot.
+        // Auto would be 129 fr (4.3s); explicit clamp keeps the hook punchy.
+        dur: 90,
         sfxKey: 'roar',
         // WHY: Outcome paradox ("a rabbit defeated this lion") triggers "how??"
         // instantly — it's the curiosity gap AND the hook in one textOverlay.
         textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
+        // Murch "ma" on the threat — let it land before pivoting to rabbit.
+        postGapMs: 250,
       },
     ],
   },
@@ -147,6 +151,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'हाँ, शेर को रोज़ भोजन चाहिए।',
         dur: 'auto',
         textOverlay: '☠️ रोज़ एक की बलि',
+        // MrBeast 8-sec rule: setup runs 525 fr — needs a visual punch
+        // mid-scene to reset attention before retention cliff.
+        patternInterrupt: 'freeze_frame',
       },
       {
         char: 'meera',
@@ -157,6 +164,22 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'इसीलिए हर रोज़ एक की बारी।',
         dur: 'auto',
         textOverlay: '🎲 लॉटरी में नाम आएगा...',
+        // Murch "ma": let the lottery threat hang before the doubt lands.
+        postGapMs: 350,
+      },
+      {
+        char: 'bablu',
+        // Docter theme spine: foreshadow the thesis. Bablu names brawn
+        // as our ONLY tool — sets up Arjun's brain-flip in volunteer scene.
+        // Without this line the moral "brain beats brawn" arrives unprepared.
+        text: 'ताकत से तो हम जीत नहीं सकते...',
+        dur: 'auto',
+        sfxKey: 'gasp',
+        textOverlay: '💪❌ ताकत काम नहीं आएगी',
+        postGapMs: 400,
+        // MrBeast 8-sec rule: this is now the LAST line of setup, so it
+        // must carry an interrupt to keep the trailing run ≤240fr.
+        patternInterrupt: 'freeze_frame',
       },
     ],
   },
@@ -196,6 +219,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'dramatic',
         textOverlay: '🐰 छोटा खरगोश... बड़ी हिम्मत',
         shortsFlag: true,
+        // Murch "ma": heroic declaration needs a beat to land.
+        postGapMs: 300,
       },
       {
         char: 'bablu',
@@ -204,13 +229,15 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'gasp',
         textOverlay: '😂 इसकी हिम्मत देखो!',
         shortsFlag: true,
+        // Comedy beat needs a small breath before Meera's worry.
+        postGapMs: 250,
       },
       {
         char: 'meera',
         // NEW: emotional concern beat. Meera was in chars but had no dialogue.
         // Her silence read as indifference. This brief worried line gives her
         // a role and creates emotional stakes before Arjun's confident reply.
-        text: 'अर्जुन... ख़याल रखना।',
+        text: 'सोचो, फिर बोलो — अर्जुन, ख़याल रखना।',
         dur: 'auto',
         textOverlay: '💙 मीरा की चिंता',
       },
@@ -226,6 +253,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🧠 > 💪',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
+        // Miyazaki "ma": after the thesis hits, hold 500ms of silence
+        // before the next line. The lesson needs air to land.
+        postGapMs: 500,
       },
       {
         char: 'bablu',
@@ -455,6 +485,11 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         dur: 'auto',
         sfxKey: 'happy_moment',
         textOverlay: '🧠 अक्ल = ताकत',
+        // Miyazaki "ma" + MrBeast 8-sec rule converge: freeze on the moral
+        // thesis lets the lesson land AND breaks the retention cliff.
+        // 600ms post-line silence = the lesson hits a beat of stillness.
+        patternInterrupt: 'freeze_frame',
+        postGapMs: 600,
       },
       {
         char: 'bablu',
@@ -463,10 +498,12 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'rimshot',
         textOverlay: '😭 बेचारा बब्लू',
         shortsFlag: true,
+        // Comedy beat lands harder with a freeze on the punchline.
+        patternInterrupt: 'freeze_frame',
       },
       {
         char: 'guruji',
-        text: 'पढ़ाई करो बेटा।',
+        text: 'पढ़ाई करो बेटा। धैर्य ही विजय है।',
         dur: 'auto',
         sfxKey: 'giggle',
         textOverlay: '📚 पढ़ाई करो!',

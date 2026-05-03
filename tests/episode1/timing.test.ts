@@ -78,6 +78,11 @@ describe('calcDialogueDur', () => {
 // ─── calcSceneDur ─────────────────────────────────────────────────────────────
 
 describe('calcSceneDur', () => {
+  // calcSceneDur now includes default postGap (200ms = 6 frames @30fps) per
+  // line so video & audio timelines stay in sync. Tests below use the
+  // POST_GAP constant explicitly so the contract is visible.
+  const POST_GAP = 6; // DEFAULT_POST_GAP_MS=200 × FPS=30 / 1000 = 6 frames
+
   it('sums all dialogue durations in a scene', () => {
     const lines = [
       { char: 'guruji' as const, text: 'आओ', dur: 'auto' as const },
@@ -87,11 +92,11 @@ describe('calcSceneDur', () => {
     expect(result).toBeGreaterThan(calcDialogueDur('आओ'));
   });
 
-  it('respects explicit dur numbers over auto', () => {
+  it('respects explicit dur numbers over auto (plus default postGap)', () => {
     const lines = [
       { char: 'arjun' as const, text: 'hello', dur: 999 },
     ];
-    expect(calcSceneDur(lines)).toBe(999);
+    expect(calcSceneDur(lines)).toBe(999 + POST_GAP);
   });
 
   // ── NEW ──────────────────────────────────────────────────────────────────
@@ -100,33 +105,39 @@ describe('calcSceneDur', () => {
     expect(calcSceneDur([])).toBe(0);
   });
 
-  it('returns exact sum of explicit dur values', () => {
+  it('returns exact sum of explicit dur values + per-line postGap', () => {
     const lines = [
       { text: 'a', dur: 100 },
       { text: 'b', dur: 200 },
       { text: 'c', dur: 50 },
     ];
-    expect(calcSceneDur(lines)).toBe(350);
+    expect(calcSceneDur(lines)).toBe(350 + 3 * POST_GAP);
   });
 
-  it('mixes auto and explicit dur correctly', () => {
+  it('mixes auto and explicit dur correctly (with postGap on each)', () => {
     const autoFrames = calcDialogueDur('hello');
     const lines = [
       { text: 'hello', dur: 'auto' as const },
       { text: 'ignored text', dur: 300 },
     ];
-    expect(calcSceneDur(lines)).toBe(autoFrames + 300);
+    expect(calcSceneDur(lines)).toBe(autoFrames + 300 + 2 * POST_GAP);
   });
 
-  it('single auto line equals calcDialogueDur of that text', () => {
+  it('single auto line equals calcDialogueDur + one postGap', () => {
     const text = 'दिमाग से जीत होती है।';
     const lines = [{ text, dur: 'auto' as const }];
-    expect(calcSceneDur(lines)).toBe(calcDialogueDur(text));
+    expect(calcSceneDur(lines)).toBe(calcDialogueDur(text) + POST_GAP);
   });
 
-  it('returns 0 for explicit dur of 0', () => {
+  it('explicit dur of 0 still adds default postGap (audio waits regardless)', () => {
     const lines = [{ text: 'anything', dur: 0 }];
-    expect(calcSceneDur(lines)).toBe(0);
+    expect(calcSceneDur(lines)).toBe(POST_GAP);
+  });
+
+  it('honors explicit postGapMs override on a line', () => {
+    // 500ms = 15 frames; replaces the default 6.
+    const lines = [{ text: 'x', dur: 100, postGapMs: 500 }];
+    expect(calcSceneDur(lines)).toBe(100 + 15);
   });
 
   it('result is always a non-negative integer when all durs are non-negative', () => {
@@ -346,7 +357,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [{ char: 'arjun', text, dur: 'auto' }],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(expectedLineFrames + OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(expectedLineFrames + 6 + OVERHEAD);
   });
 
   it('sums multiple scenes of mixed dur types', () => {
@@ -372,7 +383,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [{ char: 'arjun', text: 'hello', dur: 200 }],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(300 + 200 + OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(300 + 200 + 6 + OVERHEAD);
   });
 
   it('result is always >= OVERHEAD (330 frames)', () => {

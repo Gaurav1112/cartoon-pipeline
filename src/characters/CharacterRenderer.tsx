@@ -5,6 +5,9 @@ import { CHARACTERS } from '../story/characters';
 import { getPose } from './poses';
 import { getExpression } from './expressions';
 import { getMouthShape, interpolateMouth } from './lip-sync';
+import { landingSquash, eyeDart } from './animation-life';
+import { shadowForTime } from './shadow-direction';
+import type { TimeOfDay } from '../types';
 
 interface CharacterRendererProps {
   characterId: CharacterId;
@@ -14,6 +17,8 @@ interface CharacterRendererProps {
   position: { x: number; y: number };
   scale?: number;
   flipX?: boolean;
+  /** Optional: time-of-day determines shadow direction & color (Deakins). */
+  timeOfDay?: TimeOfDay;
 }
 
 // Character-specific body proportions
@@ -43,6 +48,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   position,
   scale = 1,
   flipX = false,
+  timeOfDay = 'day',
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -94,11 +100,18 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const pupilDriftYL = Math.cos(frame * 0.03 + seedY) * 0.8;
   const pupilDriftXR = Math.sin(frame * 0.043 + seedX + 1.7) * 1.5;
   const pupilDriftYR = Math.cos(frame * 0.031 + seedY + 0.9) * 0.8;
-  // Legacy alias used by other branches (tongue/closed eyes etc.)
-  const pupilDriftX = (pupilDriftXL + pupilDriftXR) * 0.5;
-  const pupilDriftY = (pupilDriftYL + pupilDriftYR) * 0.5;
   // Walk bob (vertical bounce when walking)
   const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
+
+  // Lasseter squash/stretch on foot strikes (only during walk_cycle).
+  const { squashY, stretchX } = isWalking
+    ? landingSquash(walkPhase)
+    : { squashY: 1, stretchX: 1 };
+
+  // Keane eye-dart: rare 6-frame micro-saccade.
+  const dart = eyeDart(frame, seedX * 31 + seedY * 7);
+  const pupilDartX = dart.dx;
+  const pupilDartY = dart.dy;
 
   const skinDark = darken(skin, 0.15);
   const primaryDark = darken(primary, 0.2);
@@ -109,7 +122,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
         position: 'absolute',
         left: position.x,
         top: position.y + walkBob,
-        transform: `scale(${scale * (flipX ? -1 : 1)}, ${scale})`,
+        transform: `scale(${scale * (flipX ? -1 : 1) * stretchX}, ${scale * squashY})`,
         transformOrigin: 'center bottom',
       }}
     >
@@ -137,10 +150,20 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           </radialGradient>
         </defs>
 
-        {/* Drop shadow on ground (responsive to breathing) */}
-        <ellipse cx={1 + Math.sin(frame * 0.07) * 0.5} cy="95"
-          rx={30 + Math.abs(breathe) * 0.5} ry={6 - Math.abs(breathe) * 0.2}
-          fill="rgba(0,0,0,0.18)" />
+        {/* Drop shadow on ground — Deakins: direction & length keyed to
+            timeOfDay so the frame reads as "lit by the world". */}
+        {(() => {
+          const sh = shadowForTime(timeOfDay);
+          return (
+            <ellipse
+              cx={sh.offsetX + Math.sin(frame * 0.07) * 0.5}
+              cy="95"
+              rx={(30 + Math.abs(breathe) * 0.5) * sh.lengthMul}
+              ry={(6 - Math.abs(breathe) * 0.2) * (1 / Math.max(0.6, sh.lengthMul))}
+              fill={sh.color}
+            />
+          );
+        })()}
 
         {/* === LEGS === */}
         <g transform={`rotate(${poseData.leftLeg.angle}, -8, 50)`}>
@@ -352,8 +375,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={-9 + pupilDriftXL} cy={-cfg.headH - 1 + pupilDriftYL} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={-7 + pupilDriftXL} cy={-cfg.headH - 3 + pupilDriftYL} r="2" fill="white" />
+                <circle cx={-9 + pupilDriftXL + pupilDartX} cy={-cfg.headH - 1 + pupilDriftYL + pupilDartY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={-7 + pupilDriftXL + pupilDartX} cy={-cfg.headH - 3 + pupilDriftYL + pupilDartY} r="2" fill="white" />
 
                 {/* Right eye */}
                 <ellipse cx="9" cy={-cfg.headH - 2}
@@ -361,8 +384,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={9 + pupilDriftXR} cy={-cfg.headH - 1 + pupilDriftYR} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={11 + pupilDriftXR} cy={-cfg.headH - 3 + pupilDriftYR} r="2" fill="white" />
+                <circle cx={9 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 1 + pupilDriftYR + pupilDartY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={11 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 3 + pupilDriftYR + pupilDartY} r="2" fill="white" />
               </>
             )}
 
@@ -450,21 +473,35 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           )}
         </g>
 
-        {/* Moti tail */}
-        {characterId === 'moti' && (
-          <path
-            d={`M15,35 Q25,${25 + Math.sin(frame * 0.1) * 8} 20,${15 + Math.sin(frame * 0.1) * 5}`}
-            fill="none" stroke={primary} strokeWidth="4" strokeLinecap="round"
-          />
-        )}
+        {/* Moti tail — continuous idle sway with secondary harmonic.
+            Frequency 0.092 (per-char distinct) + a 2nd harmonic at 0.21
+            for organic feel. NOT lock-stepped with arjun's scarf. */}
+        {characterId === 'moti' && (() => {
+          const tailWave = Math.sin(frame * 0.092 + 1.3) * 7
+            + Math.sin(frame * 0.21 + 0.4) * 1.6;
+          const tailWave2 = Math.sin(frame * 0.092 + 2.7) * 4.5;
+          return (
+            <path
+              d={`M15,35 Q25,${25 + tailWave} 20,${15 + tailWave2}`}
+              fill="none" stroke={primary} strokeWidth="4" strokeLinecap="round"
+            />
+          );
+        })()}
 
-        {/* Arjun scarf (animated) */}
-        {characterId === 'arjun' && (
-          <path
-            d={`M15,${5 + breathe} Q${25 + Math.sin(frame * 0.05) * 5},${15 + breathe} ${20 + Math.sin(frame * 0.04) * 8},${30 + breathe}`}
-            fill="none" stroke="#FFD700" strokeWidth="4" strokeLinecap="round" opacity="0.8"
-          />
-        )}
+        {/* Arjun scarf — continuous trailing motion at frequencies
+            COPRIME-ish to moti's tail (0.057, 0.043) so two on-screen
+            characters never resonate in lock-step. */}
+        {characterId === 'arjun' && (() => {
+          const scarfA = Math.sin(frame * 0.057 + 0.7) * 5.5
+            + Math.sin(frame * 0.13) * 1.2;
+          const scarfB = Math.sin(frame * 0.043 + 1.9) * 7.5;
+          return (
+            <path
+              d={`M15,${5 + breathe} Q${25 + scarfA},${15 + breathe} ${20 + scarfB},${30 + breathe}`}
+              fill="none" stroke="#FFD700" strokeWidth="4" strokeLinecap="round" opacity="0.8"
+            />
+          );
+        })()}
       </svg>
     </div>
   );

@@ -111,7 +111,11 @@ export function buildMixCommand(outputPath: string, layers: AudioLayer[]): strin
   args.push('-map', '[out]');
   args.push('-ac', '2');
   args.push('-ar', '44100');
-  args.push('-b:a', '192k');
+  // Catmull/Murch P0: master mix output as lossless PCM/WAV.
+  // ffmpeg 8.1's libmp3lame psymodel asserts on extreme filter chains
+  // (loudnorm + amix of 70+ inputs has hit `calc_energy: el >= 0`).
+  // The downstream muxVideoAudio re-encodes to AAC for the final MP4.
+  args.push('-c:a', 'pcm_s16le');
   args.push('-y', outputPath);
 
   return args;

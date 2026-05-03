@@ -58,6 +58,24 @@ export async function generateTTS(
 
 // ─── Voice Transformation ─────────────────────────────────────────────────
 
+export function buildTransformFfmpegArgs(
+  filterChain: string,
+  inputPath: string,
+  outputPath: string,
+): string[] {
+  return [
+    '-i', inputPath,
+    '-af', filterChain,
+    // Lossless PCM intermediate — avoids ffmpeg 8.1 libmp3lame psymodel
+    // assertion (calc_energy: el >= 0) on extreme chains. Master mix
+    // re-encodes once.
+    '-c:a', 'pcm_s16le',
+    '-ar', '44100',
+    '-ac', '1',
+    '-y', outputPath,
+  ];
+}
+
 export async function transformVoice(
   inputPath: string,
   outputPath: string,
@@ -67,16 +85,23 @@ export async function transformVoice(
   const filterChain = buildFfmpegFilter(profile);
 
   if (!filterChain) {
-    // No transformation needed, just copy
-    await fs.copyFile(inputPath, outputPath);
+    // No transformation needed — still normalize to WAV so downstream
+    // mixer sees a uniform format.
+    await execFileAsync('ffmpeg', [
+      '-i', inputPath,
+      '-c:a', 'pcm_s16le',
+      '-ar', '44100',
+      '-ac', '1',
+      '-y', outputPath,
+    ], { timeout: 30_000 });
     return;
   }
 
-  await execFileAsync('ffmpeg', [
-    '-i', inputPath,
-    '-af', filterChain,
-    '-y', outputPath,
-  ], { timeout: 30_000 });
+  await execFileAsync(
+    'ffmpeg',
+    buildTransformFfmpegArgs(filterChain, inputPath, outputPath),
+    { timeout: 30_000 },
+  );
 }
 
 // ─── Lip Sync ─────────────────────────────────────────────────────────────
@@ -165,7 +190,7 @@ export async function generateEpisodeAudio(
       if (!line.text) continue;
 
       const rawPath = path.join(outputDir, `raw_${scene.sceneIndex}_${lineIdx}.mp3`);
-      const transformedPath = path.join(outputDir, `voice_${scene.sceneIndex}_${lineIdx}.mp3`);
+      const transformedPath = path.join(outputDir, `voice_${scene.sceneIndex}_${lineIdx}.wav`);
 
       // Generate TTS
       const voice = getBaseVoice(line.characterId, language);
@@ -216,7 +241,8 @@ export async function generateEpisodeAudio(
         volumeDb: -5,
       });
 
-      currentTimeMs += actualDurationMs + 200; // 200ms gap between lines
+      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 200;
+      currentTimeMs += actualDurationMs + postGap;
 
       // Cleanup raw file
       await fs.unlink(rawPath).catch(() => {});
@@ -272,7 +298,7 @@ export async function generateEpisodeAudio(
     ambienceLayer,
   ];
 
-  const masterPath = path.join(outputDir, 'master_audio.mp3');
+  const masterPath = path.join(outputDir, 'master_audio.wav');
   await mixAudio(masterPath, allLayers);
 
   return {
