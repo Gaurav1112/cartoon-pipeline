@@ -2,6 +2,51 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, spring, useVideoConfig, interpolate } from 'remotion';
 import type { SupportedLanguage } from '../types';
 
+// M5.5 — Pin Indic font weights to 700 with explicit @remotion/google-fonts
+// loaders. Without this, Remotion's headless Chromium falls back to a Latin
+// font that mis-renders Devanagari / Tamil / Telugu / Kannada / Bengali
+// conjuncts, causing broken half-forms and visible tofu glyphs in the title
+// card. We load each Indic family at module import time so the font is
+// guaranteed available by the first render frame.
+import { loadFont as loadDevanagari } from '@remotion/google-fonts/NotoSansDevanagari';
+import { loadFont as loadTamil }      from '@remotion/google-fonts/NotoSansTamil';
+import { loadFont as loadTelugu }     from '@remotion/google-fonts/NotoSansTelugu';
+import { loadFont as loadKannada }    from '@remotion/google-fonts/NotoSansKannada';
+import { loadFont as loadBengali }    from '@remotion/google-fonts/NotoSansBengali';
+import { loadFont as loadNotoSans }   from '@remotion/google-fonts/NotoSans';
+
+// Eagerly request the 700 weight for every script. loadFont is a no-op
+// when called twice with the same args, so this is safe at module scope.
+loadDevanagari('normal', { weights: ['700'], subsets: ['devanagari', 'latin'] });
+loadTamil    ('normal', { weights: ['700'], subsets: ['tamil',      'latin'] });
+loadTelugu   ('normal', { weights: ['700'], subsets: ['telugu',     'latin'] });
+loadKannada  ('normal', { weights: ['700'], subsets: ['kannada',    'latin'] });
+loadBengali  ('normal', { weights: ['700'], subsets: ['bengali',    'latin'] });
+loadNotoSans ('normal', { weights: ['700'], subsets: ['latin'] });
+
+/** All six Indic scripts shipped on this channel. */
+export const TITLE_INDIC_LANGS: readonly SupportedLanguage[] =
+  ['hi', 'mr', 'ta', 'te', 'kn', 'bn'] as const;
+
+/**
+ * Per-language title-card font pin. Weight 700 (bold) for legibility
+ * over the orange/gold hook gradient at low YouTube bitrates. Family
+ * stack always falls back to a Latin face so digits / punctuation
+ * still render if a glyph is missing in the script font.
+ */
+export const TITLE_FONT_BY_LANG: Record<
+  SupportedLanguage,
+  { fontFamily: string; fontWeight: number }
+> = {
+  hi: { fontFamily: "'Noto Sans Devanagari', 'Baloo 2', sans-serif", fontWeight: 700 },
+  mr: { fontFamily: "'Noto Sans Devanagari', 'Baloo 2', sans-serif", fontWeight: 700 },
+  ta: { fontFamily: "'Noto Sans Tamil', 'Baloo 2', sans-serif",      fontWeight: 700 },
+  te: { fontFamily: "'Noto Sans Telugu', 'Baloo 2', sans-serif",     fontWeight: 700 },
+  kn: { fontFamily: "'Noto Sans Kannada', 'Baloo 2', sans-serif",    fontWeight: 700 },
+  bn: { fontFamily: "'Noto Sans Bengali', 'Baloo 2', sans-serif",    fontWeight: 700 },
+  en: { fontFamily: "'Noto Sans', 'Baloo 2', sans-serif",            fontWeight: 700 },
+};
+
 const SHOW_NAME: Record<SupportedLanguage, string> = {
   hi: 'कथा कीड़ा',
   te: 'కథా కీడా',
@@ -65,7 +110,8 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ language = 'en' })
         {/* Title */}
         <h1
           style={{
-            fontFamily: "'Baloo 2', 'Noto Sans Devanagari', sans-serif",
+            fontFamily: TITLE_FONT_BY_LANG[language].fontFamily,
+            fontWeight: TITLE_FONT_BY_LANG[language].fontWeight,
             fontSize: 120,
             color: 'white',
             textShadow: '6px 6px 0px rgba(0,0,0,0.4), 0 0 60px rgba(255,200,0,0.5)',
