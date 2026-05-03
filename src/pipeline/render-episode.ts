@@ -69,12 +69,15 @@ export async function renderEpisode(
   console.log('[render] Rendering visual track with Remotion...');
   const visualPath = path.join(episodeDir, 'visual.mp4');
 
-  // Use the first language's audio data for visual sync (mouth cues are similar)
+  // Use the first language's audio data for visual sync (mouth cues are similar).
+  // Strip masterAudioPath: the visual render is silent — per-language audio
+  // is muxed in step 4. Including it would force Remotion to fetch from the
+  // dev server (public/ root) where output/*.wav is NOT served, causing 404.
   const primaryAudio = audioResults['hi'] ?? audioResults[LANGUAGES[0]];
   const propsPath = path.join(episodeDir, 'remotion-props.json');
   await fs.writeFile(propsPath, JSON.stringify({
     episode,
-    audioData: primaryAudio,
+    audioData: { ...primaryAudio, masterAudioPath: '' },
     language: 'hi',
   }));
 
@@ -91,7 +94,7 @@ export async function renderEpisode(
     '--crf', '18',
     '--color-space', 'bt709',
     '--pixel-format', 'yuv420p',
-  ], { timeout: 600_000 });
+  ], { timeout: 50 * 60_000 });
 
   console.log('[render] Visual track rendered.');
 
