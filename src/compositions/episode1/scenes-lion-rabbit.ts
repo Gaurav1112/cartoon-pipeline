@@ -363,6 +363,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     ],
     cam: 'zoom_in',
     camI: 0.9,
+    // M3.4 (Kubrick): well-trick is the climactic beat. Marking it here
+    // lets the rule-of-thirds validator target hero scenes specifically.
+    mood: 'climax',
     shortsCutScene: true,
     dialogue: [
       {
@@ -405,6 +408,21 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'splash',
         textOverlay: '🤣 HE BELIEVED IT 💀',
         patternInterrupt: 'zoom_punch',
+        shortsFlag: true,
+      },
+      // M3.3 (Docter empathic arc): Kaaliya's defeat-recognition beat.
+      // The villain disappearing without a single "what just happened?!"
+      // robs the audience of catharsis. ONE final beat — surprised, not
+      // angry — lets the silhouette read defeat. Last line of the scene
+      // by design: defeat has no rebuttal.
+      {
+        char: 'kaaliya',
+        text: 'क्या?! कैसे...?',
+        dur: 45,
+        emotion: 'surprised',
+        sfxKey: 'shock',
+        textOverlay: '😵 क्या?! कैसे...?',
+        postGapMs: 200,
         shortsFlag: true,
       },
     ],

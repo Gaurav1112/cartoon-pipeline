@@ -77,6 +77,20 @@ export interface ViralSceneChar {
   flip?: boolean;
 }
 
+/**
+ * M3.2/M3.4: optional scene-mood tag. Used by structural validators
+ * (rule-of-thirds for climax/moral beats, catharsis-beat detection).
+ * Added as a soft tag — existing scenes are not required to declare it.
+ */
+export type SceneMood =
+  | 'hook'
+  | 'tension'
+  | 'climax'
+  | 'peaceful'
+  | 'comedy'
+  | 'reveal'
+  | 'moral';
+
 export interface ViralScene {
   id: string;
   bg: LocationType;
@@ -90,6 +104,12 @@ export interface ViralScene {
   dialogue: ViralDialogueLine[];
   /** Ambient SFX to play throughout the scene */
   ambientSfx?: SFXKey;
+  /**
+   * M3.2/M3.4: structural mood tag. Lets validators target hero beats
+   * (e.g. composition rule-of-thirds for `climax` scenes, catharsis
+   * detection for `peaceful` scenes). Optional — legacy scenes pass.
+   */
+  mood?: SceneMood;
   /** If true, this entire scene is included in the Shorts cut */
   shortsCutScene?: boolean;
   /**
