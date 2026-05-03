@@ -51,10 +51,12 @@ describe('Episode1 integration — viral requirements', () => {
 
   // ── NEW: full episode duration through calcEpisodeDuration ───────────────
 
-  it('calcEpisodeDuration(LION_RABBIT_SCENES) is in valid YouTube range (60s–160s)', () => {
+  it('calcEpisodeDuration(LION_RABBIT_SCENES) is in valid YouTube range (60s–165s)', () => {
+    // M2.4: ceiling raised from 160s → 165s to absorb ~3.3s of new
+    // scene-tail breath (~11 scenes × 300 ms).
     const totalFrames = calcEpisodeDuration(LION_RABBIT_SCENES);
     expect(totalFrames).toBeGreaterThanOrEqual(60 * 30);
-    expect(totalFrames).toBeLessThanOrEqual(160 * 30);
+    expect(totalFrames).toBeLessThanOrEqual(165 * 30);
   });
 
   it('calcEpisodeDuration returns a positive integer', () => {
@@ -63,8 +65,10 @@ describe('Episode1 integration — viral requirements', () => {
     expect(Number.isInteger(result)).toBe(true);
   });
 
-  it('calcEpisodeDuration exceeds scene content total by exactly 330 frames (overhead)', () => {
+  it('calcEpisodeDuration exceeds scene content total by overhead + per-scene tail', () => {
+    // M2.4: total = Σ(scene content) + OVERHEAD + Σ(sceneTail).
     const OVERHEAD = (6 + 5) * 30; // 330
+    const SCENE_TAIL = 9; // 300 ms × 30 / 1000
     let rawSceneFrames = 0;
     for (const scene of LION_RABBIT_SCENES) {
       if (typeof scene.dur === 'number') {
@@ -73,7 +77,13 @@ describe('Episode1 integration — viral requirements', () => {
         rawSceneFrames += calcSceneDur(scene.dialogue);
       }
     }
-    expect(calcEpisodeDuration(LION_RABBIT_SCENES)).toBe(rawSceneFrames + OVERHEAD);
+    const tailTotal = LION_RABBIT_SCENES.reduce(
+      (s, sc) => s + (typeof sc.sceneTailMs === 'number'
+        ? Math.round(sc.sceneTailMs * 30 / 1000)
+        : SCENE_TAIL),
+      0,
+    );
+    expect(calcEpisodeDuration(LION_RABBIT_SCENES)).toBe(rawSceneFrames + OVERHEAD + tailTotal);
   });
 
   // ── NEW: curiosity-gap scene exists and comes before intro ───────────────

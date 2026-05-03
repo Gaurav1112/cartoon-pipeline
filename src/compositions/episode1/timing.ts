@@ -33,6 +33,27 @@ export function calcDialogueDur(text: string): number {
 export const DEFAULT_POST_GAP_MS = 200;
 
 /**
+ * Default scene-boundary tail silence in milliseconds (Miyazaki "ma" gap
+ * M2.4). Applied automatically after the last line of every scene (in
+ * both video duration math and the audio pipeline) unless the scene
+ * declares an explicit `sceneTailMs` override (use 0 to opt out).
+ *
+ * Keep this in sync with the mirror constant in `cartoon-audio.ts`
+ * (`scene.sceneTailMs ?? 300`).
+ */
+export const DEFAULT_SCENE_TAIL_MS = 300;
+
+/**
+ * Convert a sceneTailMs value (number | undefined) to frames at FPS=30.
+ * Reads `DEFAULT_SCENE_TAIL_MS` when missing. `0` is honored verbatim
+ * (explicit opt-out).
+ */
+export function sceneTailFrames(sceneTailMs: number | undefined): number {
+  const ms = typeof sceneTailMs === 'number' ? sceneTailMs : DEFAULT_SCENE_TAIL_MS;
+  return Math.round((ms * FPS) / 1000);
+}
+
+/**
  * Convert a postGapMs value (number | undefined) to frames at FPS=30.
  * Reads `DEFAULT_POST_GAP_MS` when missing — matches the audio pipeline.
  */
@@ -42,19 +63,28 @@ export function postGapFrames(postGapMs: number | undefined): number {
 }
 
 /**
- * Sum all dialogue durations for a scene's dialogue array.
- * Respects explicit numeric dur overrides AND postGapMs gaps (the same
- * gap the audio pipeline inserts after each line). Without including
- * postGap here, video composition length < audio total = lip-sync drift +
- * truncated final lines.
+ * Sum dialogue durations for a scene.
+ *
+ * Two call signatures:
+ *   - calcSceneDur(dialogueArray) — legacy form. Sums per-line dur +
+ *     per-line postGap. Does NOT add a scene tail (the caller has only
+ *     supplied line-level data).
+ *   - calcSceneDur(scene)        — full-scene form (M2.4). Adds the
+ *     scene-tail silence (`scene.sceneTailMs ?? DEFAULT_SCENE_TAIL_MS`)
+ *     after the line sum so video duration matches the audio pipeline.
  */
 export function calcSceneDur(
-  dialogue: Pick<ViralDialogueLine, 'text' | 'dur' | 'postGapMs'>[],
+  input:
+    | Pick<ViralDialogueLine, 'text' | 'dur' | 'postGapMs'>[]
+    | Pick<ViralScene, 'dialogue' | 'sceneTailMs'>,
 ): number {
-  return dialogue.reduce((sum, line) => {
+  const dialogue = Array.isArray(input) ? input : input.dialogue;
+  const baseFrames = dialogue.reduce((sum, line) => {
     const frames = line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
     return sum + frames + postGapFrames(line.postGapMs);
   }, 0);
+  if (Array.isArray(input)) return baseFrames;
+  return baseFrames + sceneTailFrames(input.sceneTailMs);
 }
 
 /**
@@ -86,8 +116,11 @@ export function calcEpisodeDuration(scenes: ViralScene[]): number {
   const MORAL_CARD_FRAMES = 6 * FPS;
   const OUTRO_FRAMES = 5 * FPS;
   const scenesTotal = scenes.reduce((sum, scene) => {
-    if (typeof scene.dur === 'number') return sum + scene.dur * FPS;
-    return sum + calcSceneDur(scene.dialogue);
+    const tail = sceneTailFrames(scene.sceneTailMs);
+    if (typeof scene.dur === 'number') return sum + scene.dur * FPS + tail;
+    // M2.4: tail is owned by calcEpisodeDuration's per-scene loop (not
+    // double-added inside calcSceneDur(dialogueArray)).
+    return sum + calcSceneDur(scene.dialogue) + tail;
   }, 0);
   return scenesTotal + MORAL_CARD_FRAMES + OUTRO_FRAMES;
 }

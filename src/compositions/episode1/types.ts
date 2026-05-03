@@ -84,4 +84,11 @@ export interface ViralScene {
   ambientSfx?: SFXKey;
   /** If true, this entire scene is included in the Shorts cut */
   shortsCutScene?: boolean;
+  /**
+   * Override the default scene-boundary tail silence (M2.4 Miyazaki "ma").
+   * Default = `DEFAULT_SCENE_TAIL_MS` (300 ms). Use 0 to opt out of any
+   * tail (e.g., when the next scene begins on a hard cut). Use 500–800
+   * ms after the moral or a major emotional landing.
+   */
+  sceneTailMs?: number;
 }

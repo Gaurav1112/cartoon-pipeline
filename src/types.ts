@@ -182,6 +182,9 @@ export interface EpisodeScene {
   sfxKeywords: string[];
   cameraMovement: CameraMovement;
   durationFrames: number;
+  /** Optional Miyazaki "ma" override (M2.4). Default 300 ms tail silence
+   * after the last line of the scene. Use 0 for hard cut, 500+ for landings. */
+  sceneTailMs?: number;
 }
 
 export interface SceneCharacter {

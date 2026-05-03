@@ -1,7 +1,7 @@
 // tests/episode1/scenes.test.ts
 import { describe, it, expect } from 'vitest';
 import { LION_RABBIT_SCENES, INTRO_SCENE_INDEX } from '../../src/compositions/episode1/scenes-lion-rabbit';
-import { validateSceneChars, calcDialogueDur, calcSceneDur } from '../../src/compositions/episode1/timing';
+import { validateSceneChars, calcDialogueDur, calcSceneDur, calcEpisodeDuration } from '../../src/compositions/episode1/timing';
 import type { SFXKey } from '../../src/compositions/episode1/types';
 
 // ─── Data integrity ───────────────────────────────────────────────────────────
@@ -213,17 +213,12 @@ describe('LION_RABBIT_SCENES data integrity', () => {
 // ─── Timing ───────────────────────────────────────────────────────────────────
 
 describe('LION_RABBIT_SCENES timing', () => {
-  it('total duration with auto-calculated dialogue is under 160s (4800 frames)', () => {
-    let totalFrames = 0;
-    for (const scene of LION_RABBIT_SCENES) {
-      if (typeof scene.dur === 'number') {
-        totalFrames += scene.dur * 30;
-      } else {
-        totalFrames += calcSceneDur(scene.dialogue);
-      }
-    }
-    totalFrames += (6 + 5) * 30;
-    expect(totalFrames).toBeLessThanOrEqual(4800);
+  it('total episode duration is under 165s (4950 frames) — M2.4 raised ceiling', () => {
+    // M2.4 Miyazaki "ma": each scene now contributes a 300 ms tail
+    // (~9 frames at 30fps). 11 scenes × 300 ms ≈ 3.3 s of new breathing
+    // room, so the previous 160 s ceiling would clip. Raise to 165 s.
+    const totalFrames = calcEpisodeDuration(LION_RABBIT_SCENES);
+    expect(totalFrames).toBeLessThanOrEqual(4950);
   });
 
   it('Shorts-flagged content totals between 45s and 65s', () => {

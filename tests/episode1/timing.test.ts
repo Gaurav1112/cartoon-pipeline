@@ -304,6 +304,9 @@ describe('calcEpisodeDuration', () => {
   const MORAL_CARD_FRAMES = 6 * FPS; // 180
   const OUTRO_FRAMES = 5 * FPS;      // 150
   const OVERHEAD = MORAL_CARD_FRAMES + OUTRO_FRAMES; // 330
+  // M2.4 Miyazaki "ma": every scene contributes a default 300ms tail
+  // (= 9 frames at 30fps) on top of its dialogue/numeric duration.
+  const SCENE_TAIL = 9;
 
   it('returns OVERHEAD (330 frames) for an empty scene array', () => {
     expect(calcEpisodeDuration([])).toBe(OVERHEAD);
@@ -323,7 +326,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD + SCENE_TAIL);
   });
 
   it('correctly converts numeric dur (seconds) to frames via * 30', () => {
@@ -339,7 +342,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(5 * FPS + OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(5 * FPS + OVERHEAD + SCENE_TAIL);
   });
 
   it('uses calcSceneDur for auto-dur scenes', () => {
@@ -357,7 +360,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [{ char: 'arjun', text, dur: 'auto' }],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(expectedLineFrames + 6 + OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(expectedLineFrames + 6 + OVERHEAD + SCENE_TAIL);
   });
 
   it('sums multiple scenes of mixed dur types', () => {
@@ -383,7 +386,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [{ char: 'arjun', text: 'hello', dur: 200 }],
       },
     ];
-    expect(calcEpisodeDuration(scenes)).toBe(300 + 200 + 6 + OVERHEAD);
+    expect(calcEpisodeDuration(scenes)).toBe(300 + 200 + 6 + OVERHEAD + 2 * SCENE_TAIL);
   });
 
   it('result is always >= OVERHEAD (330 frames)', () => {
@@ -409,7 +412,7 @@ describe('calcEpisodeDuration', () => {
         dialogue: [],
       },
     ];
-    // calcSceneDur([]) = 0, so total = 0 + OVERHEAD
-    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD);
+    // calcSceneDur([]) = 0; +1 scene tail (9fr) + OVERHEAD.
+    expect(calcEpisodeDuration(scenes)).toBe(OVERHEAD + SCENE_TAIL);
   });
 });

@@ -340,6 +340,13 @@ export async function generateEpisodeAudio(
         duckedVolumeDb: -18,
       });
     }
+
+    // M2.4 Miyazaki "ma": after the last line of each scene, advance the
+    // timeline by the scene tail (default 300 ms) so the next scene
+    // doesn't begin atop the audio of this one. Mirrors
+    // `DEFAULT_SCENE_TAIL_MS` in `compositions/episode1/timing.ts`.
+    const sceneTailMs = typeof scene.sceneTailMs === 'number' ? scene.sceneTailMs : 300;
+    currentTimeMs += sceneTailMs;
   }
 
   // 3. Select background music — per-scene intensity ramp (M1.4 Zimmer).
