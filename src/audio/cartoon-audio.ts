@@ -20,6 +20,7 @@ import { matchSFX } from './sfx-triggers';
 import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
+import { MOTIF_BY_CHARACTER, buildMotifFfmpegFilter } from './character-motifs';
 
 // ─── Music Intensity Planner (M1.4 / Zimmer) ─────────────────────────────
 //
@@ -250,6 +251,9 @@ export async function generateEpisodeAudio(
   let currentTimeMs = 0;
   const sceneStartMs: number[] = [];
   const allSfxResults: SFXTriggerResult[] = [];
+  // M4.3 (Zimmer): one leitmotif stinger per character, scheduled
+  // ~400 ms before that character's first dialogue line.
+  const motifFiltersByCharacter = new Map<CharacterId, string>();
 
   // Initialize mouth cues for all characters
   for (const charId of episode.characters) {
@@ -263,6 +267,21 @@ export async function generateEpisodeAudio(
     for (let lineIdx = 0; lineIdx < scene.dialogue.length; lineIdx++) {
       const line = scene.dialogue[lineIdx];
       if (!line.text) continue;
+
+      // M4.3 (Zimmer): if this is the character's first speaking line
+      // in the entire episode, schedule their motif stinger to start
+      // ~400 ms before this line. Only one motif per character per
+      // episode.
+      if (
+        !motifFiltersByCharacter.has(line.characterId) &&
+        MOTIF_BY_CHARACTER[line.characterId]
+      ) {
+        const motifStartMs = Math.max(0, currentTimeMs - 400);
+        motifFiltersByCharacter.set(
+          line.characterId,
+          buildMotifFfmpegFilter(line.characterId, motifStartMs),
+        );
+      }
 
       const rawPath = path.join(outputDir, `raw_${scene.sceneIndex}_${lineIdx}.mp3`);
       const transformedPath = path.join(outputDir, `voice_${scene.sceneIndex}_${lineIdx}.wav`);
