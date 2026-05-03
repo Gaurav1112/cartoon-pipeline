@@ -292,13 +292,30 @@ export async function generateEpisodeAudio(
     volumeDb: ambienceConfig.volumeDb,
   };
 
-  // 5. Mix all layers
-  const allLayers: AudioLayer[] = [
+  // 5. Mix all layers — defensively drop any layer whose source file is
+  //    missing. The SFX database is intentionally larger than the asset
+  //    inventory (procedural keywords vs hand-curated mp3s); without this
+  //    filter a single missing asset aborts the whole episode render in CI.
+  //    Dialogue files always exist (we just generated them).
+  const candidateLayers: AudioLayer[] = [
     ...dialogueLayers,
     ...sfxLayers,
     musicLayer,
     ambienceLayer,
   ];
+  const allLayers: AudioLayer[] = [];
+  for (const layer of candidateLayers) {
+    if (layer.type === 'dialogue') {
+      allLayers.push(layer);
+      continue;
+    }
+    try {
+      await fs.access(layer.filePath);
+      allLayers.push(layer);
+    } catch {
+      console.warn(`[audio] skipping missing ${layer.type}: ${layer.filePath}`);
+    }
+  }
 
   const masterPath = path.join(outputDir, 'master_audio.wav');
   await mixAudio(masterPath, allLayers);
