@@ -11,6 +11,7 @@ import { calcDialogueDur, activeLineAtFrame } from './timing';
 import { firstCharEntranceScale } from './entrance';
 import { MotionSmear } from '../effects/MotionSmear';
 import { poseModifierByEmotion } from '../../characters/animation-life';
+import { applyColorBeat, COLOR_SCRIPT_BY_MOOD, resolveMood } from '../../color/color-script';
 import type { ViralScene } from './types';
 import type { EmotionType } from '../../types';
 
@@ -171,6 +172,14 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
 
   return (
     <AbsoluteFill>
+      {/* M4.1 (Deakins): per-mood color script wrapper. Pure visual filter
+          + CSS variables for child SVGs. Applied OUTSIDE the camera div so
+          camera transforms don't compound with filter rasterization. */}
+      <div style={{
+        ...applyColorBeat(COLOR_SCRIPT_BY_MOOD[resolveMood(scene.mood)]),
+        position: 'absolute',
+        inset: 0,
+      }}>
       {/* FIX(critical): zoom_punch scale is now composed into the camera
           transform so it actually affects scene content visuals. */}
       <div style={{
@@ -285,6 +294,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
       {/* Pattern interrupt overlays — rendered OUTSIDE camera div so they are
           not affected by camera zoom/pan/shake transforms. */}
       {patternOverlays}
+      </div>
     </AbsoluteFill>
   );
 };
