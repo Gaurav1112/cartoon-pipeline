@@ -2,6 +2,10 @@ import React from 'react';
 import { Composition } from 'remotion';
 import { CartoonEpisode } from './compositions/CartoonEpisode';
 import { Episode1, EPISODE1_DURATION } from './compositions/Episode1';
+import {
+  ShortsEpisode, calcShortsDuration,
+  SHORTS_FPS, SHORTS_WIDTH, SHORTS_HEIGHT,
+} from './compositions/ShortsEpisode';
 import { generateEpisode } from './story/story-engine';
 import { selectDialogueSequence } from './dialogues';
 import type { CartoonEpisodeProps, CharacterId, MouthCue } from './types';
@@ -56,6 +60,17 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={defaultProps}
+      />
+
+      {/* Shorts (9:16) — for IG Reels, YT Shorts, FB Reels */}
+      <Composition
+        id="ShortsEpisode"
+        component={ShortsEpisode as React.FC}
+        durationInFrames={calcShortsDuration()}
+        fps={SHORTS_FPS}
+        width={SHORTS_WIDTH}
+        height={SHORTS_HEIGHT}
+        defaultProps={{ language: 'hi' as const }}
       />
     </>
   );

@@ -443,12 +443,42 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
       {/* Time-of-day color wash */}
       <rect width="1920" height="1080" fill={TIME_WASH[timeOfDay] ?? TIME_WASH.day} />
 
+      {/* MOTIVATED KEY LIGHT (Deakins).
+          Per timeOfDay: a directional radial that mimics where the sun/moon
+          actually is in this scene. Adds depth + mood without paid post FX. */}
+      <defs>
+        <radialGradient id={`keylight-${timeOfDay}`}
+          cx={timeOfDay === 'dawn' ? '20%' : timeOfDay === 'dusk' ? '80%' : timeOfDay === 'night' ? '15%' : '78%'}
+          cy={timeOfDay === 'night' ? '12%' : '20%'} r="75%">
+          <stop offset="0%"  stopColor={
+            timeOfDay === 'dawn' ? 'rgba(255,200,140,0.28)' :
+            timeOfDay === 'dusk' ? 'rgba(255,120,60,0.30)'  :
+            timeOfDay === 'night' ? 'rgba(180,200,255,0.18)' :
+            'rgba(255,245,200,0.22)'
+          } />
+          <stop offset="50%" stopColor="rgba(255,255,255,0.04)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </radialGradient>
+        {/* Atmospheric shadow mass — pushes opposite corner into shadow,
+            creating directional depth (Deakins motivated lighting principle). */}
+        <linearGradient id={`shadow-${timeOfDay}`}
+          x1={timeOfDay === 'dawn' ? '100%' : timeOfDay === 'dusk' ? '0%' : '0%'}
+          y1="100%"
+          x2={timeOfDay === 'dawn' ? '0%' : timeOfDay === 'dusk' ? '100%' : '100%'}
+          y2="0%">
+          <stop offset="0%"  stopColor={timeOfDay === 'night' ? 'rgba(0,0,30,0.35)' : 'rgba(40,30,20,0.22)'} />
+          <stop offset="60%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+      </defs>
+      <rect width="1920" height="1080" fill={`url(#shadow-${timeOfDay})`} pointerEvents="none" />
+      <rect width="1920" height="1080" fill={`url(#keylight-${timeOfDay})`} pointerEvents="none" />
+
       {/* Vignette — darkens corners for cinematic feel */}
       <defs>
         <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
           <stop offset="0%" stopColor="transparent" />
           <stop offset="70%" stopColor="transparent" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.3)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
         </radialGradient>
       </defs>
       <rect width="1920" height="1080" fill="url(#vignette)" />

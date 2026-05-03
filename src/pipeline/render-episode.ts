@@ -85,9 +85,13 @@ export async function renderEpisode(
     visualPath,
     '--props', propsPath,
     '--codec', 'h264',
-    '--image-format', 'jpeg',
-    '--quality', '80',
-  ], { timeout: 600_000 }); // 10 min timeout
+    // QUALITY (Catmull): PNG frames + CRF 18 ≈ visually lossless.
+    // Color: BT.709 + yuv420p for cross-platform playback (YT/IG/FB).
+    '--image-format', 'png',
+    '--crf', '18',
+    '--color-space', 'bt709',
+    '--pixel-format', 'yuv420p',
+  ], { timeout: 600_000 });
 
   console.log('[render] Visual track rendered.');
 

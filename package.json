@@ -13,7 +13,9 @@
     "dashboard": "tsx scripts/dashboard.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "pretest": "bash scripts/ensure-music-placeholders.sh",
+    "ensure:music": "bash scripts/ensure-music-placeholders.sh"
   },
   "dependencies": {
     "@remotion/cli": "4.0.441",

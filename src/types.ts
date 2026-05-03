@@ -214,6 +214,8 @@ export interface CharacterProfile {
   description: string;
   colors: { primary: string; secondary: string; accent: string; skin: string };
   voiceProfile: VoiceProfile;
+  /** Per-language signature catchphrase. Repeated across episodes — kid-appeal anchor. */
+  catchphrase?: Partial<Record<SupportedLanguage, string>>;
 }
 
 export interface AnimalSkinConfig {
