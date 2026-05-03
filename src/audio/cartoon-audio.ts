@@ -16,7 +16,7 @@ import type {
 import { getBaseVoice } from './voice-bank';
 import { getVoiceProfile, buildFfmpegFilter } from './character-voices';
 import { wrapInSSML } from './emotion-prosody';
-import { matchSFX } from './sfx-triggers';
+import { selectMotivatedSfx } from './sfx-triggers';
 import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
@@ -342,8 +342,9 @@ export async function generateEpisodeAudio(
       await fs.unlink(rawPath).catch(() => {});
     }
 
-    // 2. Match SFX from scene keywords
-    const sfxMatches = matchSFX('', scene.sfxKeywords);
+    // 2. Match SFX from scene keywords — Burtt motivation contract:
+    //    drop any SFX whose tag has no on-screen anchor (orphan sounds).
+    const sfxMatches = selectMotivatedSfx(scene);
     for (const sfx of sfxMatches) {
       const sfxResult: SFXTriggerResult = {
         ...sfx,

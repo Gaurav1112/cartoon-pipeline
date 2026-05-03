@@ -1,8 +1,24 @@
+// src/audio/sfx-triggers.ts
+//
+// M4.4 (Burtt) — motivation contract: every SFX carries a motivationTag
+// so the audio pipeline can drop "orphan" sounds (sounds with no
+// on-screen event behind them). Every entry must have a non-empty tag.
+
+import type { CharacterId, EmotionType } from '../types';
+
+export type MotivationTag =
+  | 'character_action'   // footstep, throw, hit — tied to a character
+  | 'environment_event'  // wind gust, branch snap — tied to a beat
+  | 'emotional_amplifier'// sting, rimshot — tied to a story emotion
+  | 'establishing';      // ambience — tied to scene location
+
 interface SFXEntry {
   keyword: string;
   sfxFile: string;
   category: string;
   defaultVolume: number;
+  /** M4.4: required motivation tag — no orphan sounds. */
+  motivationTag: MotivationTag;
 }
 
 export interface SFXMatch {
@@ -10,9 +26,49 @@ export interface SFXMatch {
   trigger: string;
   volume: number;
   timing: 'before' | 'during' | 'after';
+  motivationTag: MotivationTag;
 }
 
-const SFX_DATABASE: SFXEntry[] = [
+// ─── Motivation classifier ────────────────────────────────────────────────
+//
+// Keyword + category → motivation. Hand-curated overrides come first;
+// the category-level fallback handles the long tail.
+
+const KEYWORD_OVERRIDES: Record<string, MotivationTag> = {
+  // Nature: ambience-tier vs discrete events
+  wind: 'establishing',       rain: 'establishing',     river: 'establishing',
+  birds: 'establishing',      crickets: 'establishing', fire: 'establishing',
+  waterfall: 'establishing',  ocean: 'establishing',    leaves: 'establishing',
+  storm: 'establishing',      sunrise: 'establishing',  night: 'establishing',
+  breeze: 'establishing',     sand: 'establishing',     snow: 'establishing',
+  cave: 'establishing',       pond: 'establishing',
+  thunder: 'environment_event',     earthquake: 'environment_event',
+  drip: 'environment_event',        frog: 'environment_event',
+  bee: 'environment_event',         tree: 'environment_event',
+  splash: 'environment_event',      flood: 'environment_event',
+  // Animals: discrete creature actions on a beat (we don't pin them to a
+  // specific CharacterId — they're scenic events).
+  insect: 'environment_event',
+};
+
+function inferMotivationTag(keyword: string, category: string): MotivationTag {
+  if (KEYWORD_OVERRIDES[keyword]) return KEYWORD_OVERRIDES[keyword];
+  switch (category) {
+    case 'actions':  return 'character_action';
+    case 'animals':  return 'environment_event';
+    case 'comedy':   return 'emotional_amplifier';
+    case 'drama':    return 'emotional_amplifier';
+    case 'ui':       return 'emotional_amplifier';
+    case 'nature':   return 'establishing';
+    default:         return 'environment_event';
+  }
+}
+
+// ─── Raw SFX list (without tag) ───────────────────────────────────────────
+
+interface RawSFX { keyword: string; sfxFile: string; category: string; defaultVolume: number; }
+
+const RAW_SFX: RawSFX[] = [
   // ─── Nature (25) ────────────────────────────────────
   { keyword: 'wind', sfxFile: 'sfx/nature/wind.mp3', category: 'nature', defaultVolume: 0.4 },
   { keyword: 'rain', sfxFile: 'sfx/nature/rain.mp3', category: 'nature', defaultVolume: 0.5 },
@@ -176,6 +232,14 @@ const SFX_DATABASE: SFXEntry[] = [
   { keyword: 'badge', sfxFile: 'sfx/ui/badge_earn.mp3', category: 'ui', defaultVolume: 0.5 },
 ];
 
+const SFX_DATABASE: SFXEntry[] = RAW_SFX.map((e) => ({
+  ...e,
+  motivationTag: inferMotivationTag(e.keyword, e.category),
+}));
+
+// Bounded — Burtt: too many simultaneous sounds = mud.
+const MAX_SFX_LAYERS_PER_SCENE = 8;
+
 export function matchSFX(text: string, sceneKeywords: string[]): SFXMatch[] {
   const allKeywords = [...sceneKeywords, ...text.toLowerCase().split(/\s+/)];
   const matches: SFXMatch[] = [];
@@ -194,6 +258,7 @@ export function matchSFX(text: string, sceneKeywords: string[]): SFXMatch[] {
         trigger: entry.keyword,
         volume: entry.defaultVolume,
         timing: entry.category === 'drama' ? 'before' : 'during',
+        motivationTag: entry.motivationTag,
       });
       used.add(entry.sfxFile);
     }
@@ -202,4 +267,53 @@ export function matchSFX(text: string, sceneKeywords: string[]): SFXMatch[] {
   return matches.slice(0, 5); // Max 5 SFX per scene to avoid clutter
 }
 
-export { SFX_DATABASE };
+// ─── M4.4 Burtt motivated-SFX selection ───────────────────────────────────
+//
+// Filters orphans:
+//   - 'character_action': drop if no character is on-screen for the scene.
+//   - 'environment_event': require any beat (a non-empty mood OR keywords).
+//   - 'emotional_amplifier': require an emotional beat (mood, or any
+//     dialogue line whose emotion is non-neutral).
+//   - 'establishing': always keeps — tied to scene location/ambience.
+
+export interface MotivatedSceneInput {
+  sfxKeywords: string[];
+  characters: { characterId: CharacterId }[];
+  mood?: string;
+  dialogue?: { emotion?: EmotionType }[];
+}
+
+export function selectMotivatedSfx(scene: MotivatedSceneInput): SFXMatch[] {
+  const candidates = matchSFX('', scene.sfxKeywords);
+  const hasCharacter = (scene.characters?.length ?? 0) > 0;
+  const hasMood = !!scene.mood;
+  const hasEmotionalBeat =
+    hasMood ||
+    (scene.dialogue ?? []).some(
+      (d) => d.emotion && d.emotion !== 'neutral',
+    );
+  const hasAnyBeat = hasMood || (scene.sfxKeywords?.length ?? 0) > 0;
+
+  const motivated: SFXMatch[] = [];
+  for (const m of candidates) {
+    switch (m.motivationTag) {
+      case 'character_action':
+        if (hasCharacter) motivated.push(m);
+        break;
+      case 'environment_event':
+        if (hasAnyBeat) motivated.push(m);
+        break;
+      case 'emotional_amplifier':
+        if (hasEmotionalBeat) motivated.push(m);
+        break;
+      case 'establishing':
+        motivated.push(m);
+        break;
+    }
+    if (motivated.length >= MAX_SFX_LAYERS_PER_SCENE) break;
+  }
+  return motivated;
+}
+
+export { SFX_DATABASE, MAX_SFX_LAYERS_PER_SCENE };
+
