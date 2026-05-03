@@ -5,6 +5,7 @@ import { CHARACTERS } from '../story/characters';
 import { getPose } from './poses';
 import { getExpression } from './expressions';
 import { getMouthShape, interpolateMouth } from './lip-sync';
+import { landingSquash, eyeDart } from './animation-life';
 
 interface CharacterRendererProps {
   characterId: CharacterId;
@@ -100,6 +101,16 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   // Walk bob (vertical bounce when walking)
   const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
 
+  // Lasseter squash/stretch on foot strikes (only during walk_cycle).
+  const { squashY, stretchX } = isWalking
+    ? landingSquash(walkPhase)
+    : { squashY: 1, stretchX: 1 };
+
+  // Keane eye-dart: rare 6-frame micro-saccade.
+  const dart = eyeDart(frame, seedX * 31 + seedY * 7);
+  const pupilDartX = dart.dx;
+  const pupilDartY = dart.dy;
+
   const skinDark = darken(skin, 0.15);
   const primaryDark = darken(primary, 0.2);
 
@@ -109,7 +120,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
         position: 'absolute',
         left: position.x,
         top: position.y + walkBob,
-        transform: `scale(${scale * (flipX ? -1 : 1)}, ${scale})`,
+        transform: `scale(${scale * (flipX ? -1 : 1) * stretchX}, ${scale * squashY})`,
         transformOrigin: 'center bottom',
       }}
     >
@@ -352,8 +363,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={-9 + pupilDriftXL} cy={-cfg.headH - 1 + pupilDriftYL} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={-7 + pupilDriftXL} cy={-cfg.headH - 3 + pupilDriftYL} r="2" fill="white" />
+                <circle cx={-9 + pupilDriftXL + pupilDartX} cy={-cfg.headH - 1 + pupilDriftYL + pupilDartY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={-7 + pupilDriftXL + pupilDartX} cy={-cfg.headH - 3 + pupilDriftYL + pupilDartY} r="2" fill="white" />
 
                 {/* Right eye */}
                 <ellipse cx="9" cy={-cfg.headH - 2}
@@ -361,8 +372,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={9 + pupilDriftXR} cy={-cfg.headH - 1 + pupilDriftYR} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={11 + pupilDriftXR} cy={-cfg.headH - 3 + pupilDriftYR} r="2" fill="white" />
+                <circle cx={9 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 1 + pupilDriftYR + pupilDartY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={11 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 3 + pupilDriftYR + pupilDartY} r="2" fill="white" />
               </>
             )}
 
