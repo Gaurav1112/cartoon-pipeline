@@ -39,11 +39,13 @@ export async function generateTTS(
   // Retry up to 3 times (edge-tts calls Microsoft's API, can be flaky)
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
+      // Use `--flag=value` form so argparse doesn't mis-parse negative
+      // values like "-15%" as a flag (e.g. `--rate -15%` fails).
       await execFileAsync('edge-tts', [
         '--voice', voice,
         '--text', text,
-        '--rate', prosody.rate,
-        '--pitch', prosody.pitch,
+        `--rate=${prosody.rate}`,
+        `--pitch=${prosody.pitch}`,
         '--write-media', outputPath,
         '--write-subtitles', outputPath.replace(/\.\w+$/, '.vtt'),
       ], { timeout: 30_000 });
