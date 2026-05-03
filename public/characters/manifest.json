@@ -1,90 +1,68 @@
 {
-  "arjun": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+  "amma": {
+    "canonical": "amma",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   },
-  "meera": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+  "arjun": {
+    "canonical": "arjun",
+    "poses": {
+      "idle_stand": [
+        "angry",
+        "determined",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised",
+        "thinking"
+      ],
+      "talk_gesture": [
+        "happy",
+        "neutral"
+      ]
+    }
   },
   "bablu": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+    "canonical": "bablu",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   },
   "guruji": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+    "canonical": "guruji",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   },
   "kaaliya": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+    "canonical": "kaaliya",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   },
-  "amma": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+  "meera": {
+    "canonical": "meera",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   },
   "raja": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
-  },
-  "moti": {
-    "idle_stand": ["neutral", "happy", "sad", "angry", "surprised", "thinking", "determined"],
-    "talk_gesture": ["neutral", "happy", "angry", "determined"],
-    "point": ["angry", "determined", "surprised"],
-    "surprised": ["surprised", "scared"],
-    "sad": ["sad"],
-    "laugh": ["happy"],
-    "think": ["thinking"],
-    "wave": ["happy"],
-    "celebrate": ["happy"]
+    "canonical": "raja",
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    }
   }
 }

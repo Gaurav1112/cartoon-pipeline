@@ -1,6 +1,24 @@
 import React from 'react';
-import { useCurrentFrame, interpolate } from 'remotion';
+import { useCurrentFrame, interpolate, Img, staticFile } from 'remotion';
 import type { LocationType, TimeOfDay } from '../types';
+
+// Stock background plates (Pixabay, free for commercial use).
+// When present, used INSTEAD of the procedural SVG location-specific background.
+// The SVG overlay layer (clouds, sun/moon, color wash, key-light) still renders on top.
+const STOCK_BG_BY_LOCATION: Partial<Record<LocationType, string>> = {
+  forest:    'backgrounds/forest_day.jpg',
+  river:     'backgrounds/river.jpg',
+  village:   'backgrounds/well_scene.jpg',
+  mountain:  'backgrounds/mountains_far.jpg',
+};
+
+// Per time-of-day CSS filter to re-tint the same plate.
+const TIME_FILTER: Record<string, string> = {
+  dawn:  'brightness(0.95) saturate(0.9) sepia(0.18) hue-rotate(-10deg)',
+  day:   'brightness(1.0) saturate(1.05)',
+  dusk:  'brightness(0.85) saturate(1.2) sepia(0.3) hue-rotate(-22deg)',
+  night: 'brightness(0.55) saturate(0.7) hue-rotate(200deg) contrast(1.05)',
+};
 
 interface BackgroundRendererProps {
   locationType: LocationType;
@@ -389,6 +407,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   };
 
   const bg = backgroundMap[locationType] ?? renderGenericBackground(locationType, palette, offset);
+  const stockPath = STOCK_BG_BY_LOCATION[locationType];
 
   // Time-of-day color wash
   const TIME_WASH: Record<string, string> = {
@@ -404,14 +423,29 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   ] : [];
 
   return (
-    <svg
-      width="1920"
-      height="1080"
-      viewBox="0 0 1920 1080"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ position: 'absolute', top: 0, left: 0 }}
-    >
-      {bg}
+    <>
+      {stockPath && (
+        <Img
+          src={staticFile(stockPath)}
+          style={{
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            transform: `translateX(${offset * 0.15}px) scale(1.04)`,
+            transformOrigin: 'center center',
+            filter: TIME_FILTER[timeOfDay] ?? TIME_FILTER.day,
+            zIndex: 0,
+          }}
+        />
+      )}
+      <svg
+        width="1920"
+        height="1080"
+        viewBox="0 0 1920 1080"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ position: 'absolute', top: 0, left: 0 }}
+      >
+      {!stockPath && bg}
 
       {/* Clouds */}
       {clouds.map((cloud, i) => {
@@ -483,5 +517,6 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
       </defs>
       <rect width="1920" height="1080" fill="url(#vignette)" />
     </svg>
+    </>
   );
 };

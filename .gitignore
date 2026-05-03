@@ -12,3 +12,8 @@ output/**/*.wav
 
 # .DS_Store
 .DS_Store
+.zshrc.cartoon-keys
+
+# API keys never committed
+.env
+.env.local

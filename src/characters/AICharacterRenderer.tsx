@@ -2,11 +2,14 @@ import React from 'react';
 import { useCurrentFrame, Img, staticFile, interpolate } from 'remotion';
 import type { CharacterId, Pose, EmotionType, MouthShape } from '../types';
 import { getMouthShape } from './lip-sync';
+import manifestJson from '../../public/characters/manifest.json';
 
 /**
  * AI-generated character renderer.
  * Loads pre-rendered PNG frames and applies CSS-based animation.
- * Falls back to SVG CharacterRenderer if PNG doesn't exist.
+ * Consults manifest.json (auto-generated from disk) to pick the
+ * closest available (pose, expression). Falls back to character's
+ * canonical PNG (`<id>.png`) when no per-emotion variant exists.
  */
 
 interface AICharacterRendererProps {
@@ -19,32 +22,69 @@ interface AICharacterRendererProps {
   flipX?: boolean;
 }
 
-// Map poses to available AI-generated frames (reduced matrix)
-const AVAILABLE_POSES: Record<string, string[]> = {
-  idle_stand: ['neutral', 'happy', 'sad', 'angry', 'surprised', 'thinking', 'determined'],
-  talk_gesture: ['neutral', 'happy', 'angry', 'determined'],
-  point: ['angry', 'determined', 'surprised'],
-  surprised: ['surprised', 'scared'],
-  sad: ['sad'],
-  laugh: ['happy'],
-  think: ['thinking'],
-  wave: ['happy'],
-  celebrate: ['happy'],
-};
+type ManifestEntry = { poses: Record<string, string[]>; canonical: string | null };
+const MANIFEST = manifestJson as Record<string, ManifestEntry>;
 
-// Map unavailable poses to closest available pose
+// Map unavailable poses to closest available pose (semantic neighbours)
 const POSE_FALLBACK: Record<string, string> = {
   idle_sit: 'idle_stand',
   walk_cycle: 'idle_stand',
-  angry: 'idle_stand',
+  angry: 'point',
+  scared: 'surprised',
+  cheer: 'celebrate',
+  victory: 'celebrate',
 };
 
 // Map unavailable expressions to closest available
-function findBestMatch(pose: string, expression: string): { pose: string; expression: string } {
-  const availPose = AVAILABLE_POSES[pose] ? pose : (POSE_FALLBACK[pose] ?? 'idle_stand');
-  const availExprs = AVAILABLE_POSES[availPose] ?? ['neutral'];
-  const expr = availExprs.includes(expression) ? expression : availExprs[0];
-  return { pose: availPose, expression: expr };
+const EXPR_FALLBACK: Record<string, string[]> = {
+  scared: ['surprised', 'sad', 'neutral'],
+  joyful: ['happy', 'neutral'],
+  furious: ['angry', 'neutral'],
+  curious: ['thinking', 'surprised', 'neutral'],
+  proud: ['determined', 'happy', 'neutral'],
+  tired: ['sad', 'neutral'],
+};
+
+// Resolve to an actual on-disk asset path, given what the manifest declares.
+// Returns the relative path (under public/) that should be passed to staticFile.
+export function resolveAssetPath(characterId: string, pose: string, expression: string): string {
+  const entry = MANIFEST[characterId];
+  if (!entry) {
+    // Last resort: hope for canonical
+    return `characters/${characterId}/${characterId}.png`;
+  }
+
+  // 1) try exact (pose, expression)
+  if (entry.poses[pose]?.includes(expression)) {
+    return `characters/${characterId}/${pose}_${expression}.png`;
+  }
+  // 2) try fallback poses for the same expression
+  const fallbackPose = POSE_FALLBACK[pose];
+  if (fallbackPose && entry.poses[fallbackPose]?.includes(expression)) {
+    return `characters/${characterId}/${fallbackPose}_${expression}.png`;
+  }
+  // 3) try same pose with fallback expressions
+  const exprAlts = EXPR_FALLBACK[expression] ?? ['neutral', 'happy'];
+  for (const e of exprAlts) {
+    if (entry.poses[pose]?.includes(e)) {
+      return `characters/${characterId}/${pose}_${e}.png`;
+    }
+  }
+  // 4) try idle_stand with the requested expression
+  if (entry.poses['idle_stand']?.includes(expression)) {
+    return `characters/${characterId}/idle_stand_${expression}.png`;
+  }
+  // 5) any first available pose+expr in the manifest
+  for (const [p, exprs] of Object.entries(entry.poses)) {
+    if (exprs.length) {
+      return `characters/${characterId}/${p}_${exprs[0]}.png`;
+    }
+  }
+  // 6) canonical
+  if (entry.canonical) {
+    return `characters/${characterId}/${entry.canonical}.png`;
+  }
+  return `characters/${characterId}/${characterId}.png`;
 }
 
 export const AICharacterRenderer: React.FC<AICharacterRendererProps> = ({
@@ -59,9 +99,8 @@ export const AICharacterRenderer: React.FC<AICharacterRendererProps> = ({
   const frame = useCurrentFrame();
   const mouth = getMouthShape(mouthShape);
 
-  // Find the best matching PNG
-  const match = findBestMatch(pose, expression);
-  const imagePath = `characters/${characterId}/${match.pose}_${match.expression}.png`;
+  // Find the best matching PNG via manifest lookup
+  const imagePath = resolveAssetPath(characterId, pose, expression);
 
   // CSS-based animations (preserved from SVG approach)
   const breathe = Math.sin(frame * 0.07) * 0.008; // scale Y oscillation

@@ -9,7 +9,7 @@ import { selectMouthShapeAtTime } from '../characters/lip-sync';
 
 // Set to true once AI-generated PNG frames are available in public/characters/
 // When false, falls back to the original SVG CharacterRenderer
-const USE_AI_CHARACTERS = false;
+const USE_AI_CHARACTERS = true;
 
 const ActiveCharacterRenderer = USE_AI_CHARACTERS ? AICharacterRenderer : CharacterRenderer;
 
