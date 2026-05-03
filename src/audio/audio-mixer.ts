@@ -96,14 +96,23 @@ export function buildMixCommand(outputPath: string, layers: AudioLayer[]): strin
 
   staticIndices.forEach((i) => finalLabels.push(`[p${i}]`));
 
-  // Step 4: Final mix with loudness normalization
+  // Step 4: Final mix with loudness normalization + brick-wall limiter
+  // (M1.2 Beck) — alimiter sits AFTER loudnorm because loudnorm's
+  // true-peak ceiling is a slow EBU gain stage, not a sample-domain
+  // limiter. SFX stacking can transiently exceed loudnorm's TP=-1.5
+  // before it adapts; alimiter at limit=0.95 (~-0.45 dBFS) clamps the
+  // peaks deterministically.
+  const masterTail =
+    'loudnorm=I=-14:LRA=11:TP=-1.5,' +
+    'alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=50' +
+    '[out]';
   if (finalLabels.length === 1) {
-    filterParts.push(`${finalLabels[0]}loudnorm=I=-14:LRA=11:TP=-1.5[out]`);
+    filterParts.push(`${finalLabels[0]}${masterTail}`);
   } else {
     // FIX: normalize=0 on final amix too
     filterParts.push(
       `${finalLabels.join('')}amix=inputs=${finalLabels.length}:duration=longest:dropout_transition=3:normalize=0,` +
-      'loudnorm=I=-14:LRA=11:TP=-1.5[out]',
+      masterTail,
     );
   }
 
