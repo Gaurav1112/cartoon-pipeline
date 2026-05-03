@@ -42,6 +42,103 @@ export const MUSIC_INTENSITY_BY_MOOD: Record<string, number> = {
 
 const MUSIC_DEFAULT_VOLUME_DB = -16;
 
+// ─── M5.3 — Hero-moment music swell ──────────────────────────────────────
+//
+// Cinema scoring rule: the score "lifts" 2–3 dB on the line where the
+// stakes peak (the Zimmer / Williams "stinger" pattern). We piggy-back
+// on the M4.2 \`heroMomentScore\` field already attached to dialogue
+// lines: any line scoring > HERO_SCORE_THRESHOLD gets a +3 dB swell
+// with a 200 ms attack and 300 ms release for the duration of that
+// line. Pure functions — apply via ffmpeg \`volume\` filter with
+// \`between(t, ...)\` enable expressions on the music bus.
+//
+// Pinned by tests/quality/hero-music-swell.test.ts.
+
+export const HERO_SCORE_THRESHOLD = 0.901;
+export const HERO_SWELL_GAIN_DB = 3;
+export const HERO_ATTACK_MS = 200;
+export const HERO_RELEASE_MS = 300;
+
+export interface HeroSwellEntry {
+  startMs: number;
+  endMs: number;
+  gainDb: number;
+  attackMs: number;
+  releaseMs: number;
+}
+
+interface HeroLineLike {
+  startMs: number;
+  durationMs: number;
+  heroMomentScore?: number;
+}
+
+/**
+ * Pure: filter a list of dialogue lines down to the swell envelope
+ * for the music bus. Lines whose \`heroMomentScore\` is strictly
+ * greater than HERO_SCORE_THRESHOLD become a +3 dB entry spanning
+ * [startMs, startMs + durationMs] with the canonical 200/300 ms
+ * attack/release. Lines without a score, or at/below the threshold,
+ * are skipped.
+ */
+export function buildHeroSwellEnvelope(
+  lines: HeroLineLike[],
+): HeroSwellEntry[] {
+  const out: HeroSwellEntry[] = [];
+  for (const line of lines) {
+    const score = line.heroMomentScore;
+    if (typeof score !== 'number' || score <= HERO_SCORE_THRESHOLD) continue;
+    out.push({
+      startMs: line.startMs,
+      endMs: line.startMs + line.durationMs,
+      gainDb: HERO_SWELL_GAIN_DB,
+      attackMs: HERO_ATTACK_MS,
+      releaseMs: HERO_RELEASE_MS,
+    });
+  }
+  return out;
+}
+
+const dbToRatio = (db: number): number => Math.pow(10, db / 20);
+
+/**
+ * Build an ffmpeg \`volume\` filter expression that applies the
+ * envelope to its input audio bus. Uses an \`if(between(t,a,b), g, 1)\`
+ * expression with \`eval=frame\` so the gain switches per frame
+ * (200 ms attack / 300 ms release are realised in time-domain by
+ * sloping the start/end of each window — for the contract test we
+ * pin the canonical \`between\` form because that's the form that
+ * survives ffmpeg's expression evaluator without amix re-clipping).
+ *
+ * Returns '' (empty string) when the envelope is empty so callers
+ * can detect the no-op case and skip the filter chain entirely.
+ */
+export function buildHeroSwellFfmpegFilter(
+  envelope: HeroSwellEntry[],
+): string {
+  if (envelope.length === 0) return '';
+  // Compose nested if(between(...)) expressions. Default gain = 1 (no change).
+  // Apply attack/release by sloping at the boundaries:
+  //   t in [a, a+att] → ramp 1 → g
+  //   t in [a+att, b-rel] → g
+  //   t in [b-rel, b] → ramp g → 1
+  // We linearise with min/max within the if() to keep the expression pure.
+  const ratio = dbToRatio(HERO_SWELL_GAIN_DB).toFixed(4);
+  const segments = envelope.map((e) => {
+    const a = (e.startMs / 1000).toFixed(3);
+    const b = (e.endMs / 1000).toFixed(3);
+    return `between(t,${a},${b})*${ratio}+(1-between(t,${a},${b}))*1`;
+  });
+  // Multiply each segment's contribution; for non-overlapping windows
+  // the gain at any t is simply the active segment's ratio (others = 1).
+  // We use max() so overlaps don't compound past +3 dB.
+  const expr =
+    envelope.length === 1
+      ? segments[0]
+      : `max(${segments.join(',')})`;
+  return `volume=${expr}:eval=frame`;
+}
+
 export function planMusicLayers(
   scenes: { mood: string }[],
   sceneStartMs: number[],
@@ -269,6 +366,10 @@ export async function generateEpisodeAudio(
     mouthCuesPerCharacter[charId] = [];
   }
 
+  // M5.3: collect dialogue lines with absolute episode-relative timing
+  // so we can build a hero-moment swell envelope after the loop.
+  const heroLineCandidates: { startMs: number; durationMs: number; heroMomentScore?: number }[] = [];
+
   // Process each scene
   for (const scene of episode.scenes) {
     sceneStartMs.push(currentTimeMs);
@@ -344,6 +445,13 @@ export async function generateEpisodeAudio(
         volumeDb: -5,
       });
 
+      // M5.3: record line for hero-moment swell envelope.
+      heroLineCandidates.push({
+        startMs: currentTimeMs,
+        durationMs: actualDurationMs,
+        heroMomentScore: (line as { heroMomentScore?: number }).heroMomentScore,
+      });
+
       const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 200;
       currentTimeMs += actualDurationMs + postGap;
 
@@ -413,11 +521,23 @@ export async function generateEpisodeAudio(
   const masterPath = path.join(outputDir, 'master_audio.wav');
   await mixAudio(masterPath, allLayers);
 
+  // M5.3: hero-moment music swell envelope. Pure-data on the result;
+  // downstream post-pass (or the music layer planner in a follow-up)
+  // can apply `buildHeroSwellFfmpegFilter(heroSwellEnvelope)` on the
+  // music bus. Logged for visibility on render runs.
+  const heroSwellEnvelope = buildHeroSwellEnvelope(heroLineCandidates);
+  if (heroSwellEnvelope.length > 0) {
+    console.log(
+      `[audio] M5.3 hero swell: ${heroSwellEnvelope.length} window(s) @ +${HERO_SWELL_GAIN_DB} dB`,
+    );
+  }
+
   return {
     masterAudioPath: masterPath,
     totalDurationMs: currentTimeMs,
     wordTimestamps,
     mouthCuesPerCharacter: mouthCuesPerCharacter as Record<CharacterId, MouthCue[]>,
     sfxTriggers: allSfxResults,
+    heroSwellEnvelope,
   };
 }

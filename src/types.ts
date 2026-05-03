@@ -296,6 +296,8 @@ export interface MasterAudioResult {
   wordTimestamps: WordTimestamp[];
   mouthCuesPerCharacter: Record<CharacterId, MouthCue[]>;
   sfxTriggers: SFXTriggerResult[];
+  /** M5.3 — beat-aligned hero-moment swell envelope (optional). */
+  heroSwellEnvelope?: { startMs: number; endMs: number; gainDb: number; attackMs: number; releaseMs: number }[];
 }
 
 // ─── SFX & Music ──────────────────────────────────────────────────────────
