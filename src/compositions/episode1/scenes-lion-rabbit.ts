@@ -215,7 +215,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // NEW: emotional concern beat. Meera was in chars but had no dialogue.
         // Her silence read as indifference. This brief worried line gives her
         // a role and creates emotional stakes before Arjun's confident reply.
-        text: 'अर्जुन... ख़याल रखना।',
+        text: 'सोचो, फिर बोलो — अर्जुन, ख़याल रखना।',
         dur: 'auto',
         textOverlay: '💙 मीरा की चिंता',
       },
@@ -476,7 +476,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       },
       {
         char: 'guruji',
-        text: 'पढ़ाई करो बेटा।',
+        text: 'पढ़ाई करो बेटा। धैर्य ही विजय है।',
         dur: 'auto',
         sfxKey: 'giggle',
         textOverlay: '📚 पढ़ाई करो!',
