@@ -171,13 +171,16 @@ export function anticipationCrouch(framesUntilPose: number): number {
 export function poseModifierByEmotion(
   emotion: EmotionType,
 ): { tiltDeg: number; hipShiftPx: number; armRaisePx: number } {
+  // M3.5 (Tartakovsky silhouette readability): every distinct pair of
+  // emotion triples is now ≥ 5 Euclidean units apart. Values stay
+  // within the Lasseter bounds (|tilt|≤15, |hip|≤5, |arm|≤12).
   switch (emotion) {
-    case 'happy':      return { tiltDeg:  2, hipShiftPx:  2, armRaisePx:  4 };
+    case 'happy':      return { tiltDeg:  3, hipShiftPx:  3, armRaisePx:  5 };
     case 'thinking':   return { tiltDeg:  8, hipShiftPx: -1, armRaisePx: -2 };
     // EmotionType has no separate 'confident' — 'determined' covers both.
-    case 'determined': return { tiltDeg:  0, hipShiftPx:  4, armRaisePx:  0 };
-    case 'scared':     return { tiltDeg: -3, hipShiftPx: -3, armRaisePx:  8 };
-    case 'sad':        return { tiltDeg: 10, hipShiftPx:  0, armRaisePx: -6 };
+    case 'determined': return { tiltDeg:  2, hipShiftPx:  5, armRaisePx: -2 };
+    case 'scared':     return { tiltDeg: -4, hipShiftPx: -3, armRaisePx: 11 };
+    case 'sad':        return { tiltDeg:  8, hipShiftPx:  1, armRaisePx: -8 };
     case 'angry':      return { tiltDeg: -5, hipShiftPx:  2, armRaisePx:  2 };
     case 'surprised':  return { tiltDeg:  0, hipShiftPx:  0, armRaisePx: 10 };
     case 'neutral':

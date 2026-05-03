@@ -30,7 +30,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'dusk',
     dur: 'auto',
     chars: [
-      { id: 'kaaliya', pos: 'center', pose: 'angry', expr: 'angry' },
+      { id: 'kaaliya', pos: 'right', pose: 'angry', expr: 'angry' },
     ],
     cam: 'zoom_in',
     camI: 1.0,
@@ -67,7 +67,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     chars: [
       // WHY pose:'point' — rabbit pointing off-screen signals agency + plan.
       // calm 'determined' expression under death-threat IS the scroll-stopper.
-      { id: 'arjun', pos: 'center', pose: 'point', expr: 'determined' },
+      // M3.5: pos='left' (vertical third) for shorts thumbnail readability.
+      { id: 'arjun', pos: 'left', pose: 'point', expr: 'determined' },
     ],
     cam: 'zoom_in',
     camI: 0.8,
@@ -204,9 +205,11 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'day',
     dur: 'auto',
     chars: [
-      { id: 'arjun', pos: 'center', pose: 'point', expr: 'determined' },
+      // M3.5: arjun (primary speaker, hero) on a vertical third for
+      // shorts silhouette readability; meera moves to center.
+      { id: 'arjun', pos: 'left', pose: 'point', expr: 'determined' },
       { id: 'bablu', pos: 'right', pose: 'surprised', expr: 'scared', flip: true },
-      { id: 'meera', pos: 'left', pose: 'talk_gesture', expr: 'surprised' },
+      { id: 'meera', pos: 'center', pose: 'talk_gesture', expr: 'surprised' },
     ],
     cam: 'zoom_in',
     camI: 0.6,
@@ -513,9 +516,11 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     time: 'dusk',
     dur: 'auto',
     chars: [
-      { id: 'guruji', pos: 'center', pose: 'talk_gesture', expr: 'happy' },
+      // M3.5: guruji (primary speaker, 2 lines) moved to vertical third
+      // for shorts silhouette readability; bablu moves to center.
+      { id: 'guruji', pos: 'right', pose: 'talk_gesture', expr: 'happy' },
       { id: 'arjun', pos: 'left', pose: 'think', expr: 'thinking' },
-      { id: 'bablu', pos: 'right', pose: 'idle_stand', expr: 'happy', flip: true },
+      { id: 'bablu', pos: 'center', pose: 'idle_stand', expr: 'happy', flip: true },
     ],
     cam: 'zoom_in',
     camI: 0.5,
