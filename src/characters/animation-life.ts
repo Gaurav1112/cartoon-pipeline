@@ -1,7 +1,60 @@
 // src/characters/animation-life.ts
 // Pure functions for character "life" — Glen Keane breath/dart/weight,
-// John Lasseter squash/stretch/anticipation/arcs.
+// John Lasseter squash/stretch/anticipation/arcs, Brad Bird talk-bob.
 // All deterministic (no Math.random, no Date.now). Same input = same output.
+
+import type { CharacterId, EmotionType } from '../types';
+
+/**
+ * Brad Bird gap (M2.1): per-character frequency/amplitude table for the
+ * talk_gesture body bob. Frequencies are intentionally non-harmonic across
+ * characters so two-shots never lock-step. Amplitudes are bounded ≤ 4 px so
+ * the bob reads as "alive" not "wobbling".
+ *
+ * IMPORTANT: the helper below uses `Math.sin(freq * frame)` directly — it
+ * is a pure continuous sinusoid. Do NOT wrap the frame in `frame % N`
+ * (lesson burned in checkpoint 005 from tailDamping: a modulo wrap turns
+ * the decay into a saw and re-enters the envelope every period).
+ */
+export const TALK_BOB_TABLE: Record<string, { freq: number; amp: number }> = {
+  moti:    { freq: 0.062, amp: 2.5 },
+  arjun:   { freq: 0.071, amp: 3.0 },
+  bablu:   { freq: 0.083, amp: 2.0 },
+  meera:   { freq: 0.057, amp: 2.5 },
+  kaaliya: { freq: 0.097, amp: 3.5 },
+  guruji:  { freq: 0.041, amp: 1.5 },
+  amma:    { freq: 0.073, amp: 2.5 },
+  raja:    { freq: 0.053, amp: 2.5 },
+  default: { freq: 0.067, amp: 2.5 },
+};
+
+/**
+ * Brad Bird gap M2.1 — body bob (Y translation in pixels) while a
+ * character is in `isTalking` pose. Pure continuous sinusoid; never
+ * wrapped in modulo. Same input → same output.
+ *
+ * @param characterId character id (resolves via TALK_BOB_TABLE; falls back
+ *   to `default` row for unknown ids).
+ * @param frame current frame (any non-negative integer; negatives also OK).
+ */
+export function talkBobY(characterId: CharacterId | string, frame: number): number {
+  const row = TALK_BOB_TABLE[characterId as string] ?? TALK_BOB_TABLE.default;
+  return Math.sin(frame * row.freq) * row.amp;
+}
+
+/**
+ * Gated wrapper: returns 0 when the character is not currently talking,
+ * else `talkBobY(...)`. Use this at the render call-site so the bob is
+ * exactly zero in still frames (no off-by-epsilon residue).
+ */
+export function talkBobYIfTalking(
+  characterId: CharacterId | string,
+  frame: number,
+  isTalking: boolean,
+): number {
+  if (!isTalking) return 0;
+  return talkBobY(characterId, frame);
+}
 
 /**
  * Landing squash: when a walk-cycle foot strikes the ground, the body

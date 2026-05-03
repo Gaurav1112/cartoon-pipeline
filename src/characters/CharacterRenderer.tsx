@@ -5,7 +5,7 @@ import { CHARACTERS } from '../story/characters';
 import { getPose } from './poses';
 import { getExpression } from './expressions';
 import { getMouthShape, interpolateMouth } from './lip-sync';
-import { landingSquash, eyeDart } from './animation-life';
+import { landingSquash, eyeDart, talkBobYIfTalking } from './animation-life';
 import { shadowForTime } from './shadow-direction';
 import type { TimeOfDay } from '../types';
 
@@ -90,8 +90,12 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   // Irregular blink using golden ratio
   const blinkCycle = (frame + characterId.charCodeAt(0) * 13) % 127;
   const blink = blinkCycle < 4 || (blinkCycle > 60 && blinkCycle < 64); // 4 frames not 3
-  // Head bob when talking
+  // Head bob when talking (head-only, used inside the head transform).
   const talkBob = isTalking ? Math.sin(frame * 0.12) * 2.5 : 0;
+  // Bird gap M2.1: subtle whole-body Y bob during talk so characters don't
+  // feel like cardboard cutouts with moving mouths. Per-character coprime
+  // frequencies prevent lock-step in two-shots. Amplitude ≤ 4 px.
+  const bodyTalkBobY = talkBobYIfTalking(characterId, frame, isTalking);
   // Pupil drift (eyes look alive). Glen Keane: split L/R asymmetry so eyes
   // never feel locked in stereo — micro-difference creates "thinking" feel.
   const seedX = characterId.charCodeAt(0);
@@ -121,7 +125,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
       style={{
         position: 'absolute',
         left: position.x,
-        top: position.y + walkBob,
+        top: position.y + walkBob + bodyTalkBobY,
         transform: `scale(${scale * (flipX ? -1 : 1) * stretchX}, ${scale * squashY})`,
         transformOrigin: 'center bottom',
       }}
