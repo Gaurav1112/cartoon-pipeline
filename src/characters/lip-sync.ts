@@ -1,4 +1,5 @@
-import type { MouthShape, MouthShapeParams } from '../types';
+import type { MouthShape, MouthShapeParams, MouthCue } from '../types';
+import { amplitudeToMouthShape } from '../audio/rhubarb-parser';
 
 /**
  * Map Rhubarb lip-sync cue letters (A–H) to SVG mouth shape parameters.
@@ -43,4 +44,24 @@ export function interpolateMouth(
     teethVisible: progress < 0.5 ? from.teethVisible : to.teethVisible,
     openness: lerp(from.openness, to.openness),
   };
+}
+
+/**
+ * M5.2 — pick a mouth shape at a given timestamp from a list of
+ * Rhubarb-derived cues. If no cue covers the time (or `cues` is empty,
+ * meaning Rhubarb wasn't available), fall back to an amplitude-based
+ * open/close heuristic. `fallbackAmp` defaults to 0 (closed).
+ *
+ * Pure function — no DOM, no Remotion hooks. Safe for unit tests.
+ */
+export function selectMouthShapeAtTime(
+  cues: MouthCue[] | undefined,
+  timeSec: number,
+  fallbackAmp = 0,
+): MouthShape {
+  if (cues && cues.length > 0) {
+    const hit = cues.find((c) => timeSec >= c.start && timeSec < c.end);
+    if (hit) return hit.shape;
+  }
+  return amplitudeToMouthShape(fallbackAmp);
 }

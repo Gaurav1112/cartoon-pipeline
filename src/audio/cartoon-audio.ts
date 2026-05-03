@@ -180,24 +180,33 @@ export async function transformVoice(
 
 // ─── Lip Sync ─────────────────────────────────────────────────────────────
 
+import { parseRhubarbOutput, phonemeToMouthShape } from './rhubarb-parser';
+
 export async function generateLipSync(audioPath: string): Promise<MouthCue[]> {
+  // Try Rhubarb in JSON mode first. If the binary is missing (CI on $0)
+  // or the call fails for any reason, return [] — the renderer will
+  // fall back to the amplitude-based open/close heuristic.
+  let rawOutput = '';
   try {
     const { stdout } = await execFileAsync('rhubarb', [
       '-f', 'json',
       '--machineReadable',
       audioPath,
     ], { timeout: 60_000 });
-
-    const data = JSON.parse(stdout);
-    return (data.mouthCues ?? []).map((cue: { start: number; end: number; value: string }) => ({
-      start: cue.start,
-      end: cue.end,
-      shape: cue.value as MouthCue['shape'],
-    }));
+    rawOutput = stdout;
   } catch {
-    // Fallback: generate basic mouth cues from audio duration
-    return [{ start: 0, end: 1, shape: 'B' as const }];
+    // Rhubarb binary unavailable or audio unreadable — graceful no-op.
+    return [];
   }
+
+  const parsed = parseRhubarbOutput(rawOutput);
+  if (parsed.length === 0) return [];
+
+  return parsed.map((cue) => ({
+    start: cue.startMs / 1000,
+    end: cue.endMs / 1000,
+    shape: phonemeToMouthShape(cue.phoneme),
+  }));
 }
 
 // ─── Effort Sounds ────────────────────────────────────────────────────────

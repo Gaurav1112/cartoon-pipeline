@@ -5,6 +5,7 @@ import { BackgroundRenderer } from '../scenes/BackgroundRenderer';
 import { CharacterRenderer } from '../characters/CharacterRenderer';
 import { AICharacterRenderer } from '../characters/AICharacterRenderer';
 import { DialogueBubble } from './DialogueBubble';
+import { selectMouthShapeAtTime } from '../characters/lip-sync';
 
 // Set to true once AI-generated PNG frames are available in public/characters/
 // When false, falls back to the original SVG CharacterRenderer
@@ -61,12 +62,14 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
       break;
   }
 
-  // Determine current mouth shape from cues
+  // Determine current mouth shape from cues.
+  // M5.2: when Rhubarb cues are missing (CI without rhubarb binary, or
+  // pre-Rhubarb scenes), `selectMouthShapeAtTime` falls back to the
+  // amplitude heuristic (0 → 'B' closed). When cues exist, the
+  // phoneme→shape mapping in rhubarb-parser.ts decides the shape.
   const currentTimeSec = (startFrame + frame) / 30;
   function getCurrentMouthShape(charId: CharacterId) {
-    const cues = mouthCues[charId] ?? [];
-    const current = cues.find((c) => currentTimeSec >= c.start && currentTimeSec < c.end);
-    return current?.shape ?? 'B';
+    return selectMouthShapeAtTime(mouthCues[charId], currentTimeSec, 0);
   }
 
   // Kid-friendly dialogue timing:
