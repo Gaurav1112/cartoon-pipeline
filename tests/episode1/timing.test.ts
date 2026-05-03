@@ -5,9 +5,14 @@ import type { ViralScene } from '../../src/compositions/episode1/types';
 
 // ─── calcDialogueDur ──────────────────────────────────────────────────────────
 
+// Pacing contract (Bird/MrBeast retention, post-overhaul):
+//   MIN_LINE_FRAMES   = 42 frames (~1.4s)  — snappy delivery floor
+//   REACTION_GAP      = 9  frames (~0.3s)  — viewer micro-pause
+//   FRAMES_PER_CHAR   = 6                  — unchanged
+
 describe('calcDialogueDur', () => {
-  it('returns minimum 55 frames for very short text', () => {
-    expect(calcDialogueDur('हाँ')).toBeGreaterThanOrEqual(55);
+  it('returns minimum 42 frames for very short text', () => {
+    expect(calcDialogueDur('हाँ')).toBeGreaterThanOrEqual(42);
   });
 
   it('returns proportionally more frames for longer text', () => {
@@ -16,23 +21,21 @@ describe('calcDialogueDur', () => {
     expect(long).toBeGreaterThan(short);
   });
 
-  it('long text (~50 chars) gets at least 200 frames', () => {
-    expect(calcDialogueDur('मुझे माफ़ करना शेर जी, रास्ते में एक और शेर ने रोक लिया था।')).toBeGreaterThanOrEqual(200);
+  it('long text (~50 chars) gets at least 180 frames', () => {
+    expect(calcDialogueDur('मुझे माफ़ करना शेर जी, रास्ते में एक और शेर ने रोक लिया था।')).toBeGreaterThanOrEqual(180);
   });
 
   it('never returns fractional frames', () => {
     expect(Number.isInteger(calcDialogueDur('खरगोश'))).toBe(true);
   });
 
-  it('short text (under 10 chars) returns at most 120 frames', () => {
-    expect(calcDialogueDur('क्या?!')).toBeLessThanOrEqual(120);
+  it('short text (under 10 chars) returns at most 90 frames', () => {
+    expect(calcDialogueDur('क्या?!')).toBeLessThanOrEqual(90);
   });
 
-  // ── NEW: boundary & edge cases ──────────────────────────────────────────
-
-  it('empty string returns the floor (MIN_LINE_FRAMES = 55)', () => {
-    // raw = 0 * 6 + 18 = 18, which is below 55, so floor kicks in
-    expect(calcDialogueDur('')).toBe(55);
+  it('empty string returns the floor (MIN_LINE_FRAMES = 42)', () => {
+    // raw = 0 * 6 + 9 = 9, below 42 → floor kicks in
+    expect(calcDialogueDur('')).toBe(42);
   });
 
   it('never returns a negative number for any input', () => {
@@ -47,19 +50,18 @@ describe('calcDialogueDur', () => {
     }
   });
 
-  it('exact arithmetic: text.length * 6 + 18, floored at 55', () => {
-    // 'हाँ' has 3 chars → raw = 3*6 + 18 = 36 → below 55 → result = 55
-    expect(calcDialogueDur('हाँ')).toBe(55);
+  it('exact arithmetic: text.length * 6 + 9, floored at 42', () => {
+    // 'हाँ' has 3 chars → raw = 3*6 + 9 = 27 → below 42 → result = 42
+    expect(calcDialogueDur('हाँ')).toBe(42);
 
-    // 10-char text: raw = 10*6 + 18 = 78 → above 55 → result = 78
-    const tenChar = 'abcdefghij'; // pure ASCII to have predictable .length
-    expect(calcDialogueDur(tenChar)).toBe(78);
+    // 10-char text: raw = 10*6 + 9 = 69 → above 42 → result = 69
+    const tenChar = 'abcdefghij';
+    expect(calcDialogueDur(tenChar)).toBe(69);
   });
 
-  it('text whose raw value exactly equals MIN_LINE_FRAMES (55) is returned as 55', () => {
-    // raw = len*6 + 18 = 55 → len = 37/6, not integer. Use len where raw > 55.
-    // len=7: raw = 7*6+18 = 60 → result = 60
-    expect(calcDialogueDur('abcdefg')).toBe(60);
+  it('text whose raw value just exceeds the floor is returned as raw', () => {
+    // len=7: raw = 7*6+9 = 51 → above 42 → result = 51
+    expect(calcDialogueDur('abcdefg')).toBe(51);
   });
 
   it('is monotonically non-decreasing as text grows', () => {

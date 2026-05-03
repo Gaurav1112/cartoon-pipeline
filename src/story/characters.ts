@@ -8,6 +8,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Brave boy, orange outfit, confident pose. Natural leader who stands up for friends.',
     colors: { primary: '#E07B38', secondary: '#F2C94C', accent: '#6B4226', skin: '#C99B6D' },
     voiceProfile: { pitchShift: 3, speedFactor: 1.1, eqProfile: 'none', volume: 0.85 },
+    catchphrase: { hi: 'दिमाग सबसे बड़ा है!', en: 'Brains beat brawn!', te: 'బుద్ధే గొప్ప!', ta: 'புத்தியே பெரிசு!', kn: 'ಬುದ್ಧಿಯೇ ದೊಡ್ಡದು!', mr: 'डोकं सर्वात मोठं!', bn: 'বুদ্ধিই বড়!' },
   },
   meera: {
     id: 'meera',
@@ -16,6 +17,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Clever girl, blue outfit, book in hand. Solves problems with wit and knowledge.',
     colors: { primary: '#3B6BA5', secondary: '#7EB8D8', accent: '#C4943A', skin: '#C49A78' },
     voiceProfile: { pitchShift: 2, speedFactor: 1.15, eqProfile: 'none', volume: 0.8 },
+    catchphrase: { hi: 'सोचो, फिर बोलो!', en: 'Think, then speak!', te: 'ఆలోచించి చెప్పు!', ta: 'யோசிச்சு பேசு!', kn: 'ಯೋಚಿಸಿ ಹೇಳು!', mr: 'विचार करून बोल!', bn: 'ভেবে বলো!' },
   },
   bablu: {
     id: 'bablu',
@@ -24,6 +26,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Round, always eating, comic relief. Stumbles into trouble but has a good heart.',
     colors: { primary: '#6BAF5A', secondary: '#A8D86E', accent: '#8B4513', skin: '#C4A07A' },
     voiceProfile: { pitchShift: 5, speedFactor: 1.3, eqProfile: 'nasal', volume: 0.9 },
+    catchphrase: { hi: 'खाना!', en: 'Food first!', te: 'తినడం ముందు!', ta: 'சாப்பாடு முதலில்!', kn: 'ಊಟ ಮೊದಲು!', mr: 'जेवण आधी!', bn: 'খাবার আগে!' },
   },
   guruji: {
     id: 'guruji',
@@ -32,6 +35,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'White beard, staff, calm demeanor. Dispenses wisdom through parables and proverbs.',
     colors: { primary: '#EDE4D0', secondary: '#C4943A', accent: '#5C1A2D', skin: '#BA956A' },
     voiceProfile: { pitchShift: -2, speedFactor: 0.85, eqProfile: 'warm', volume: 0.75 },
+    catchphrase: { hi: 'धैर्य ही विजय है।', en: 'Patience is victory.', te: 'ఓర్పే విజయం.', ta: 'பொறுமையே வெற்றி.', kn: 'ತಾಳ್ಮೆಯೇ ಜಯ.', mr: 'धीर हाच विजय.', bn: 'ধৈর্যই জয়।' },
   },
   kaaliya: {
     id: 'kaaliya',
@@ -40,6 +44,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Dark outfit, sharp features, menacing. Cunning antagonist who learns lessons the hard way.',
     colors: { primary: '#1E0A2E', secondary: '#6B3A7D', accent: '#9B6BAF', skin: '#B08E66' },
     voiceProfile: { pitchShift: -4, speedFactor: 0.9, eqProfile: 'reverb', volume: 0.85 },
+    catchphrase: { hi: 'तू कौन है?!', en: 'Who dares?!', te: 'నువ్వెవరు?!', ta: 'நீ யார்?!', kn: 'ನೀನು ಯಾರು?!', mr: 'तू कोण?!', bn: 'তুমি কে?!' },
   },
   amma: {
     id: 'amma',
@@ -48,6 +53,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Sari, warm smile, gentle. The emotional anchor who cares for everyone.',
     colors: { primary: '#C75B7A', secondary: '#E8A87C', accent: '#C4943A', skin: '#C49A78' },
     voiceProfile: { pitchShift: -1, speedFactor: 0.95, eqProfile: 'warm', volume: 0.7 },
+    catchphrase: { hi: 'बच्चा, ख़याल रखना।', en: 'Take care, child.', te: 'జాగ్రత్తగా ఉండు.', ta: 'பத்திரமா இரு.', kn: 'ಜೋಪಾನ.', mr: 'सांभाळून जा.', bn: 'সাবধানে থেকো।' },
   },
   raja: {
     id: 'raja',
@@ -56,6 +62,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Crown, royal robes, commanding. Authority figure who must make fair decisions.',
     colors: { primary: '#8B2942', secondary: '#D4A843', accent: '#E8C876', skin: '#BA956A' },
     voiceProfile: { pitchShift: 0, speedFactor: 1.0, eqProfile: 'none', volume: 0.85 },
+    catchphrase: { hi: 'न्याय होगा।', en: 'Justice prevails.', te: 'న్యాయం జరుగుతుంది.', ta: 'நீதி நடக்கும்.', kn: 'ನ್ಯಾಯ ಸಿಗುತ್ತದೆ.', mr: 'न्याय होईल.', bn: 'বিচার হবে।' },
   },
   moti: {
     id: 'moti',
@@ -64,6 +71,7 @@ export const CHARACTERS: Record<CharacterId, CharacterProfile> = {
     description: 'Animal companion base rig. Changes appearance based on story via skins.',
     colors: { primary: '#8B6240', secondary: '#D4B896', accent: '#5C3D28', skin: '#A87B5A' },
     voiceProfile: { pitchShift: 4, speedFactor: 1.2, eqProfile: 'nasal', volume: 0.8 },
+    catchphrase: { hi: 'चलो साथ चलें!', en: "Let's go together!", te: 'కలిసి వెళ్దాం!', ta: 'ஒன்னா போலாம்!', kn: 'ಜೊತೆಗೆ ಹೋಗೋಣ!', mr: 'एकत्र जाऊया!', bn: 'একসাথে চলো!' },
   },
 };
 

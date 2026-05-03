@@ -176,6 +176,28 @@ export async function generateEpisodeAudio(
 
       // Generate lip sync
       const cues = await generateLipSync(transformedPath);
+
+      // MURCH FIX: get ACTUAL audio duration via ffprobe instead of the
+      // 3000ms stub. Drift across a 90s video could exceed 5s — fatal for
+      // dialogue/lip sync. ffprobe is local, deterministic, and free.
+      let actualDurationMs = line.durationMs ?? 0;
+      try {
+        const { stdout } = await execFileAsync('ffprobe', [
+          '-v', 'error',
+          '-show_entries', 'format=duration',
+          '-of', 'default=noprint_wrappers=1:nokey=1',
+          transformedPath,
+        ], { timeout: 5_000 });
+        const seconds = parseFloat(stdout.trim());
+        if (Number.isFinite(seconds) && seconds > 0) {
+          actualDurationMs = Math.round(seconds * 1000);
+        }
+      } catch {
+        // ffprobe missing or file unreadable — fall back to declared/estimate
+        // so we never block render; warn loudly at orchestration layer.
+        if (!actualDurationMs) actualDurationMs = 3000;
+      }
+
       const offsetCues = cues.map((c) => ({
         ...c,
         start: c.start + currentTimeMs / 1000,
@@ -186,9 +208,6 @@ export async function generateEpisodeAudio(
         ...offsetCues,
       ];
 
-      // Estimate duration (will be replaced by actual audio duration)
-      const estimatedDurationMs = line.durationMs ?? 3000;
-
       // Add to dialogue layers
       dialogueLayers.push({
         type: 'dialogue',
@@ -197,7 +216,7 @@ export async function generateEpisodeAudio(
         volumeDb: -5,
       });
 
-      currentTimeMs += estimatedDurationMs + 200; // 200ms gap between lines
+      currentTimeMs += actualDurationMs + 200; // 200ms gap between lines
 
       // Cleanup raw file
       await fs.unlink(rawPath).catch(() => {});

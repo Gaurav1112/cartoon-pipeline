@@ -2,21 +2,32 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, spring, useVideoConfig, interpolate } from 'remotion';
 import type { SupportedLanguage } from '../types';
 
-const NEXT_EPISODE_TEXT: Record<SupportedLanguage, string> = {
-  hi: 'अगली कहानी जल्दी आ रही है!',
-  te: 'తదుపరి కథ త్వరలో వస్తోంది!',
-  ta: 'அடுத்த கதை விரைவில் வருகிறது!',
-  kn: 'ಮುಂದಿನ ಕಥೆ ಶೀಘ್ರದಲ್ಲೇ ಬರುತ್ತಿದೆ!',
-  mr: 'पुढची गोष्ट लवकरच येत आहे!',
-  bn: 'পরের গল্প শীঘ্রই আসছে!',
-  en: 'Next story coming soon!',
+const NEXT_EPISODE_TEASERS: Record<SupportedLanguage, string[]> = {
+  hi: [
+    'अगली कहानी जल्दी आ रही है!',
+    'कल — कौवा और चालाक लोमड़ी 🦊',
+    'मत भूलो: कल "बंदर और मगरमच्छ"!',
+  ],
+  te: ['తదుపరి కథ త్వరలో వస్తోంది!', 'రేపు — కాకి మరియు తెలివైన నక్క 🦊', 'రేపు: కోతి మరియు మొసలి!'],
+  ta: ['அடுத்த கதை விரைவில் வருகிறது!', 'நாளை — காகமும் தந்திர நரியும் 🦊', 'நாளை: குரங்கும் முதலையும்!'],
+  kn: ['ಮುಂದಿನ ಕಥೆ ಶೀಘ್ರದಲ್ಲೇ!', 'ನಾಳೆ — ಕಾಗೆ ಮತ್ತು ನರಿ 🦊', 'ನಾಳೆ: ಕಪಿ ಮತ್ತು ಮೊಸಳೆ!'],
+  mr: ['पुढची गोष्ट लवकरच!', 'उद्या — कावळा आणि चतुर कोल्हा 🦊', 'उद्या: माकड आणि मगर!'],
+  bn: ['পরের গল্প শীঘ্রই!', 'কাল — কাক ও চতুর শিয়াল 🦊', 'কাল: বানর ও কুমির!'],
+  en: ['Next story coming soon!', 'Tomorrow — Crow & the Cunning Fox 🦊', 'Tomorrow: Monkey & Crocodile!'],
 };
+
+/** Deterministic teaser pick — same input always yields same teaser. */
+export function pickTeaser(language: SupportedLanguage, episodeNumber: number): string {
+  const list = NEXT_EPISODE_TEASERS[language] ?? NEXT_EPISODE_TEASERS.en;
+  return list[episodeNumber % list.length];
+}
 
 interface OutroSequenceProps {
   language?: SupportedLanguage;
+  episodeNumber?: number;
 }
 
-export const OutroSequence: React.FC<OutroSequenceProps> = ({ language = 'en' }) => {
+export const OutroSequence: React.FC<OutroSequenceProps> = ({ language = 'en', episodeNumber = 1 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -77,7 +88,7 @@ export const OutroSequence: React.FC<OutroSequenceProps> = ({ language = 'en' })
           marginTop: 40,
           opacity: interpolate(frame, [120, 150], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
         }}>
-          {NEXT_EPISODE_TEXT[language]}
+          {pickTeaser(language, episodeNumber)}
         </p>
       </div>
 

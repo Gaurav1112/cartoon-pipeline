@@ -86,9 +86,17 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const blink = blinkCycle < 4 || (blinkCycle > 60 && blinkCycle < 64); // 4 frames not 3
   // Head bob when talking
   const talkBob = isTalking ? Math.sin(frame * 0.12) * 2.5 : 0;
-  // Pupil drift (eyes look alive)
-  const pupilDriftX = Math.sin(frame * 0.04 + characterId.charCodeAt(0)) * 1.5;
-  const pupilDriftY = Math.cos(frame * 0.03 + (characterId.charCodeAt(1) || 0)) * 0.8;
+  // Pupil drift (eyes look alive). Glen Keane: split L/R asymmetry so eyes
+  // never feel locked in stereo — micro-difference creates "thinking" feel.
+  const seedX = characterId.charCodeAt(0);
+  const seedY = (characterId.charCodeAt(1) || 0);
+  const pupilDriftXL = Math.sin(frame * 0.04 + seedX) * 1.5;
+  const pupilDriftYL = Math.cos(frame * 0.03 + seedY) * 0.8;
+  const pupilDriftXR = Math.sin(frame * 0.043 + seedX + 1.7) * 1.5;
+  const pupilDriftYR = Math.cos(frame * 0.031 + seedY + 0.9) * 0.8;
+  // Legacy alias used by other branches (tongue/closed eyes etc.)
+  const pupilDriftX = (pupilDriftXL + pupilDriftXR) * 0.5;
+  const pupilDriftY = (pupilDriftYL + pupilDriftYR) * 0.5;
   // Walk bob (vertical bounce when walking)
   const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
 
@@ -221,12 +229,17 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
             {/* Head shape */}
             <ellipse cx="0" cy={-cfg.headH - 4} rx={cfg.headW} ry={cfg.headH} fill={`url(#${characterId}-skin)`} stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH} />
 
-            {/* Cheek blush (when happy/embarrassed) */}
+            {/* Cheek blush (when happy/embarrassed/scared). Keane: asymmetric
+                opacity so blush never reads as a mask — one cheek warmer than
+                the other. Anger gets a hot-flush single-side variant. */}
             {(expression === 'happy' || expression === 'surprised') && (
               <>
-                <ellipse cx={-cfg.headW + 10} cy={-cfg.headH + 8} rx="6" ry="3" fill="#FFB6C1" opacity="0.4" />
-                <ellipse cx={cfg.headW - 10} cy={-cfg.headH + 8} rx="6" ry="3" fill="#FFB6C1" opacity="0.4" />
+                <ellipse cx={-cfg.headW + 10} cy={-cfg.headH + 8} rx="6" ry="3" fill="#FFB6C1" opacity="0.45" />
+                <ellipse cx={cfg.headW - 10} cy={-cfg.headH + 8} rx="6" ry="3" fill="#FFB6C1" opacity="0.30" />
               </>
+            )}
+            {expression === 'angry' && (
+              <ellipse cx={cfg.headW - 10} cy={-cfg.headH + 6} rx="7" ry="3.5" fill="#E07050" opacity="0.35" />
             )}
 
             {/* HAIR STYLES */}
@@ -339,8 +352,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={-9 + pupilDriftX} cy={-cfg.headH - 1 + pupilDriftY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={-7 + pupilDriftX} cy={-cfg.headH - 3 + pupilDriftY} r="2" fill="white" />
+                <circle cx={-9 + pupilDriftXL} cy={-cfg.headH - 1 + pupilDriftYL} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={-7 + pupilDriftXL} cy={-cfg.headH - 3 + pupilDriftYL} r="2" fill="white" />
 
                 {/* Right eye */}
                 <ellipse cx="9" cy={-cfg.headH - 2}
@@ -348,22 +361,40 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   ry={exprData.eyeShape === 'wide' ? 9 : exprData.eyeShape === 'narrow' ? 4 : exprData.eyeShape === 'squint' ? 4 : 7}
                   fill="white" stroke={OUTLINE_COLOR} strokeWidth={OUTLINE_WIDTH}
                 />
-                <circle cx={9 + pupilDriftX} cy={-cfg.headH - 1 + pupilDriftY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
-                <circle cx={11 + pupilDriftX} cy={-cfg.headH - 3 + pupilDriftY} r="2" fill="white" />
+                <circle cx={9 + pupilDriftXR} cy={-cfg.headH - 1 + pupilDriftYR} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
+                <circle cx={11 + pupilDriftXR} cy={-cfg.headH - 3 + pupilDriftYR} r="2" fill="white" />
               </>
             )}
 
-            {/* Eyebrows */}
-            <line
-              x1="-16" y1={-cfg.headH - 10 + exprData.eyebrowAngle * 0.2}
-              x2="-4" y2={-cfg.headH - 10 - exprData.eyebrowAngle * 0.2}
-              stroke={OUTLINE_COLOR} strokeWidth="3" strokeLinecap="round"
-            />
-            <line
-              x1="4" y1={-cfg.headH - 10 - exprData.eyebrowAngle * 0.2}
-              x2="16" y2={-cfg.headH - 10 + exprData.eyebrowAngle * 0.2}
-              stroke={OUTLINE_COLOR} strokeWidth="3" strokeLinecap="round"
-            />
+            {/* Eyebrows. Keane: on anger, brows pinch toward the nose
+                (inner ends drop) — this is the universal "menace" cue. */}
+            {expression === 'angry' ? (
+              <>
+                <line
+                  x1="-16" y1={-cfg.headH - 12}
+                  x2="-4"  y2={-cfg.headH - 6}
+                  stroke={OUTLINE_COLOR} strokeWidth="3.5" strokeLinecap="round"
+                />
+                <line
+                  x1="4"  y1={-cfg.headH - 6}
+                  x2="16" y2={-cfg.headH - 12}
+                  stroke={OUTLINE_COLOR} strokeWidth="3.5" strokeLinecap="round"
+                />
+              </>
+            ) : (
+              <>
+                <line
+                  x1="-16" y1={-cfg.headH - 10 + exprData.eyebrowAngle * 0.2}
+                  x2="-4" y2={-cfg.headH - 10 - exprData.eyebrowAngle * 0.2}
+                  stroke={OUTLINE_COLOR} strokeWidth="3" strokeLinecap="round"
+                />
+                <line
+                  x1="4" y1={-cfg.headH - 10 - exprData.eyebrowAngle * 0.2}
+                  x2="16" y2={-cfg.headH - 10 + exprData.eyebrowAngle * 0.2}
+                  stroke={OUTLINE_COLOR} strokeWidth="3" strokeLinecap="round"
+                />
+              </>
+            )}
 
             {/* Nose */}
             <path d={`M-1,${-cfg.headH + 8} Q0,${-cfg.headH + 12} 3,${-cfg.headH + 8}`} fill="none" stroke={skinDark} strokeWidth="1.5" />

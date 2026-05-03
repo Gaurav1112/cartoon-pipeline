@@ -8,15 +8,19 @@ import { CharacterRenderer } from '../../characters/CharacterRenderer';
 import { DialogueBubble } from '../DialogueBubble';
 import { SFXLayer } from './SFXLayer';
 import { calcDialogueDur } from './timing';
+import { firstCharEntranceScale } from './entrance';
 import type { ViralScene } from './types';
 
 // FIX(perf): removed module-level FPS=30 constant; use fps from useVideoConfig()
 // so the component is correct at any frame rate.
 
+// Rule of thirds — Kubrick / Deakins composition contract.
+// 1920x1080 thirds: x = 640, 960, 1280. y stays roughly on the lower third.
+// (Previous values 350/860/1370 were arbitrary and broke classical composition.)
 const CHAR_POSITIONS: Record<'left' | 'center' | 'right', { x: number; y: number }> = {
-  left:   { x: 350,  y: 480 },
-  center: { x: 860,  y: 460 },
-  right:  { x: 1370, y: 480 },
+  left:   { x: 640,  y: 480 },
+  center: { x: 960,  y: 460 },
+  right:  { x: 1280, y: 480 },
 };
 
 interface SceneRendererProps {
@@ -86,13 +90,15 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
     const line = scene.dialogue[idx];
     if (line.patternInterrupt === 'zoom_punch') {
       const lineStart = lineStarts[idx] ?? 0;
-      if (frame >= lineStart && frame < lineStart + 4) {
-        zoomPunchScale = interpolate(
-          frame - lineStart,
-          [0, 4],
-          [1.15, 1],
-          { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-        );
+      // Tartakovsky: 6-frame zoom_punch = 2-frame peak hold + 4-frame ease-out.
+      // Held emphasis lands the moment instead of flicking past it.
+      if (frame >= lineStart && frame < lineStart + 6) {
+        const local = frame - lineStart;
+        zoomPunchScale = local < 2
+          ? 1.18
+          : interpolate(local, [2, 6], [1.18, 1], {
+              extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+            });
         break; // only one zoom_punch active at a time
       }
     }
@@ -114,7 +120,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           <AbsoluteFill style={{ background: '#000', zIndex: 500 }} />
         </Sequence>
       );
-    } else if (line.patternInterrupt === 'freeze_frame' && frame >= startFrame && frame < startFrame + 8) {
+    } else if (line.patternInterrupt === 'freeze_frame' && frame >= startFrame && frame < startFrame + 12) {
       // FIX(critical): freeze_frame was silently unhandled. Now renders a brief
       // white vignette flash outside the camera div so it covers the whole frame
       // at full size unaffected by camera zoom. True frame-freezing requires
@@ -163,13 +169,10 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           parallaxOffset={translateX}
         />
 
-        {/* Characters — staggered spring entrances */}
+        {/* Characters — frame-0 hook for charIndex 0 (lead visible immediately),
+            staggered spring entrances for supporting characters. */}
         {scene.chars.map((char, i) => {
-          const entranceScale = spring({
-            frame: frame - i * 6,
-            fps,
-            config: { damping: 14, stiffness: 120, mass: 0.45 },
-          });
+          const entranceScale = firstCharEntranceScale({ frame, fps, charIndex: i });
           return (
             <div
               key={`${char.id}-${i}`}

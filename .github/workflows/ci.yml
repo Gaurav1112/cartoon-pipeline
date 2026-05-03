@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: read-all
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ffmpeg (for music placeholder generation)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: TypeScript build (no emit)
+        run: npm run build
+
+      - name: Unit + integration + quality tests
+        run: npm test
+
+      - name: Determinism guard — ban Math.random() in src/
+        run: |
+          if grep -RnE 'Math\.random\(' src/; then
+            echo "::error::Math.random() found in src/. Use src/utils/seeded-rng.ts instead."
+            exit 1
+          fi
+
+      - name: Determinism guard — ban wall-clock APIs in render-effecting modules
+        run: |
+          paths="src/compositions src/characters src/scenes src/story src/dialogues src/audio src/utils"
+          if grep -RnE '(Date\.now\(|performance\.now\(|new Date\()' $paths; then
+            echo "::error::Wall-clock API found in render-effecting code. Move to src/pipeline/ if it is orchestration only."
+            exit 1
+          fi

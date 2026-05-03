@@ -6,9 +6,13 @@ const FPS = 30;
  * Frames per Hindi character at natural speech rate.
  * ~6 frames/char = ~5 chars/sec = normal conversational Hindi.
  */
+// Pacing contract (Brad Bird snappiness + MrBeast retention):
+// We want lines to feel propulsive without clipping audio. 42 frames (~1.4s)
+// is the floor for any line; the per-char rate keeps long lines proportional.
+// REACTION_GAP=9 (~0.3s) gives viewers a beat to process before the next line.
 const FRAMES_PER_CHAR = 6;
-const MIN_LINE_FRAMES = 55;   // never shorter than ~1.8s
-const REACTION_GAP_FRAMES = 18; // pause between lines for viewer processing
+const MIN_LINE_FRAMES = 42;
+const REACTION_GAP_FRAMES = 9;
 
 /**
  * Calculate dialogue line duration from Hindi text length.
