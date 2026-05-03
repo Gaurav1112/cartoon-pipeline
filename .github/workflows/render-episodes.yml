@@ -129,7 +129,19 @@ jobs:
           YOUTUBE_REFRESH_TOKEN_MR: ${{ secrets.YOUTUBE_REFRESH_TOKEN_MR }}
           YOUTUBE_REFRESH_TOKEN_BN: ${{ secrets.YOUTUBE_REFRESH_TOKEN_BN }}
           YOUTUBE_REFRESH_TOKEN_EN: ${{ secrets.YOUTUBE_REFRESH_TOKEN_EN }}
-        run: npx tsx scripts/upload-youtube.ts "$EPISODE"
+        run: npx tsx scripts/upload-youtube.ts "$EPISODE" || true
+
+      # Always upload rendered MP4s as workflow artifacts so they're
+      # downloadable even when YouTube credentials aren't configured.
+      # SHA-pinned: actions/upload-artifact v4.4.3
+      - name: Upload rendered episode artifacts
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          name: episode-${{ steps.plan.outputs.episode }}-mp4s
+          path: output/episode-*/episode-*.mp4
+          if-no-files-found: warn
+          retention-days: 14
 
       # ── FIX: step-output injection at original line 81 ───────────────────
       # BEFORE (VULNERABLE): step output was interpolated directly into the
