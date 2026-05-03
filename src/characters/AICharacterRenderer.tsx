@@ -25,6 +25,10 @@ interface AICharacterRendererProps {
 type ManifestEntry = { poses: Record<string, string[]>; canonical: string | null };
 const MANIFEST = manifestJson as Record<string, ManifestEntry>;
 
+// Ultimate emergency fallback if a character has no asset whatsoever — keeps
+// the render unblocked instead of 404-ing. Points to a known-existing PNG.
+const EMERGENCY_FALLBACK = 'characters/arjun/arjun.png';
+
 // Map unavailable poses to closest available pose (semantic neighbours)
 const POSE_FALLBACK: Record<string, string> = {
   idle_sit: 'idle_stand',
@@ -49,9 +53,10 @@ const EXPR_FALLBACK: Record<string, string[]> = {
 // Returns the relative path (under public/) that should be passed to staticFile.
 export function resolveAssetPath(characterId: string, pose: string, expression: string): string {
   const entry = MANIFEST[characterId];
-  if (!entry) {
-    // Last resort: hope for canonical
-    return `characters/${characterId}/${characterId}.png`;
+  if (!entry || (Object.keys(entry.poses).length === 0 && !entry.canonical)) {
+    // No manifest data: try canonical naming convention, but if nothing,
+    // we'd 404. Caller should treat empty entry as emergency.
+    if (!entry) return EMERGENCY_FALLBACK;
   }
 
   // 1) try exact (pose, expression)

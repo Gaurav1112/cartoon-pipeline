@@ -1,14 +1,13 @@
 {
   "amma": {
-    "canonical": "amma",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "amma"
   },
   "arjun": {
-    "canonical": "arjun",
     "poses": {
       "idle_stand": [
         "angry",
@@ -23,46 +22,55 @@
         "happy",
         "neutral"
       ]
-    }
+    },
+    "canonical": "arjun"
   },
   "bablu": {
-    "canonical": "bablu",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "bablu"
   },
   "guruji": {
-    "canonical": "guruji",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "guruji"
   },
   "kaaliya": {
-    "canonical": "kaaliya",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "kaaliya"
   },
   "meera": {
-    "canonical": "meera",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "meera"
+  },
+  "moti": {
+    "poses": {
+      "idle_stand": [
+        "happy"
+      ]
+    },
+    "canonical": "moti"
   },
   "raja": {
-    "canonical": "raja",
     "poses": {
       "idle_stand": [
         "happy"
       ]
-    }
+    },
+    "canonical": "raja"
   }
 }
