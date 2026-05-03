@@ -9,6 +9,7 @@ import { TransitionEffect, getTransitionType } from './TransitionEffects';
 import { SceneRenderer } from './episode1/SceneRenderer';
 import { LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
 import { calcSceneDur, calcEpisodeDuration, validateSceneChars } from './episode1/timing';
+import { Subtitles } from './episode1/Subtitles';
 
 const FPS = 30;
 // FIX(minor): use even number so Math.floor(TRANSITION_FRAMES/2) is symmetric
@@ -111,6 +112,8 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi' }) => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {elements}
+      {/* M5.1 — burnt-in multi-language subtitle layer (Shorts retention +30–40%) */}
+      <Subtitles scenes={LION_RABBIT_SCENES} language={language} />
     </AbsoluteFill>
   );
 };
