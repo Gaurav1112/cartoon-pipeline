@@ -47,6 +47,11 @@ export const TITLE_FONT_BY_LANG: Record<
   en: { fontFamily: "'Noto Sans', 'Baloo 2', sans-serif",            fontWeight: 700 },
 };
 
+/** Universal subtitle on the title card — English transliteration so the
+ *  intro reads correctly even when visual track is rendered in Hindi but
+ *  muxed with EN/TA/TE/KN/MR/BN audio. Bheem-style: bilingual brand. */
+const SHOW_NAME_ROMAN = 'Katha Keeda';
+
 const SHOW_NAME: Record<SupportedLanguage, string> = {
   hi: 'कथा कीड़ा',
   te: 'కథా కీడా',
@@ -82,6 +87,30 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ language = 'en' })
         background: 'linear-gradient(135deg, #FF6B00 0%, #FFD700 50%, #FF4500 100%)',
       }}
     >
+      {/* Bheem-style sun-ray burst — radial stripes rotating slowly behind
+          the title. Pure SVG, deterministic, no randomness. */}
+      <AbsoluteFill style={{ zIndex: 1, opacity: titleOpacity * 0.45 }}>
+        <svg width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="rayFade" cx="50%" cy="50%" r="60%">
+              <stop offset="0%"   stopColor="rgba(255,255,200,0.0)" />
+              <stop offset="60%"  stopColor="rgba(255,255,200,0.55)" />
+              <stop offset="100%" stopColor="rgba(255,255,200,0.0)" />
+            </radialGradient>
+          </defs>
+          <g transform={`translate(960 540) rotate(${frame * 0.4})`}>
+            {Array.from({ length: 16 }).map((_, i) => (
+              <polygon
+                key={i}
+                points="0,-1100 30,0 -30,0"
+                fill="url(#rayFade)"
+                transform={`rotate(${(360 / 16) * i})`}
+              />
+            ))}
+          </g>
+        </svg>
+      </AbsoluteFill>
+
       {/* Soft golden glow on entry — safe for kids (no harsh white flash) */}
       <AbsoluteFill
         style={{
@@ -107,7 +136,7 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ language = 'en' })
           zIndex: 5,
         }}
       >
-        {/* Title */}
+        {/* Title (native script) */}
         <h1
           style={{
             fontFamily: TITLE_FONT_BY_LANG[language].fontFamily,
@@ -122,6 +151,26 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ language = 'en' })
         >
           {SHOW_NAME[language]}
         </h1>
+
+        {/* Romanized brand mark — works in every muxed language so even when
+            the visual is rendered as Hindi, EN/TA/TE viewers still see the
+            channel name they recognise. Chhota-Bheem-style bilingual logo. */}
+        {language !== 'en' && (
+          <p
+            style={{
+              fontFamily: "'Noto Sans', sans-serif",
+              fontWeight: 700,
+              fontSize: 48,
+              color: 'white',
+              textShadow: '3px 3px 0 rgba(0,0,0,0.35)',
+              margin: '8px 0 0 0',
+              letterSpacing: 2,
+              opacity: titleOpacity,
+            }}
+          >
+            {SHOW_NAME_ROMAN}
+          </p>
+        )}
 
         {/* Decorative underline */}
         <div
