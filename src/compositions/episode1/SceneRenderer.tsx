@@ -9,6 +9,7 @@ import { DialogueBubble } from '../DialogueBubble';
 import { SFXLayer } from './SFXLayer';
 import { calcDialogueDur } from './timing';
 import { firstCharEntranceScale } from './entrance';
+import { MotionSmear } from '../effects/MotionSmear';
 import type { ViralScene } from './types';
 
 // FIX(perf): removed module-level FPS=30 constant; use fps from useVideoConfig()
@@ -145,6 +146,22 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
           zIndex: 350,
           pointerEvents: 'none',
         }} />
+      );
+    }
+
+    // Tartakovsky impact-frame smear: paired with zoom_punch and shake
+    // — 2-frame motion-blur trail across the screen at the impact moment.
+    if (line.patternInterrupt === 'zoom_punch' || line.patternInterrupt === 'shake') {
+      // Deterministic angle derived from line index (no RNG): cycles
+      // through 12 directions for visual variety across scenes.
+      const angleDeg = (idx * 47) % 360;
+      patternOverlays.push(
+        <MotionSmear
+          key={`smear-${idx}`}
+          startFrame={startFrame}
+          angleDeg={angleDeg}
+          lengthPx={320}
+        />,
       );
     }
 
