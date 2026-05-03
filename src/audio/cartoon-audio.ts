@@ -297,7 +297,7 @@ export async function generateEpisodeAudio(
     ambienceLayer,
   ];
 
-  const masterPath = path.join(outputDir, 'master_audio.mp3');
+  const masterPath = path.join(outputDir, 'master_audio.wav');
   await mixAudio(masterPath, allLayers);
 
   return {
