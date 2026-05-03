@@ -215,7 +215,7 @@ describe('GHA Workflow Security — concurrency guards', () => {
 
   for (const { name, content } of workflowFiles) {
     it(`[${name}] must have a concurrency: key`, () => {
-      const hasConcurrency = /^concurrency:/m.test(content);
+      const hasConcurrency = /^\s*concurrency:/m.test(content);
       expect(
         hasConcurrency,
         `No concurrency: block in ${name}.\n` +
