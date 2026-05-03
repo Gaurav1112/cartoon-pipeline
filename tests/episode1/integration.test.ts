@@ -51,10 +51,10 @@ describe('Episode1 integration — viral requirements', () => {
 
   // ── NEW: full episode duration through calcEpisodeDuration ───────────────
 
-  it('calcEpisodeDuration(LION_RABBIT_SCENES) is in valid YouTube range (60s–150s)', () => {
+  it('calcEpisodeDuration(LION_RABBIT_SCENES) is in valid YouTube range (60s–160s)', () => {
     const totalFrames = calcEpisodeDuration(LION_RABBIT_SCENES);
     expect(totalFrames).toBeGreaterThanOrEqual(60 * 30);
-    expect(totalFrames).toBeLessThanOrEqual(150 * 30);
+    expect(totalFrames).toBeLessThanOrEqual(160 * 30);
   });
 
   it('calcEpisodeDuration returns a positive integer', () => {

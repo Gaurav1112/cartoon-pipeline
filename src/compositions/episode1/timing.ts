@@ -25,13 +25,35 @@ export function calcDialogueDur(text: string): number {
 }
 
 /**
- * Sum all dialogue durations for a scene's dialogue array.
- * Respects explicit numeric dur overrides.
+ * Default post-line gap in milliseconds. Audio mixer (`cartoon-audio.ts`)
+ * advances its timeline by `actualDurationMs + postGap` per line, so the
+ * VIDEO timeline must do the same or A/V will drift. Keep this in sync
+ * with `cartoon-audio.ts:244` (the line `const postGap = ... ?? 200;`).
  */
-export function calcSceneDur(dialogue: Pick<ViralDialogueLine, 'text' | 'dur'>[]): number {
+export const DEFAULT_POST_GAP_MS = 200;
+
+/**
+ * Convert a postGapMs value (number | undefined) to frames at FPS=30.
+ * Reads `DEFAULT_POST_GAP_MS` when missing — matches the audio pipeline.
+ */
+export function postGapFrames(postGapMs: number | undefined): number {
+  const ms = typeof postGapMs === 'number' ? postGapMs : DEFAULT_POST_GAP_MS;
+  return Math.round((ms * FPS) / 1000);
+}
+
+/**
+ * Sum all dialogue durations for a scene's dialogue array.
+ * Respects explicit numeric dur overrides AND postGapMs gaps (the same
+ * gap the audio pipeline inserts after each line). Without including
+ * postGap here, video composition length < audio total = lip-sync drift +
+ * truncated final lines.
+ */
+export function calcSceneDur(
+  dialogue: Pick<ViralDialogueLine, 'text' | 'dur' | 'postGapMs'>[],
+): number {
   return dialogue.reduce((sum, line) => {
     const frames = line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
-    return sum + frames;
+    return sum + frames + postGapFrames(line.postGapMs);
   }, 0);
 }
 

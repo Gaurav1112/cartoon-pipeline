@@ -100,9 +100,6 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const pupilDriftYL = Math.cos(frame * 0.03 + seedY) * 0.8;
   const pupilDriftXR = Math.sin(frame * 0.043 + seedX + 1.7) * 1.5;
   const pupilDriftYR = Math.cos(frame * 0.031 + seedY + 0.9) * 0.8;
-  // Legacy alias used by other branches (tongue/closed eyes etc.)
-  const pupilDriftX = (pupilDriftXL + pupilDriftXR) * 0.5;
-  const pupilDriftY = (pupilDriftYL + pupilDriftYR) * 0.5;
   // Walk bob (vertical bounce when walking)
   const walkBob = isWalking ? Math.abs(Math.sin(walkPhase * Math.PI * 2)) * -4 : 0;
 
@@ -476,21 +473,35 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           )}
         </g>
 
-        {/* Moti tail */}
-        {characterId === 'moti' && (
-          <path
-            d={`M15,35 Q25,${25 + Math.sin(frame * 0.1) * 8} 20,${15 + Math.sin(frame * 0.1) * 5}`}
-            fill="none" stroke={primary} strokeWidth="4" strokeLinecap="round"
-          />
-        )}
+        {/* Moti tail — continuous idle sway with secondary harmonic.
+            Frequency 0.092 (per-char distinct) + a 2nd harmonic at 0.21
+            for organic feel. NOT lock-stepped with arjun's scarf. */}
+        {characterId === 'moti' && (() => {
+          const tailWave = Math.sin(frame * 0.092 + 1.3) * 7
+            + Math.sin(frame * 0.21 + 0.4) * 1.6;
+          const tailWave2 = Math.sin(frame * 0.092 + 2.7) * 4.5;
+          return (
+            <path
+              d={`M15,35 Q25,${25 + tailWave} 20,${15 + tailWave2}`}
+              fill="none" stroke={primary} strokeWidth="4" strokeLinecap="round"
+            />
+          );
+        })()}
 
-        {/* Arjun scarf (animated) */}
-        {characterId === 'arjun' && (
-          <path
-            d={`M15,${5 + breathe} Q${25 + Math.sin(frame * 0.05) * 5},${15 + breathe} ${20 + Math.sin(frame * 0.04) * 8},${30 + breathe}`}
-            fill="none" stroke="#FFD700" strokeWidth="4" strokeLinecap="round" opacity="0.8"
-          />
-        )}
+        {/* Arjun scarf — continuous trailing motion at frequencies
+            COPRIME-ish to moti's tail (0.057, 0.043) so two on-screen
+            characters never resonate in lock-step. */}
+        {characterId === 'arjun' && (() => {
+          const scarfA = Math.sin(frame * 0.057 + 0.7) * 5.5
+            + Math.sin(frame * 0.13) * 1.2;
+          const scarfB = Math.sin(frame * 0.043 + 1.9) * 7.5;
+          return (
+            <path
+              d={`M15,${5 + breathe} Q${25 + scarfA},${15 + breathe} ${20 + scarfB},${30 + breathe}`}
+              fill="none" stroke="#FFD700" strokeWidth="4" strokeLinecap="round" opacity="0.8"
+            />
+          );
+        })()}
       </svg>
     </div>
   );

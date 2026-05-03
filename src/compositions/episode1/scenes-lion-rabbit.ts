@@ -50,6 +50,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
+        // Murch "ma" on the threat — let it land before pivoting to rabbit.
+        postGapMs: 250,
       },
     ],
   },
@@ -162,6 +164,22 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'इसीलिए हर रोज़ एक की बारी।',
         dur: 'auto',
         textOverlay: '🎲 लॉटरी में नाम आएगा...',
+        // Murch "ma": let the lottery threat hang before the doubt lands.
+        postGapMs: 350,
+      },
+      {
+        char: 'bablu',
+        // Docter theme spine: foreshadow the thesis. Bablu names brawn
+        // as our ONLY tool — sets up Arjun's brain-flip in volunteer scene.
+        // Without this line the moral "brain beats brawn" arrives unprepared.
+        text: 'ताकत से तो हम जीत नहीं सकते...',
+        dur: 'auto',
+        sfxKey: 'gasp',
+        textOverlay: '💪❌ ताकत काम नहीं आएगी',
+        postGapMs: 400,
+        // MrBeast 8-sec rule: this is now the LAST line of setup, so it
+        // must carry an interrupt to keep the trailing run ≤240fr.
+        patternInterrupt: 'freeze_frame',
       },
     ],
   },
@@ -201,6 +219,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'dramatic',
         textOverlay: '🐰 छोटा खरगोश... बड़ी हिम्मत',
         shortsFlag: true,
+        // Murch "ma": heroic declaration needs a beat to land.
+        postGapMs: 300,
       },
       {
         char: 'bablu',
@@ -209,6 +229,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'gasp',
         textOverlay: '😂 इसकी हिम्मत देखो!',
         shortsFlag: true,
+        // Comedy beat needs a small breath before Meera's worry.
+        postGapMs: 250,
       },
       {
         char: 'meera',

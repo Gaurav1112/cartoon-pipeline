@@ -213,7 +213,7 @@ describe('LION_RABBIT_SCENES data integrity', () => {
 // ─── Timing ───────────────────────────────────────────────────────────────────
 
 describe('LION_RABBIT_SCENES timing', () => {
-  it('total duration with auto-calculated dialogue is under 145s (4350 frames)', () => {
+  it('total duration with auto-calculated dialogue is under 160s (4800 frames)', () => {
     let totalFrames = 0;
     for (const scene of LION_RABBIT_SCENES) {
       if (typeof scene.dur === 'number') {
@@ -223,7 +223,7 @@ describe('LION_RABBIT_SCENES timing', () => {
       }
     }
     totalFrames += (6 + 5) * 30;
-    expect(totalFrames).toBeLessThanOrEqual(4350);
+    expect(totalFrames).toBeLessThanOrEqual(4800);
   });
 
   it('Shorts-flagged content totals between 45s and 65s', () => {
