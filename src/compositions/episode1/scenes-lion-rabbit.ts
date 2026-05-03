@@ -41,7 +41,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // WHY: Specific visceral threat ("you are my food today") > vague menace.
         // "आज तुम मेरा खाना हो!" sets immediate life-or-death stakes in 3s.
         text: 'आज तुम मेरा खाना हो!',
-        dur: 'auto',
+        // MrBeast hook ≤90 frames (3s) — TikTok max-completion sweet spot.
+        // Auto would be 129 fr (4.3s); explicit clamp keeps the hook punchy.
+        dur: 90,
         sfxKey: 'roar',
         // WHY: Outcome paradox ("a rabbit defeated this lion") triggers "how??"
         // instantly — it's the curiosity gap AND the hook in one textOverlay.
@@ -147,6 +149,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         text: 'हाँ, शेर को रोज़ भोजन चाहिए।',
         dur: 'auto',
         textOverlay: '☠️ रोज़ एक की बलि',
+        // MrBeast 8-sec rule: setup runs 525 fr — needs a visual punch
+        // mid-scene to reset attention before retention cliff.
+        patternInterrupt: 'freeze_frame',
       },
       {
         char: 'meera',
@@ -455,6 +460,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         dur: 'auto',
         sfxKey: 'happy_moment',
         textOverlay: '🧠 अक्ल = ताकत',
+        // Miyazaki "ma" + MrBeast 8-sec rule converge: freeze on the moral
+        // thesis lets the lesson land AND breaks the retention cliff.
+        patternInterrupt: 'freeze_frame',
       },
       {
         char: 'bablu',
@@ -463,6 +471,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         sfxKey: 'rimshot',
         textOverlay: '😭 बेचारा बब्लू',
         shortsFlag: true,
+        // Comedy beat lands harder with a freeze on the punchline.
+        patternInterrupt: 'freeze_frame',
       },
       {
         char: 'guruji',
