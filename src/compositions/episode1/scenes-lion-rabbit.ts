@@ -429,6 +429,36 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
+  // CATHARSIS: ~3 s breath after the climax. M3.2 (Docter): the
+  // exhausted-relieved beat. Without this the moral lands cold. Same
+  // location as well-trick so the ambience continues; long postGap so
+  // the audience exhales before celebration.
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    id: 'catharsis-breath',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'happy' },
+    ],
+    cam: 'static',
+    camI: 0.2,
+    mood: 'peaceful',
+    dialogue: [
+      {
+        char: 'arjun',
+        // 'happy' is the closest EmotionType to "relieved" in our union.
+        // Soft delivery, no SFX, no overlay — the silence does the work.
+        text: 'बच गए... सब बच गए।',
+        dur: 'auto',
+        emotion: 'happy',
+        postGapMs: 600,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
   // VICTORY: 90–105s — Dopamine hit.
   // ═══════════════════════════════════════════════════════════════════
   {
