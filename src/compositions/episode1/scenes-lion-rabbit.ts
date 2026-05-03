@@ -231,6 +231,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🧠 > 💪',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
+        // Miyazaki "ma": after the thesis hits, hold 500ms of silence
+        // before the next line. The lesson needs air to land.
+        postGapMs: 500,
       },
       {
         char: 'bablu',
@@ -462,7 +465,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '🧠 अक्ल = ताकत',
         // Miyazaki "ma" + MrBeast 8-sec rule converge: freeze on the moral
         // thesis lets the lesson land AND breaks the retention cliff.
+        // 600ms post-line silence = the lesson hits a beat of stillness.
         patternInterrupt: 'freeze_frame',
+        postGapMs: 600,
       },
       {
         char: 'bablu',
