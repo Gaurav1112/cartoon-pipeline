@@ -241,7 +241,8 @@ export async function generateEpisodeAudio(
         volumeDb: -5,
       });
 
-      currentTimeMs += actualDurationMs + 200; // 200ms gap between lines
+      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 200;
+      currentTimeMs += actualDurationMs + postGap;
 
       // Cleanup raw file
       await fs.unlink(rawPath).catch(() => {});

@@ -52,6 +52,13 @@ export interface ViralDialogueLine {
   patternInterrupt?: PatternInterruptType;
   /** Include this line's scene in the 60s Shorts cut */
   shortsFlag?: boolean;
+  /**
+   * Override the post-line silence gap (ms) after audio finishes.
+   * Default = 200 ms (snappy). Use 400+ ms for Miyazaki-style "ma" beats
+   * after a moral or emotional landing. Use 80-120 ms for Murch L-cut
+   * overlap when this line and the next belong to the same beat.
+   */
+  postGapMs?: number;
 }
 
 export interface ViralSceneChar {

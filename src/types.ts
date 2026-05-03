@@ -162,6 +162,12 @@ export interface DialogueLine {
   emotion: EmotionType;
   context: SceneContext;
   durationMs?: number;
+  /**
+   * Override post-line silence (ms). Default 200.
+   * Murch L-cut: small (80-120) for tight overlap.
+   * Miyazaki "ma": large (400-700) for moral landings.
+   */
+  postGapMs?: number;
 }
 
 export interface EpisodeScene {
