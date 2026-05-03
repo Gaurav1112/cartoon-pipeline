@@ -21,6 +21,34 @@ import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
 
+// ─── Ambience Planner (M1.1 / Miyazaki) ───────────────────────────────────
+//
+// Per-scene ambience override: emit one ambience layer per consecutive
+// scene-location *segment* (run of same location), anchored at that
+// segment's startMs. This honours mid-episode location changes
+// (e.g. forest → cave → forest) which the previous single-global layer
+// silently dropped.
+export function planAmbienceLayers(
+  scenes: { location: string }[],
+  sceneStartMs: number[],
+): AudioLayer[] {
+  const layers: AudioLayer[] = [];
+  let lastLocation: string | null = null;
+  for (let i = 0; i < scenes.length; i++) {
+    const location = scenes[i].location;
+    if (location === lastLocation) continue;
+    const config = getAmbienceLoop(location);
+    layers.push({
+      type: 'ambience',
+      filePath: path.join('public', config.filePath),
+      startMs: Math.max(0, sceneStartMs[i] ?? 0),
+      volumeDb: config.volumeDb,
+    });
+    lastLocation = location;
+  }
+  return layers;
+}
+
 const execFileAsync = promisify(execFile);
 
 // ─── TTS Generation ───────────────────────────────────────────────────────
@@ -177,6 +205,7 @@ export async function generateEpisodeAudio(
   const dialogueLayers: AudioLayer[] = [];
   const sfxLayers: AudioLayer[] = [];
   let currentTimeMs = 0;
+  const sceneStartMs: number[] = [];
   const allSfxResults: SFXTriggerResult[] = [];
 
   // Initialize mouth cues for all characters
@@ -186,6 +215,7 @@ export async function generateEpisodeAudio(
 
   // Process each scene
   for (const scene of episode.scenes) {
+    sceneStartMs.push(currentTimeMs);
     // 1. Generate dialogue audio for each line
     for (let lineIdx = 0; lineIdx < scene.dialogue.length; lineIdx++) {
       const line = scene.dialogue[lineIdx];
@@ -282,15 +312,8 @@ export async function generateEpisodeAudio(
     fadeOutMs: musicTrack.fadeOutMs,
   };
 
-  // 4. Select ambience
-  const primaryLocation = episode.scenes[0]?.location ?? 'forest';
-  const ambienceConfig = getAmbienceLoop(primaryLocation);
-  const ambienceLayer: AudioLayer = {
-    type: 'ambience',
-    filePath: path.join('public', ambienceConfig.filePath),
-    startMs: 0,
-    volumeDb: ambienceConfig.volumeDb,
-  };
+  // 4. Select ambience — per-scene segments (M1.1 Miyazaki).
+  const ambienceLayers = planAmbienceLayers(episode.scenes, sceneStartMs);
 
   // 5. Mix all layers — defensively drop any layer whose source file is
   //    missing. The SFX database is intentionally larger than the asset
@@ -301,7 +324,7 @@ export async function generateEpisodeAudio(
     ...dialogueLayers,
     ...sfxLayers,
     musicLayer,
-    ambienceLayer,
+    ...ambienceLayers,
   ];
   const allLayers: AudioLayer[] = [];
   for (const layer of candidateLayers) {
