@@ -18,3 +18,4 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 node "$(cd "$(dirname "$0")" && pwd)/generate-music.mjs"
+node "$(cd "$(dirname "$0")" && pwd)/generate-sfx.mjs"
