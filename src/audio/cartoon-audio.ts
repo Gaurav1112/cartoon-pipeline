@@ -21,6 +21,49 @@ import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
 
+// ─── Music Intensity Planner (M1.4 / Zimmer) ─────────────────────────────
+//
+// Per-scene mood → music volume (dB). More negative = quieter.
+// One music layer is emitted per scene at its mood's volume; all
+// layers reference the same music file (the bed loops, only the
+// volume automates). Ducking stays on for every layer.
+export const MUSIC_INTENSITY_BY_MOOD: Record<string, number> = {
+  peaceful: -22,
+  calm: -22,
+  setup: -22,
+  tense: -16,
+  suspense: -16,
+  climax: -12,
+  epic: -12,
+  triumph: -14,
+  moral: -14,
+};
+
+const MUSIC_DEFAULT_VOLUME_DB = -16;
+
+export function planMusicLayers(
+  scenes: { mood: string }[],
+  sceneStartMs: number[],
+  musicTrack: { file: string; fadeInMs?: number; fadeOutMs?: number },
+): AudioLayer[] {
+  const filePath = path.join('public', musicTrack.file);
+  return scenes.map((scene, i) => {
+    const volumeDb = MUSIC_INTENSITY_BY_MOOD[scene.mood] ?? MUSIC_DEFAULT_VOLUME_DB;
+    const isFirst = i === 0;
+    const isLast = i === scenes.length - 1;
+    return {
+      type: 'music',
+      filePath,
+      startMs: Math.max(0, sceneStartMs[i] ?? 0),
+      volumeDb,
+      duckDuringDialogue: true,
+      duckedVolumeDb: volumeDb - 8,
+      fadeInMs: isFirst ? musicTrack.fadeInMs : 0,
+      fadeOutMs: isLast ? musicTrack.fadeOutMs : 0,
+    };
+  });
+}
+
 // ─── Ambience Planner (M1.1 / Miyazaki) ───────────────────────────────────
 //
 // Per-scene ambience override: emit one ambience layer per consecutive
@@ -299,18 +342,9 @@ export async function generateEpisodeAudio(
     }
   }
 
-  // 3. Select background music
+  // 3. Select background music — per-scene intensity ramp (M1.4 Zimmer).
   const musicTrack = selectMusic(episode.scenes[0]?.mood ?? 'peaceful', episode.seed);
-  const musicLayer: AudioLayer = {
-    type: 'music',
-    filePath: path.join('public', musicTrack.file),
-    startMs: 0,
-    volumeDb: -16,
-    duckDuringDialogue: true,
-    duckedVolumeDb: -24,
-    fadeInMs: musicTrack.fadeInMs,
-    fadeOutMs: musicTrack.fadeOutMs,
-  };
+  const musicLayers = planMusicLayers(episode.scenes, sceneStartMs, musicTrack);
 
   // 4. Select ambience — per-scene segments (M1.1 Miyazaki).
   const ambienceLayers = planAmbienceLayers(episode.scenes, sceneStartMs);
@@ -323,7 +357,7 @@ export async function generateEpisodeAudio(
   const candidateLayers: AudioLayer[] = [
     ...dialogueLayers,
     ...sfxLayers,
-    musicLayer,
+    ...musicLayers,
     ...ambienceLayers,
   ];
   const allLayers: AudioLayer[] = [];
