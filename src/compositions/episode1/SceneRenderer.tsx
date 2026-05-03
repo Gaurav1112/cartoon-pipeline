@@ -186,6 +186,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
                 position={CHAR_POSITIONS[char.pos]}
                 scale={2.0}
                 flipX={char.flip ?? false}
+                timeOfDay={scene.time}
               />
             </div>
           );

@@ -6,6 +6,8 @@ import { getPose } from './poses';
 import { getExpression } from './expressions';
 import { getMouthShape, interpolateMouth } from './lip-sync';
 import { landingSquash, eyeDart } from './animation-life';
+import { shadowForTime } from './shadow-direction';
+import type { TimeOfDay } from '../types';
 
 interface CharacterRendererProps {
   characterId: CharacterId;
@@ -15,6 +17,8 @@ interface CharacterRendererProps {
   position: { x: number; y: number };
   scale?: number;
   flipX?: boolean;
+  /** Optional: time-of-day determines shadow direction & color (Deakins). */
+  timeOfDay?: TimeOfDay;
 }
 
 // Character-specific body proportions
@@ -44,6 +48,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   position,
   scale = 1,
   flipX = false,
+  timeOfDay = 'day',
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -148,10 +153,20 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           </radialGradient>
         </defs>
 
-        {/* Drop shadow on ground (responsive to breathing) */}
-        <ellipse cx={1 + Math.sin(frame * 0.07) * 0.5} cy="95"
-          rx={30 + Math.abs(breathe) * 0.5} ry={6 - Math.abs(breathe) * 0.2}
-          fill="rgba(0,0,0,0.18)" />
+        {/* Drop shadow on ground — Deakins: direction & length keyed to
+            timeOfDay so the frame reads as "lit by the world". */}
+        {(() => {
+          const sh = shadowForTime(timeOfDay);
+          return (
+            <ellipse
+              cx={sh.offsetX + Math.sin(frame * 0.07) * 0.5}
+              cy="95"
+              rx={(30 + Math.abs(breathe) * 0.5) * sh.lengthMul}
+              ry={(6 - Math.abs(breathe) * 0.2) * (1 / Math.max(0.6, sh.lengthMul))}
+              fill={sh.color}
+            />
+          );
+        })()}
 
         {/* === LEGS === */}
         <g transform={`rotate(${poseData.leftLeg.angle}, -8, 50)`}>
