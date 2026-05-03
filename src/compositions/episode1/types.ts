@@ -46,6 +46,14 @@ export interface ViralDialogueLine {
   text: string;
   /** 'auto' = use calcDialogueDur(text). Number = explicit frame override. */
   dur: 'auto' | number;
+  /**
+   * M3.1 (Docter): per-line emotion drives the speaker's expression and
+   * pose modifier *during this line only*. When omitted, SceneRenderer
+   * falls back to the scene-char `expr` (legacy scene-level emotion).
+   * This is what gives a scene an internal emotional arc (e.g. scared →
+   * thinking → determined across the volunteer beat).
+   */
+  emotion?: import('../../types').EmotionType;
   sfxKey?: SFXKey;
   /** Bold on-screen text shown simultaneously with this dialogue line */
   textOverlay?: string;

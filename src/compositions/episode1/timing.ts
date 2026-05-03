@@ -25,6 +25,69 @@ export function calcDialogueDur(text: string): number {
 }
 
 /**
+ * M3.1 (Docter): cross-fade window in frames at the start of every
+ * non-zero dialogue line. ~200 ms at 30 fps. SceneRenderer uses this
+ * to lerp `poseModifierByEmotion(prevEmotion)` → `…(currEmotion)` so
+ * the silhouette doesn't snap.
+ */
+export const EMOTION_BLEND_FRAMES = 6;
+
+/**
+ * M3.1 helper — pure. Identifies which dialogue line is active at
+ * `frame` and how far through the entry cross-fade we are.
+ *
+ *   { lineIndex, blendT }
+ *     - lineIndex: index into `scene.dialogue` of the active line.
+ *     - blendT ∈ [0, 1]: 1 = fully on this line; <1 = inside the
+ *       EMOTION_BLEND_FRAMES window cross-fading from the previous
+ *       line's emotion. blendT is forced to 1 for line 0 (no prior).
+ *
+ * Line starts come from per-line `dur` (resolving 'auto' via
+ * calcDialogueDur). If the cumulative sum is 0 (e.g. tests with all
+ * `dur: 0`), fall back to an even split of `totalSceneFrames` across
+ * the line count so the helper still produces a stable arc.
+ */
+export function activeLineAtFrame(
+  scene: Pick<ViralScene, 'dialogue'>,
+  frame: number,
+  totalSceneFrames: number,
+): { lineIndex: number; blendT: number } {
+  const dialogue = scene.dialogue;
+  const n = dialogue.length;
+  if (n === 0) return { lineIndex: 0, blendT: 1 };
+
+  // Cumulative line starts from per-line dur.
+  const starts: number[] = [];
+  let cursor = 0;
+  for (const line of dialogue) {
+    starts.push(cursor);
+    cursor += line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
+  }
+  const cumulative = cursor;
+
+  // Even-split fallback when no per-line dur info is available.
+  if (cumulative <= 0) {
+    const span = Math.max(0, totalSceneFrames) / n;
+    for (let i = 0; i < n; i++) starts[i] = Math.round(i * span);
+  }
+
+  // Find largest i with starts[i] <= frame. n is small (≤ ~10) so the
+  // linear scan is cheaper than binary search and stays branch-predictable.
+  let lineIndex = 0;
+  for (let i = 0; i < n; i++) {
+    if (starts[i] <= frame) lineIndex = i;
+    else break;
+  }
+
+  if (lineIndex === 0) return { lineIndex, blendT: 1 };
+
+  const localFrame = frame - starts[lineIndex];
+  if (localFrame >= EMOTION_BLEND_FRAMES) return { lineIndex, blendT: 1 };
+  if (localFrame <= 0) return { lineIndex, blendT: 0 };
+  return { lineIndex, blendT: localFrame / EMOTION_BLEND_FRAMES };
+}
+
+/**
  * Default post-line gap in milliseconds. Audio mixer (`cartoon-audio.ts`)
  * advances its timeline by `actualDurationMs + postGap` per line, so the
  * VIDEO timeline must do the same or A/V will drift. Keep this in sync

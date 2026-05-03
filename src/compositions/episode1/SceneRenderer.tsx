@@ -7,10 +7,12 @@ import { BackgroundRenderer } from '../../scenes/BackgroundRenderer';
 import { CharacterRenderer } from '../../characters/CharacterRenderer';
 import { DialogueBubble } from '../DialogueBubble';
 import { SFXLayer } from './SFXLayer';
-import { calcDialogueDur } from './timing';
+import { calcDialogueDur, activeLineAtFrame } from './timing';
 import { firstCharEntranceScale } from './entrance';
 import { MotionSmear } from '../effects/MotionSmear';
+import { poseModifierByEmotion } from '../../characters/animation-life';
 import type { ViralScene } from './types';
+import type { EmotionType } from '../../types';
 
 // FIX(perf): removed module-level FPS=30 constant; use fps from useVideoConfig()
 // so the component is correct at any frame rate.
@@ -187,27 +189,60 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
         />
 
         {/* Characters — frame-0 hook for charIndex 0 (lead visible immediately),
-            staggered spring entrances for supporting characters. */}
-        {scene.chars.map((char, i) => {
-          const entranceScale = firstCharEntranceScale({ frame, fps, charIndex: i });
-          return (
-            <div
-              key={`${char.id}-${i}`}
-              style={{ transform: `scale(${entranceScale})`, transformOrigin: 'center bottom' }}
-            >
-              <CharacterRenderer
-                characterId={char.id}
-                pose={char.pose}
-                expression={char.expr}
-                mouthShape="B"
-                position={CHAR_POSITIONS[char.pos]}
-                scale={2.0}
-                flipX={char.flip ?? false}
-                timeOfDay={scene.time}
-              />
-            </div>
-          );
-        })}
+            staggered spring entrances for supporting characters.
+            M3.1 (Docter): the speaking character's expression follows the
+            ACTIVE dialogue line's emotion, and a blended poseModifierByEmotion
+            cross-fade smooths the boundary. Listening characters keep
+            their scene-level expr. */}
+        {(() => {
+          const active = activeLineAtFrame(scene, frame, sceneDurFrames);
+          const activeLine = scene.dialogue[active.lineIndex];
+          const prevLine = active.lineIndex > 0 ? scene.dialogue[active.lineIndex - 1] : undefined;
+          const speakerId = activeLine?.char;
+
+          return scene.chars.map((char, i) => {
+            const entranceScale = firstCharEntranceScale({ frame, fps, charIndex: i });
+            const isSpeaker = char.id === speakerId;
+
+            // Per-line emotion override (Docter M3.1). Default to scene-level expr.
+            const currEmotion: EmotionType = (isSpeaker && activeLine?.emotion) || char.expr;
+            const prevEmotion: EmotionType =
+              (isSpeaker && prevLine?.emotion) || currEmotion;
+
+            // Cross-fade pose modifier across the boundary window.
+            const a = poseModifierByEmotion(prevEmotion);
+            const b = poseModifierByEmotion(currEmotion);
+            const t = active.blendT;
+            const tilt = a.tiltDeg + (b.tiltDeg - a.tiltDeg) * t;
+            const hip = a.hipShiftPx + (b.hipShiftPx - a.hipShiftPx) * t;
+            const arm = a.armRaisePx + (b.armRaisePx - a.armRaisePx) * t;
+
+            return (
+              <div
+                key={`${char.id}-${i}`}
+                style={{ transform: `scale(${entranceScale})`, transformOrigin: 'center bottom' }}
+              >
+                <div
+                  style={{
+                    transform: `translate(${hip}px, ${-arm}px) rotate(${tilt}deg)`,
+                    transformOrigin: 'center bottom',
+                  }}
+                >
+                  <CharacterRenderer
+                    characterId={char.id}
+                    pose={char.pose}
+                    expression={currEmotion}
+                    mouthShape="B"
+                    position={CHAR_POSITIONS[char.pos]}
+                    scale={2.0}
+                    flipX={char.flip ?? false}
+                    timeOfDay={scene.time}
+                  />
+                </div>
+              </div>
+            );
+          });
+        })()}
 
         {/* Dialogue bubbles + SFX per line (inside camera div for proper positioning) */}
         {scene.dialogue.map((line, idx) => {
