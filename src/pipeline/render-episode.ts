@@ -80,7 +80,7 @@ export async function renderEpisode(
 
   await execFileAsync('npx', [
     'remotion', 'render',
-    'src/compositions/CartoonEpisode.tsx',
+    'src/index.ts',
     'CartoonEpisode',
     visualPath,
     '--props', propsPath,
