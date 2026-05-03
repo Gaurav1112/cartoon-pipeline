@@ -147,3 +147,40 @@ export function anticipationCrouch(framesUntilPose: number): number {
   const env = Math.exp(-Math.pow(t - 2, 2) / 4);
   return 1.0 - 0.06 * env; // up to 6% crouch
 }
+
+/**
+ * John Lasseter gap M2.3 — per-emotion pose modifier.
+ *
+ * Returns the additive deltas (degrees / pixels) that should be applied on
+ * top of the base idle pose to produce a *distinct silhouette* per
+ * emotion. Reading silhouettes at a glance is one of the Pixar 12
+ * principles ("appeal", "exaggeration", "solid drawing"); using a single
+ * idle for all emotions violates them.
+ *
+ * Pure function — same input → same output. Bounds (asserted in
+ * tests/quality/lasseter-pose-appeal.test.ts):
+ *   |tiltDeg|     ≤ 15
+ *   |hipShiftPx|  ≤ 5
+ *   |armRaisePx|  ≤ 12
+ *
+ * WIRING NOTE (TODO M3): CharacterRenderer currently does not read this
+ * helper — wiring it touches the head/arm/hip transforms simultaneously
+ * and risks regressing existing render tests. Helper is exported and
+ * tested so the future render PR is a one-liner.
+ */
+export function poseModifierByEmotion(
+  emotion: EmotionType,
+): { tiltDeg: number; hipShiftPx: number; armRaisePx: number } {
+  switch (emotion) {
+    case 'happy':      return { tiltDeg:  2, hipShiftPx:  2, armRaisePx:  4 };
+    case 'thinking':   return { tiltDeg:  8, hipShiftPx: -1, armRaisePx: -2 };
+    // EmotionType has no separate 'confident' — 'determined' covers both.
+    case 'determined': return { tiltDeg:  0, hipShiftPx:  4, armRaisePx:  0 };
+    case 'scared':     return { tiltDeg: -3, hipShiftPx: -3, armRaisePx:  8 };
+    case 'sad':        return { tiltDeg: 10, hipShiftPx:  0, armRaisePx: -6 };
+    case 'angry':      return { tiltDeg: -5, hipShiftPx:  2, armRaisePx:  2 };
+    case 'surprised':  return { tiltDeg:  0, hipShiftPx:  0, armRaisePx: 10 };
+    case 'neutral':
+    default:           return { tiltDeg:  0, hipShiftPx:  0, armRaisePx:  0 };
+  }
+}
