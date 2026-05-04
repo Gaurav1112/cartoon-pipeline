@@ -1,7 +1,7 @@
 // src/compositions/Episode1.tsx
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
-import type { SupportedLanguage } from '../types';
+import type { SupportedLanguage, MasterAudioResult } from '../types';
 import { IntroSequence } from './IntroSequence';
 import { OutroSequence } from './OutroSequence';
 import { MoralCard } from './MoralCard';
@@ -9,7 +9,14 @@ import { TransitionEffect, getTransitionType } from './TransitionEffects';
 import { SceneRenderer } from './episode1/SceneRenderer';
 import { LION_RABBIT_SCENES as RAW_LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
 import { enforceSideProfile } from './episode1/side-profile-enforcer';
-import { calcSceneDur, calcEpisodeDuration, validateSceneChars } from './episode1/timing';
+import {
+  calcSceneDur,
+  calcEpisodeDuration,
+  calcSceneDurFromAudio,
+  calcEpisodeDurationFromAudio,
+  validateSceneChars,
+  type SceneAudioTiming,
+} from './episode1/timing';
 import { Subtitles } from './episode1/Subtitles';
 
 const FPS = 30;
@@ -49,17 +56,38 @@ for (const scene of LION_RABBIT_SCENES) {
 
 interface Episode1Props {
   language?: SupportedLanguage;
+  /**
+   * M16 (audit-v13): when supplied by the render pipeline, scene/line
+   * durations are pulled from the audio engine's ffprobe-measured TTS
+   * timings instead of `calcDialogueDur` estimates. This eliminates the
+   * 97s silence tail that came from over-estimating Hindi Piper TTS by
+   * 2.5–3x. Falls back to estimates when undefined (Studio preview).
+   */
+  audioData?: Partial<MasterAudioResult>;
 }
 
-export const Episode1: React.FC<Episode1Props> = ({ language = 'hi' }) => {
+export const Episode1: React.FC<Episode1Props> = ({ language = 'hi', audioData }) => {
   const elements: React.ReactElement[] = [];
   let currentFrame = 0;
 
+  const timingByIndex = new Map<number, SceneAudioTiming>();
+  if (audioData?.sceneDialogueTimings) {
+    for (const t of audioData.sceneDialogueTimings) {
+      timingByIndex.set(t.sceneIndex, t);
+    }
+  }
+
   LION_RABBIT_SCENES.forEach((scene, idx) => {
-    const rawDurFrames = typeof scene.dur === 'number'
-      ? scene.dur * FPS
-      : calcSceneDur(scene.dialogue);
-    // Remotion throws if durationInFrames is 0 (e.g. scene with no dialogue and dur:'auto')
+    const audioTiming = timingByIndex.get(idx);
+    let rawDurFrames: number;
+    if (audioTiming) {
+      // M16: prefer audio-measured durations (deterministic A/V sync).
+      rawDurFrames = calcSceneDurFromAudio(audioTiming);
+    } else if (typeof scene.dur === 'number') {
+      rawDurFrames = scene.dur * FPS;
+    } else {
+      rawDurFrames = calcSceneDur(scene.dialogue);
+    }
     const sceneDurFrames = Math.max(1, rawDurFrames);
 
     const from = currentFrame;
@@ -73,7 +101,7 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi' }) => {
     } else {
       elements.push(
         <Sequence key={scene.id} from={from} durationInFrames={sceneDurFrames}>
-          <SceneRenderer scene={scene} />
+          <SceneRenderer scene={scene} audioTiming={audioTiming} />
         </Sequence>
       );
     }
@@ -125,3 +153,21 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi' }) => {
 };
 
 export const EPISODE1_DURATION = calcEpisodeDuration(LION_RABBIT_SCENES);
+
+/**
+ * M16 (audit-v13): compute the episode duration FROM audio data when
+ * available — used by Remotion's `calculateMetadata` callback in
+ * `src/Root.tsx` so the master timeline matches the audio exactly.
+ */
+export function calcEpisode1DurationFromProps(
+  props: Episode1Props,
+): number {
+  const SCAFFOLD_FRAMES = (6 + 5) * FPS; // moral card + outro
+  const scenes = LION_RABBIT_SCENES;
+  const total = calcEpisodeDurationFromAudio(
+    scenes,
+    props.audioData?.sceneDialogueTimings,
+  );
+  // Guard: never return 0/NaN; always at least scaffold.
+  return Math.max(SCAFFOLD_FRAMES, total);
+}

@@ -411,11 +411,24 @@ export async function generateEpisodeAudio(
   // so we can build a hero-moment swell envelope after the loop.
   const heroLineCandidates: { startMs: number; durationMs: number; heroMomentScore?: number }[] = [];
 
+  // M16 (audit-v13): per-scene per-line ffprobe-measured durations
+  // exposed back to the visual composition so video sequence lengths
+  // exactly match audio. Eliminates the 97s silence tail.
+  const sceneLineDurations: Array<{
+    sceneIndex: number;
+    lineDurationsMs: number[];
+    postGapsMs: number[];
+    sceneTailMs: number;
+  }> = [];
+
   // Process each scene
   for (const scene of episode.scenes) {
     sceneStartMs.push(currentTimeMs);
     // M7: collect per-scene dialogue timing for signature SFX planning.
     const sceneDialogueTimings: SignatureSchedulingScene['dialogue'] = [];
+    // M16: track each line's actual duration + postGap for visual sync.
+    const m16LineDurationsMs: number[] = [];
+    const m16PostGapsMs: number[] = [];
     // 1. Generate dialogue audio for each line
     for (let lineIdx = 0; lineIdx < scene.dialogue.length; lineIdx++) {
       const line = scene.dialogue[lineIdx];
@@ -507,6 +520,9 @@ export async function generateEpisodeAudio(
 
       const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 200;
       currentTimeMs += actualDurationMs + postGap;
+      // M16: track for visual sync.
+      m16LineDurationsMs.push(actualDurationMs);
+      m16PostGapsMs.push(postGap);
 
       // Cleanup raw file
       await fs.unlink(rawPath).catch(() => {});
@@ -541,6 +557,13 @@ export async function generateEpisodeAudio(
     signatureScenes.push({
       sceneIndex: scene.sceneIndex,
       dialogue: sceneDialogueTimings,
+    });
+    // M16: bank this scene's per-line duration vector for visual-sync export.
+    sceneLineDurations.push({
+      sceneIndex: scene.sceneIndex,
+      lineDurationsMs: m16LineDurationsMs,
+      postGapsMs: m16PostGapsMs,
+      sceneTailMs,
     });
   }
 
@@ -612,5 +635,6 @@ export async function generateEpisodeAudio(
     mouthCuesPerCharacter: mouthCuesPerCharacter as Record<CharacterId, MouthCue[]>,
     sfxTriggers: allSfxResults,
     heroSwellEnvelope,
+    sceneDialogueTimings: sceneLineDurations,
   };
 }

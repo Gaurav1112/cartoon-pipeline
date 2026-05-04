@@ -7,7 +7,7 @@ import { BackgroundRenderer } from '../../scenes/BackgroundRenderer';
 import { CharacterRenderer } from '../../characters/CharacterRenderer';
 import { DialogueBubble } from '../DialogueBubble';
 import { SFXLayer } from './SFXLayer';
-import { calcDialogueDur, activeLineAtFrame } from './timing';
+import { calcDialogueDur, activeLineAtFrame, type SceneAudioTiming, lineStartFramesFromAudio, calcSceneDurFromAudio } from './timing';
 import { firstCharEntranceScale } from './entrance';
 import { MotionSmear } from '../effects/MotionSmear';
 import { poseModifierByEmotion } from '../../characters/animation-life';
@@ -29,20 +29,29 @@ const CHAR_POSITIONS: Record<'left' | 'center' | 'right', { x: number; y: number
 
 interface SceneRendererProps {
   scene: ViralScene;
+  /**
+   * M16 (audit-v13): when supplied, line offsets and total scene
+   * duration use the audio engine's ffprobe-measured timings instead
+   * of `calcDialogueDur` estimates.
+   */
+  audioTiming?: SceneAudioTiming;
 }
 
-export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
+export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene, audioTiming }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   // ── Scene duration ────────────────────────────────────────────────
-  // FIX: use fps from useVideoConfig() instead of hardcoded FPS=30
-  const sceneDurFrames = typeof scene.dur === 'number'
-    ? scene.dur * fps
-    : scene.dialogue.reduce(
-        (s, l) => s + (l.dur === 'auto' ? calcDialogueDur(l.text) : l.dur),
-        0
-      );
+  // M16: prefer audio-measured durations when available; fallback to
+  // text-length estimator for Studio preview / tests without audio data.
+  const sceneDurFrames = audioTiming
+    ? calcSceneDurFromAudio(audioTiming)
+    : typeof scene.dur === 'number'
+      ? scene.dur * fps
+      : scene.dialogue.reduce(
+          (s, l) => s + (l.dur === 'auto' ? calcDialogueDur(l.text) : l.dur),
+          0
+        );
 
   const progress = Math.min(1, frame / Math.max(1, sceneDurFrames));
   const intensity = scene.camI;
@@ -93,12 +102,20 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
   // ── Dialogue line start frames ────────────────────────────────────
   // FIX(perf): computed once outside the map to avoid recalculating on every
   // render frame for each dialogue line.
-  const lineStarts: number[] = [];
-  let cursor = 0;
-  for (const line of scene.dialogue) {
-    lineStarts.push(cursor);
-    cursor += line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
-  }
+  // M16 (audit-v13): when audioTiming is supplied, use the audio
+  // engine's measured starts so zoom_punch / line-active highlighting
+  // match the actual TTS timeline (no longer drifts ~2s per line).
+  const lineStarts: number[] = audioTiming
+    ? lineStartFramesFromAudio(audioTiming)
+    : (() => {
+        const arr: number[] = [];
+        let c = 0;
+        for (const line of scene.dialogue) {
+          arr.push(c);
+          c += line.dur === 'auto' ? calcDialogueDur(line.text) : line.dur;
+        }
+        return arr;
+      })();
 
   // ── Active zoom_punch scale for scene-level content wrapper ──────
   // FIX(critical): zoom_punch previously rendered a transparent AbsoluteFill
@@ -219,7 +236,24 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
             cross-fade smooths the boundary. Listening characters keep
             their scene-level expr. */}
         {(() => {
-          const active = activeLineAtFrame(scene, frame, sceneDurFrames);
+          // M16 (audit-v13): use the unified `lineStarts` array (which
+          // honours audioTiming when present) instead of re-computing
+          // via `activeLineAtFrame` — the latter would re-derive from
+          // text-length estimates and drift away from audio timing.
+          let lineIndex = 0;
+          for (let i = 0; i < lineStarts.length; i++) {
+            if (lineStarts[i] <= frame) lineIndex = i;
+            else break;
+          }
+          const localFrame = lineIndex === 0 ? 0 : frame - lineStarts[lineIndex];
+          const blendT = lineIndex === 0
+            ? 1
+            : localFrame >= 10
+              ? 1
+              : localFrame <= 0
+                ? 0
+                : localFrame / 10;
+          const active = { lineIndex, blendT };
           const activeLine = scene.dialogue[active.lineIndex];
           const prevLine = active.lineIndex > 0 ? scene.dialogue[active.lineIndex - 1] : undefined;
           const speakerId = activeLine?.char;

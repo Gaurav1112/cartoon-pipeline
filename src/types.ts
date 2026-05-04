@@ -298,6 +298,20 @@ export interface MasterAudioResult {
   sfxTriggers: SFXTriggerResult[];
   /** M5.3 — beat-aligned hero-moment swell envelope (optional). */
   heroSwellEnvelope?: { startMs: number; endMs: number; gainDb: number; attackMs: number; releaseMs: number }[];
+  /**
+   * M16 (audit-v13 Lievsay/Pookutty A/V sync fix): per-scene per-line
+   * actual TTS durations measured by ffprobe at audio render time.
+   * Visual track reads these to set `Sequence.durationInFrames` so video
+   * length matches audio length exactly — eliminates the 97s silence
+   * tail that came from `calcDialogueDur` over-estimating Hindi TTS by
+   * 2.5–3x. Optional: callers without audioData fall back to estimates.
+   */
+  sceneDialogueTimings?: Array<{
+    sceneIndex: number;
+    lineDurationsMs: number[];
+    postGapsMs: number[];
+    sceneTailMs: number;
+  }>;
 }
 
 // ─── SFX & Music ──────────────────────────────────────────────────────────

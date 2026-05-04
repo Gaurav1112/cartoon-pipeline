@@ -187,3 +187,82 @@ export function calcEpisodeDuration(scenes: ViralScene[]): number {
   }, 0);
   return scenesTotal + MORAL_CARD_FRAMES + OUTRO_FRAMES;
 }
+
+/**
+ * M16 (audit-v13 A/V sync fix): scene timing override sourced from
+ * the audio pipeline's ffprobe-measured TTS durations. When a scene's
+ * override is supplied, the visual composition uses these instead of
+ * `calcDialogueDur` estimates (which over-shoot Hindi Piper TTS by
+ * 2.5–3x and produced a 97s silence tail). Pure / deterministic.
+ */
+export interface SceneAudioTiming {
+  sceneIndex: number;
+  lineDurationsMs: number[];
+  postGapsMs: number[];
+  sceneTailMs: number;
+}
+
+const msToFrames = (ms: number): number => Math.round((ms * FPS) / 1000);
+
+/**
+ * Compute a scene's frame budget from the audio pipeline's measured
+ * line durations. Mirrors the audio scheduling math in
+ * `cartoon-audio.ts` exactly so video matches audio to the frame.
+ */
+export function calcSceneDurFromAudio(timing: SceneAudioTiming): number {
+  let frames = 0;
+  for (let i = 0; i < timing.lineDurationsMs.length; i++) {
+    frames += msToFrames(timing.lineDurationsMs[i]);
+    frames += msToFrames(timing.postGapsMs[i] ?? 0);
+  }
+  frames += msToFrames(timing.sceneTailMs);
+  return frames;
+}
+
+/**
+ * Compute the cumulative line-start frame offsets (relative to scene
+ * start) from audio timing. Used by SceneRenderer to figure out which
+ * dialogue line is active at any frame without falling back to text-
+ * length estimates.
+ */
+export function lineStartFramesFromAudio(timing: SceneAudioTiming): number[] {
+  const starts: number[] = [];
+  let cursor = 0;
+  for (let i = 0; i < timing.lineDurationsMs.length; i++) {
+    starts.push(cursor);
+    cursor += msToFrames(timing.lineDurationsMs[i]) + msToFrames(timing.postGapsMs[i] ?? 0);
+  }
+  return starts;
+}
+
+/**
+ * Episode total duration computed from the audio pipeline's measured
+ * scene timings + the static moral-card + outro. Falls back to
+ * `calcEpisodeDuration` when no timings are available.
+ */
+export function calcEpisodeDurationFromAudio(
+  scenes: ViralScene[],
+  timings: SceneAudioTiming[] | undefined,
+): number {
+  if (!timings || timings.length === 0) return calcEpisodeDuration(scenes);
+  const MORAL_CARD_FRAMES = 6 * FPS;
+  const OUTRO_FRAMES = 5 * FPS;
+  const byIndex = new Map<number, SceneAudioTiming>(
+    timings.map((t) => [t.sceneIndex, t]),
+  );
+  let total = 0;
+  scenes.forEach((scene, idx) => {
+    const t = byIndex.get(idx);
+    if (t) {
+      total += calcSceneDurFromAudio(t);
+      return;
+    }
+    // No measured data for this scene — fall back to estimator.
+    const tail = sceneTailFrames(scene.sceneTailMs);
+    total +=
+      typeof scene.dur === 'number'
+        ? scene.dur * FPS + tail
+        : calcSceneDur(scene.dialogue) + tail;
+  });
+  return total + MORAL_CARD_FRAMES + OUTRO_FRAMES;
+}
