@@ -136,12 +136,25 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi', audioData }
   );
   currentFrame += MORAL_CARD_FRAMES;
 
+  // M18: extend OUTRO to absorb any audio tail (music + SFX) past the
+  // scene content so video covers the full audio without dead air.
+  // Without this, master_audio.wav (e.g., 71s incl. music tail) would
+  // either be truncated (user hears "fraction of voice") or video
+  // would have silent frames at the end.
+  const audioMs = audioData?.masterAudioDurationMs;
+  const audioFrames = typeof audioMs === 'number' && audioMs > 0
+    ? Math.ceil((audioMs / 1000) * FPS)
+    : 0;
+  const baseOutroFrames = OUTRO_FRAMES;
+  const tailExtraFrames = Math.max(0, audioFrames - currentFrame - baseOutroFrames);
+  const finalOutroFrames = baseOutroFrames + tailExtraFrames;
+
   elements.push(
-    <Sequence key="outro" from={currentFrame} durationInFrames={OUTRO_FRAMES}>
+    <Sequence key="outro" from={currentFrame} durationInFrames={finalOutroFrames}>
       <OutroSequence language={language} />
     </Sequence>
   );
-  currentFrame += OUTRO_FRAMES;
+  currentFrame += finalOutroFrames;
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
@@ -155,19 +168,30 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi', audioData }
 export const EPISODE1_DURATION = calcEpisodeDuration(LION_RABBIT_SCENES);
 
 /**
- * M16 (audit-v13): compute the episode duration FROM audio data when
- * available — used by Remotion's `calculateMetadata` callback in
- * `src/Root.tsx` so the master timeline matches the audio exactly.
+ * M16/M18 (audit-v13/v14): compute the episode duration from audio
+ * data when available — used by Remotion's `calculateMetadata`
+ * callback in `src/Root.tsx` so the master video timeline matches
+ * the audio EXACTLY: never shorter (would truncate dialogue), never
+ * longer (would create silence tail).
+ *
+ * M18: prefer ffprobe-measured `masterAudioDurationMs` (includes
+ * music tail & SFX padding) over the dialogue-only scene timings
+ * sum, so the video covers every millisecond of audio.
  */
 export function calcEpisode1DurationFromProps(
   props: Episode1Props,
 ): number {
   const SCAFFOLD_FRAMES = (6 + 5) * FPS; // moral card + outro
   const scenes = LION_RABBIT_SCENES;
-  const total = calcEpisodeDurationFromAudio(
+  const sceneBased = calcEpisodeDurationFromAudio(
     scenes,
     props.audioData?.sceneDialogueTimings,
   );
-  // Guard: never return 0/NaN; always at least scaffold.
-  return Math.max(SCAFFOLD_FRAMES, total);
+  // M18: round masterAudioDurationMs to whole frames at FPS.
+  const audioMs = props.audioData?.masterAudioDurationMs;
+  const audioBased = typeof audioMs === 'number' && audioMs > 0
+    ? Math.ceil((audioMs / 1000) * FPS)
+    : 0;
+  // Take the max so we never truncate audio. Guard: ≥ scaffold.
+  return Math.max(SCAFFOLD_FRAMES, sceneBased, audioBased);
 }

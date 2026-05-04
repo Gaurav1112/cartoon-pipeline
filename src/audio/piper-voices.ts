@@ -34,24 +34,26 @@ export function getPiperVoice(
 ): PiperVoiceChoice | undefined {
   switch (language) {
     case 'en':
-      // M17 (audit-v13): kid-friendly pace. English is native to Piper's
-      // Amy voice and only needs a small slowdown for clarity.
-      return { modelBasename: 'en_US-amy-medium', lengthScale: 1.10 };
+      // M17/M18: kid-friendly pace. EN Amy is already paced for kids;
+      // 1.05 slows just enough for clarity without robotic stretching.
+      return { modelBasename: 'en_US-amy-medium', lengthScale: 1.05 };
     case 'hi':
       return {
         modelBasename: isFemale(characterId)
           ? 'hi_IN-priyamvada-medium'
           : 'hi_IN-pratham-medium',
-        // M17: Hindi Piper TTS is naturally fast; kids 4-10 need 1.15x for
-        // comprehension. Pinned by m17-kid-friendly-pace.test.ts.
-        lengthScale: 1.15,
+        // M18: 1.15 sounded robotic / over-stretched (Piper Hindi has
+        // limited prosody — too much stretch reveals the artefacts).
+        // 1.05 + 400ms inter-line gaps gives kid-friendly pace WITHOUT
+        // the "robotic" complaint. Pinned by m17/m18 tests.
+        lengthScale: 1.05,
       };
     case 'te':
       return {
         modelBasename: isFemale(characterId)
           ? 'te_IN-maya-medium'
           : 'te_IN-venkatesh-medium',
-        lengthScale: 1.15,
+        lengthScale: 1.05,
       };
     default:
       return undefined;

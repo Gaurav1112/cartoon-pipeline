@@ -9,22 +9,22 @@ import { describe, it, expect } from 'vitest';
 import { getPiperVoice } from '../../src/audio/piper-voices';
 
 describe('M17 kid-friendly TTS pace', () => {
-  it('Hindi voice uses lengthScale ≥ 1.15 (slower for ages 4-10)', () => {
+  it('Hindi voice uses lengthScale ≥ 1.05 (slower for ages 4-10, but not robotic)', () => {
     const v = getPiperVoice('hi', 'lion');
     expect(v).toBeDefined();
-    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.15);
+    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.05);
   });
 
-  it('Telugu voice uses lengthScale ≥ 1.15', () => {
+  it('Telugu voice uses lengthScale ≥ 1.05', () => {
     const v = getPiperVoice('te', 'rabbit');
     expect(v).toBeDefined();
-    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.15);
+    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.05);
   });
 
-  it('English voice uses lengthScale ≥ 1.10 (English needs less since it is native)', () => {
+  it('English voice uses lengthScale ≥ 1.05', () => {
     const v = getPiperVoice('en', 'lion');
     expect(v).toBeDefined();
-    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.10);
+    expect(v!.lengthScale).toBeGreaterThanOrEqual(1.05);
   });
 
   it('all supported voices use lengthScale ≥ 1.0 (never accelerate)', () => {
