@@ -287,9 +287,10 @@ export async function transformVoice(
   inputPath: string,
   outputPath: string,
   characterId: CharacterId,
+  emotion?: EmotionType,
 ): Promise<void> {
   const profile = getVoiceProfile(characterId);
-  const filterChain = buildFfmpegFilter(profile);
+  const filterChain = buildFfmpegFilter(profile, emotion);
 
   if (!filterChain) {
     // No transformation needed — still normalize to WAV so downstream
@@ -445,8 +446,8 @@ export async function generateEpisodeAudio(
         characterId: line.characterId,
       });
 
-      // Transform voice (pitch, speed, EQ)
-      await transformVoice(rawPath, transformedPath, line.characterId);
+      // Transform voice (pitch, speed, EQ); emotion gates vibrato (M11)
+      await transformVoice(rawPath, transformedPath, line.characterId, line.emotion);
 
       // Generate lip sync
       const cues = await generateLipSync(transformedPath);
