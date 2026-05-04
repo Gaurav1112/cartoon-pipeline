@@ -518,7 +518,7 @@ export async function generateEpisodeAudio(
         heroMomentScore: (line as { heroMomentScore?: number }).heroMomentScore,
       });
 
-      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 200;
+      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 350;
       currentTimeMs += actualDurationMs + postGap;
       // M16: track for visual sync.
       m16LineDurationsMs.push(actualDurationMs);

@@ -34,22 +34,24 @@ export function getPiperVoice(
 ): PiperVoiceChoice | undefined {
   switch (language) {
     case 'en':
-      // Single EN voice for now (amy). Per-character distinctness comes from
-      // transformVoice() downstream. Adding ryan/lessac is a future polish.
-      return { modelBasename: 'en_US-amy-medium', lengthScale: 1.0 };
+      // M17 (audit-v13): kid-friendly pace. English is native to Piper's
+      // Amy voice and only needs a small slowdown for clarity.
+      return { modelBasename: 'en_US-amy-medium', lengthScale: 1.10 };
     case 'hi':
       return {
         modelBasename: isFemale(characterId)
           ? 'hi_IN-priyamvada-medium'
           : 'hi_IN-pratham-medium',
-        lengthScale: 1.0,
+        // M17: Hindi Piper TTS is naturally fast; kids 4-10 need 1.15x for
+        // comprehension. Pinned by m17-kid-friendly-pace.test.ts.
+        lengthScale: 1.15,
       };
     case 'te':
       return {
         modelBasename: isFemale(characterId)
           ? 'te_IN-maya-medium'
           : 'te_IN-venkatesh-medium',
-        lengthScale: 1.0,
+        lengthScale: 1.15,
       };
     default:
       return undefined;
