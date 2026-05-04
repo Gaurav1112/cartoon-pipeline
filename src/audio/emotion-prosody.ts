@@ -8,22 +8,27 @@ interface ProsodyParams {
 
 /**
  * Kid-friendly prosody: ALL rates are NEGATIVE (slower than adult default).
- * Research: kids 5-10 need 120-140 WPM, TTS default is ~160 WPM.
+ * Research: kids 4-10 need 120-140 WPM, TTS default is ~160 WPM.
+ * Hindi with consonant clusters needs even more breathing room.
  * Excitement comes from pitch and volume, NOT speed.
  */
 /**
- * Base rate: -15% (user-tested — Guruji at -15% was perfect pace)
- * Young/excited characters get slight speed boost via character-specific overrides.
+ * M14 (kid-pace tighten): base rate slowed from -15% → -20% so every
+ * 4-year-old can follow the dialogue. Fast emotions (angry/scared/surprised)
+ * clamped at -15% so even the most heated lines stay parseable. Spread
+ * tightened to ≤ 15pp so cadence feels predictable across the episode.
+ *
+ * Reference: Peppa Pig English ≈ 130 wpm; Chhota Bheem Hindi ≈ 140 wpm.
  */
 const PROSODY_MAP: Record<EmotionType, ProsodyParams> = {
-  neutral:    { rate: '-15%',  pitch: '+0Hz',   volume: '+0%' },
-  happy:      { rate: '-10%',  pitch: '+2Hz',   volume: '+0%' },
-  sad:        { rate: '-23%',  pitch: '-2Hz',   volume: '-5%' },
-  angry:      { rate: '-10%',  pitch: '+3Hz',   volume: '+10%' },
-  scared:     { rate: '-8%',   pitch: '+5Hz',   volume: '+0%' },
-  surprised:  { rate: '-8%',   pitch: '+6Hz',   volume: '+5%' },
-  thinking:   { rate: '-23%',  pitch: '+0Hz',   volume: '-5%' },
-  determined: { rate: '-15%',  pitch: '-2Hz',   volume: '+5%' },
+  neutral:    { rate: '-20%',  pitch: '+0Hz',   volume: '+0%' },
+  happy:      { rate: '-17%',  pitch: '+2Hz',   volume: '+0%' },
+  sad:        { rate: '-26%',  pitch: '-2Hz',   volume: '-5%' },
+  angry:      { rate: '-15%',  pitch: '+3Hz',   volume: '+10%' },
+  scared:     { rate: '-15%',  pitch: '+5Hz',   volume: '+0%' },
+  surprised:  { rate: '-15%',  pitch: '+6Hz',   volume: '+5%' },
+  thinking:   { rate: '-26%',  pitch: '+0Hz',   volume: '-5%' },
+  determined: { rate: '-20%',  pitch: '-2Hz',   volume: '+5%' },
 };
 
 export function getSSMLProsody(emotion: EmotionType): ProsodyParams {

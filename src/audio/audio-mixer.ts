@@ -185,6 +185,12 @@ export async function mixAudio(outputPath: string, layers: AudioLayer[]): Promis
 /**
  * Mux video + audio into final MP4 (no re-encode of video track).
  * This is the key optimization: render visual ONCE, mux 7 audio tracks.
+ *
+ * M14: pad audio to video length with silence (`-af apad -shortest`).
+ * Previously `-shortest` alone trimmed video to audio duration when
+ * audio was shorter than video — which clipped the 162s episode down
+ * to ~66s of dialogue, hiding 60% of the hand-crafted scenes from
+ * the audience. Now any silence gap plays as Miyazaki "ma" instead.
  */
 export function buildMuxCommand(
   videoPath: string,
@@ -199,6 +205,7 @@ export function buildMuxCommand(
     '-b:a', '192k',
     '-map', '0:v:0',
     '-map', '1:a:0',
+    '-af', 'apad',
     '-shortest',
     '-y', outputPath,
   ];

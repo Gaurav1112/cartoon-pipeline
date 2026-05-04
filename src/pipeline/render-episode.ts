@@ -2,9 +2,9 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import type { SupportedLanguage, RenderResult, CartoonEpisode, DialogueLine } from '../types';
+import type { SupportedLanguage, RenderResult, CartoonEpisode } from '../types';
 import { LANGUAGES } from '../types';
-import { generateFullEpisode } from './episode-generator';
+import { buildLionRabbitEpisode } from './lion-rabbit-episode';
 import { generateEpisodeAudio } from '../audio/cartoon-audio';
 import { generateMetadata } from './metadata-generator';
 import { muxVideoAudio } from '../audio/audio-mixer';
@@ -27,10 +27,9 @@ export async function renderEpisode(
 
   console.log(`[render] Starting episode ${episodeNumber}...`);
 
-  // 1. Generate full episode data
-  console.log('[render] Generating episode data...');
-  const fullEpisode = await generateFullEpisode(episodeNumber);
-  const { episode } = fullEpisode;
+  // 1. Build the hand-crafted Lion-Rabbit episode (M14: was generateFullEpisode)
+  console.log('[render] Building Lion-Rabbit episode (Episode1)...');
+  const episode: CartoonEpisode = buildLionRabbitEpisode();
 
   // Save episode script
   await fs.writeFile(
@@ -38,31 +37,23 @@ export async function renderEpisode(
     JSON.stringify(episode, null, 2),
   );
 
-  // 2. Generate audio for all 7 languages (can be parallelized)
-  console.log('[render] Generating audio for 7 languages...');
+  // 2. Generate audio for Hindi (M14 Hindi-first).
+  // The hand-crafted dialogue in scenes-lion-rabbit.ts is currently
+  // Hindi-only. Generating with non-Hindi voices (Tamil, Telugu, etc.)
+  // against Hindi script causes Edge-TTS NoAudioReceived errors. So we
+  // generate Hindi once, then duplicate the file path into the other
+  // language slots — deterministic, identical audio everywhere — until
+  // dedicated per-language dialogue lands.
+  console.log('[render] Generating Hindi audio (other langs reuse Hindi until translated)...');
   const audioResults: Record<string, Awaited<ReturnType<typeof generateEpisodeAudio>>> = {};
 
-  // Fill dialogue text into episode scenes before audio generation
+  const hiDir = path.join(episodeDir, 'audio', 'hi');
+  await fs.mkdir(hiDir, { recursive: true });
+  const hiAudio = await generateEpisodeAudio(episode, 'hi', hiDir);
+  console.log('[render] Audio done: hi');
+
   for (const lang of LANGUAGES) {
-    const langDir = path.join(episodeDir, 'audio', lang);
-    await fs.mkdir(langDir, { recursive: true });
-
-    // Create a copy of episode with resolved dialogues
-    const episodeWithDialogue: CartoonEpisode = {
-      ...episode,
-      scenes: episode.scenes.map((scene, sceneIdx) => ({
-        ...scene,
-        dialogue: (fullEpisode.dialoguesPerLanguage[lang]?.[sceneIdx] ?? scene.dialogue).map(
-          (line: DialogueLine, lineIdx: number) => ({
-            ...scene.dialogue[lineIdx],
-            text: line.text,
-          }),
-        ),
-      })),
-    };
-
-    audioResults[lang] = await generateEpisodeAudio(episodeWithDialogue, lang, langDir);
-    console.log(`[render] Audio done: ${lang}`);
+    audioResults[lang] = hiAudio;
   }
 
   // 3. Render visual track ONCE with Remotion (language-independent)
@@ -75,6 +66,9 @@ export async function renderEpisode(
   // dev server (public/ root) where output/*.wav is NOT served, causing 404.
   const primaryAudio = audioResults['hi'] ?? audioResults[LANGUAGES[0]];
   const propsPath = path.join(episodeDir, 'remotion-props.json');
+  // Episode1 only consumes `language`; it pulls scenes from
+  // LION_RABBIT_SCENES directly. Keep the full props blob for future use
+  // by other compositions, but Episode1 will ignore extra keys.
   await fs.writeFile(propsPath, JSON.stringify({
     episode,
     audioData: { ...primaryAudio, masterAudioPath: '' },
@@ -84,7 +78,7 @@ export async function renderEpisode(
   await execFileAsync('npx', [
     'remotion', 'render',
     'src/index.ts',
-    'CartoonEpisode',
+    'Episode1',
     visualPath,
     '--props', propsPath,
     '--codec', 'h264',
