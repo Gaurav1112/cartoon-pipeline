@@ -1,0 +1,88 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`M24: Scene Chopper > Snapshot tests for deterministic scheduling > snapshot: intro scene (long) sub-shot schedule 1`] = `
+[
+  {
+    "cam": "close_up",
+    "camI": 0.65,
+    "endFrame": 65,
+    "startFrame": 0,
+  },
+  {
+    "cam": "wide",
+    "camI": 0.35,
+    "endFrame": 130,
+    "startFrame": 65,
+  },
+  {
+    "cam": "close_up",
+    "camI": 0.65,
+    "endFrame": 195,
+    "startFrame": 130,
+  },
+  {
+    "cam": "wide",
+    "camI": 0.35,
+    "endFrame": 260,
+    "startFrame": 195,
+  },
+  {
+    "cam": "close_up",
+    "camI": 0.65,
+    "endFrame": 300,
+    "startFrame": 260,
+  },
+]
+`;
+
+exports[`M24: Scene Chopper > Snapshot tests for deterministic scheduling > snapshot: setup scene sub-shot schedule 1`] = `
+[
+  {
+    "cam": "static",
+    "camI": 0.4,
+    "endFrame": 65,
+    "startFrame": 0,
+  },
+  {
+    "cam": "close_up",
+    "camI": 0.6000000000000001,
+    "endFrame": 130,
+    "startFrame": 65,
+  },
+  {
+    "cam": "wide",
+    "camI": 0.30000000000000004,
+    "endFrame": 180,
+    "startFrame": 130,
+  },
+]
+`;
+
+exports[`M24: Scene Chopper > Snapshot tests for deterministic scheduling > snapshot: volunteer scene sub-shot schedule 1`] = `
+[
+  {
+    "cam": "wide",
+    "camI": 0.5,
+    "endFrame": 65,
+    "startFrame": 0,
+  },
+  {
+    "cam": "zoom_in",
+    "camI": 0.6,
+    "endFrame": 130,
+    "startFrame": 65,
+  },
+  {
+    "cam": "close_up",
+    "camI": 0.7,
+    "endFrame": 195,
+    "startFrame": 130,
+  },
+  {
+    "cam": "wide",
+    "camI": 0.5,
+    "endFrame": 250,
+    "startFrame": 195,
+  },
+]
+`;

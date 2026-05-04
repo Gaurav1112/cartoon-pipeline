@@ -14,7 +14,7 @@ export interface RhythmInterrupt {
 const WINDOW_FRAMES = 90; // 3 seconds at 30 FPS
 const AUTO_INTERRUPT_FRAME_OFFSET = 45; // mid-window (deterministic)
 const AUTO_INTERRUPT_DURATION = 3; // 3 frames (100ms @ 30fps)
-const AUTO_INTERRUPT_MAX_OPACITY = 0.06; // kid-safe, epilepsy-safe
+const AUTO_INTERRUPT_MAX_OPACITY = 0.15; // M25: 0.06→0.15 (audit: stop whispering, shout)
 
 /**
  * Computes the full schedule of pattern interrupts (explicit + auto-injected)

@@ -297,6 +297,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene, audioTiming
                     timeOfDay={scene.time}
                     cam={scene.cam}
                     camI={scene.camI}
+                    sceneStartFrame={0}
                   />
                 </div>
               </div>
