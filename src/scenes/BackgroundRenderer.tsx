@@ -10,6 +10,14 @@ const STOCK_BG_BY_LOCATION: Partial<Record<LocationType, string>> = {
   river:     'backgrounds/river.jpg',
   village:   'backgrounds/well_scene.jpg',
   mountain:  'backgrounds/mountains_far.jpg',
+  hilltop:   'backgrounds/hilltop.jpg',
+  harbor:    'backgrounds/harbor_day.jpg',
+};
+
+// Per time-of-day variants override the base mapping when both location AND time match
+const STOCK_BG_BY_LOCATION_TIME: Record<string, string> = {
+  'forest:night':  'backgrounds/forest_night.jpg',
+  'harbor:night':  'backgrounds/harbor_night.jpg',
 };
 
 // Per time-of-day CSS filter to re-tint the same plate.
@@ -407,7 +415,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   };
 
   const bg = backgroundMap[locationType] ?? renderGenericBackground(locationType, palette, offset);
-  const stockPath = STOCK_BG_BY_LOCATION[locationType];
+  const stockPath = STOCK_BG_BY_LOCATION_TIME[`${locationType}:${timeOfDay}`] ?? STOCK_BG_BY_LOCATION[locationType];
 
   // Time-of-day color wash
   const TIME_WASH: Record<string, string> = {
@@ -424,6 +432,24 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
 
   return (
     <>
+      {/* Cartoonify SVG filter — posterizes the stock photo into a Peppa-Pig /
+          Chhota-Bheem painted plate. Deterministic (no randomness, fixed
+          tableValues). Applied AFTER the time-of-day filter so dawn/dusk/night
+          colour grading is preserved. */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }}>
+        <defs>
+          <filter id="cartoonify" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="saturate" values="1.45" />
+            <feComponentTransfer>
+              <feFuncR type="discrete" tableValues="0.05 0.22 0.40 0.58 0.76 0.92" />
+              <feFuncG type="discrete" tableValues="0.05 0.22 0.40 0.58 0.76 0.92" />
+              <feFuncB type="discrete" tableValues="0.05 0.22 0.40 0.58 0.76 0.92" />
+            </feComponentTransfer>
+            <feGaussianBlur stdDeviation="0.6" />
+          </filter>
+        </defs>
+      </svg>
+
       {stockPath && (
         <Img
           src={staticFile(stockPath)}
@@ -433,7 +459,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
             objectFit: 'cover',
             transform: `translateX(${offset * 0.15}px) scale(1.04)`,
             transformOrigin: 'center center',
-            filter: TIME_FILTER[timeOfDay] ?? TIME_FILTER.day,
+            filter: `${TIME_FILTER[timeOfDay] ?? TIME_FILTER.day} url(#cartoonify)`,
             zIndex: 0,
           }}
         />

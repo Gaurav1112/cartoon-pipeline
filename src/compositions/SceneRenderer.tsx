@@ -20,9 +20,9 @@ interface SceneRendererProps {
 }
 
 const CHARACTER_POSITIONS = {
-  left: { x: 250, y: 500 },
-  center: { x: 860, y: 480 },
-  right: { x: 1450, y: 500 },
+  left: { x: 380, y: 960 },
+  center: { x: 960, y: 960 },
+  right: { x: 1540, y: 960 },
 };
 
 export const SceneRenderer: React.FC<SceneRendererProps> = ({

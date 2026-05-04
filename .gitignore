@@ -17,3 +17,6 @@ output/**/*.wav
 # API keys never committed
 .env
 .env.local
+
+# Audio cache — committed for determinism, but ignore .tmp during writes
+audio-cache/**/*.tmp

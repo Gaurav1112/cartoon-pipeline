@@ -44,6 +44,9 @@ export const DialogueBubble: React.FC<DialogueBubbleProps> = ({
 
   // FIX(minor): use >= to avoid rendering one extra frame past end
   if (relativeFrame < 0 || relativeFrame >= durationFrames) return null;
+  // Don't render an empty container during the typewriter pre-roll —
+  // otherwise a stray bubble shell flashes for 1-2 frames.
+  if (text.length === 0) return null;
 
   const colors = BUBBLE_COLORS[characterId];
   const pos = POSITIONS[position];
@@ -63,12 +66,16 @@ export const DialogueBubble: React.FC<DialogueBubbleProps> = ({
   // Kids read slower, and many are pre-readers watching with parents
   // Guard against empty text or zero-length range (would cause interpolate to throw)
   const typewriterDuration = Math.max(1, Math.min(durationFrames * 0.5, text.length * 4)); // 4 frames per char = ~8 chars/sec
-  const charsToShow = text.length === 0 ? 0 : Math.floor(
-    interpolate(relativeFrame, [10, 10 + typewriterDuration], [0, text.length], {
+  // Typewriter kicks off at relativeFrame=2 (was 10) so the bubble never
+  // renders empty long enough to read as a stray UI artifact in the corner.
+  const charsToShow = Math.floor(
+    interpolate(relativeFrame, [2, 2 + typewriterDuration], [0, text.length], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     }),
   );
+  // Wait for the first character before painting the shell.
+  if (charsToShow === 0) return null;
   const displayText = text.slice(0, charsToShow);
 
   return (

@@ -1,0 +1,5 @@
+# Piper voice models — NOT committed (305MB total).
+# Run `npm run voices:download` to materialize them.
+*.onnx
+*.onnx.json
+!.gitignore

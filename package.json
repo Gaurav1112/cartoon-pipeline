@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "pretest": "bash scripts/ensure-music-placeholders.sh",
-    "ensure:music": "bash scripts/ensure-music-placeholders.sh"
+    "ensure:music": "bash scripts/ensure-music-placeholders.sh",
+    "voices:download": "node scripts/download-voices.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.441",
