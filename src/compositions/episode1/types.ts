@@ -39,7 +39,9 @@ export type CameraType =
   | 'zoom_in'
   | 'zoom_out'
   | 'drift'
-  | 'shake';
+  | 'shake'
+  | 'close_up'
+  | 'wide';
 
 export interface ViralDialogueLine {
   char: CharacterId;

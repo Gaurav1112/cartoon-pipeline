@@ -267,7 +267,7 @@ describe('Episode1 integration — viral requirements', () => {
   });
 
   it('all scene cam values are known CameraType values', () => {
-    const VALID_CAMS = ['static', 'pan_left', 'pan_right', 'zoom_in', 'zoom_out', 'drift', 'shake'];
+    const VALID_CAMS = ['static', 'pan_left', 'pan_right', 'zoom_in', 'zoom_out', 'drift', 'shake', 'close_up', 'wide'];
     for (const scene of LION_RABBIT_SCENES) {
       expect(VALID_CAMS).toContain(scene.cam);
     }
