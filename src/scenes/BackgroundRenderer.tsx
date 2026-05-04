@@ -2,23 +2,19 @@ import React from 'react';
 import { useCurrentFrame, interpolate, Img, staticFile } from 'remotion';
 import type { LocationType, TimeOfDay } from '../types';
 
-// Stock background plates (Pixabay, free for commercial use).
-// When present, used INSTEAD of the procedural SVG location-specific background.
-// The SVG overlay layer (clouds, sun/moon, color wash, key-light) still renders on top.
-const STOCK_BG_BY_LOCATION: Partial<Record<LocationType, string>> = {
-  forest:    'backgrounds/forest_day.jpg',
-  river:     'backgrounds/river.jpg',
-  village:   'backgrounds/well_scene.jpg',
-  mountain:  'backgrounds/mountains_far.jpg',
-  hilltop:   'backgrounds/hilltop.jpg',
-  harbor:    'backgrounds/harbor_day.jpg',
-};
+// M19 (audit-v14): visual panel scored 5.9/10 with #1 gap "stock-photo
+// + SVG mismatch — clipart on JPEG backgrounds breaks Peppa/Bheem
+// stylistic consistency". Force procedural SVG for ALL locations by
+// emptying the stock maps. The cartoonify SVG filter still runs but
+// has nothing to apply to; the procedural SVG branch (`!stockPath &&
+// bg`) becomes the universal path. Procedural backgrounds are also
+// fully deterministic which the project requires.
+//
+// To revert (e.g., when curated cartoon-style plates are sourced),
+// repopulate these maps. Pinned by m19-procedural-bg.test.ts.
+const STOCK_BG_BY_LOCATION: Partial<Record<LocationType, string>> = {};
 
-// Per time-of-day variants override the base mapping when both location AND time match
-const STOCK_BG_BY_LOCATION_TIME: Record<string, string> = {
-  'forest:night':  'backgrounds/forest_night.jpg',
-  'harbor:night':  'backgrounds/harbor_night.jpg',
-};
+const STOCK_BG_BY_LOCATION_TIME: Record<string, string> = {};
 
 // Per time-of-day CSS filter to re-tint the same plate.
 const TIME_FILTER: Record<string, string> = {
