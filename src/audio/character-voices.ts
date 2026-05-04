@@ -1,4 +1,14 @@
-import type { CharacterId, VoiceProfile } from '../types';
+import type { CharacterId, EmotionType, VoiceProfile } from '../types';
+
+// M11 audit-v10 (Andrea Romano): "Vibrato on every line makes every
+// character sound nervous." Restrict to emotions where a tremor is
+// genuinely motivated — fear, rage, shock. Neutral / happy / thinking
+// lines play flat so dialogue reads as confident, not anxious.
+const VIBRATO_EMOTIONS: ReadonlySet<EmotionType> = new Set<EmotionType>([
+  'scared',
+  'angry',
+  'surprised',
+]);
 
 /**
  * Voice profiles tuned for kid-friendly cartoon voices.
@@ -37,7 +47,10 @@ export function getVoiceProfile(characterId: CharacterId): VoiceProfile {
  *       asetrate speeds up by asetrate_factor
  *       corrected_atempo = desired_speed / asetrate_factor
  */
-export function buildFfmpegFilter(profile: VoiceProfile): string {
+export function buildFfmpegFilter(
+  profile: VoiceProfile,
+  emotion?: EmotionType,
+): string {
   const filters: string[] = [];
   const SAMPLE_RATE = 44100;
 
@@ -95,8 +108,11 @@ export function buildFfmpegFilter(profile: VoiceProfile): string {
   // Step 5: Compressor for cartoon punch
   filters.push('acompressor=threshold=-20dB:ratio=4:attack=5:release=50:makeup=3dB');
 
-  // Step 6: Subtle vibrato to kill TTS flatness
-  filters.push('vibrato=f=5:d=0.1');
+  // Step 6: Vibrato — gated by emotion (M11 audit-v10 Romano).
+  // Only fear/rage/shock get the tremor; everything else stays flat.
+  if (emotion && VIBRATO_EMOTIONS.has(emotion)) {
+    filters.push('vibrato=f=5:d=0.1');
+  }
 
   // Step 7: Volume
   if (profile.volume !== 1.0) {

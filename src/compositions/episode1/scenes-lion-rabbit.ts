@@ -414,6 +414,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         shortsFlag: true,
         // M4.2 (MrBeast): the well-trick reveal — peak-payoff stinger.
         heroMomentScore: 1.0,
+        // M11 audit-v10 (Murch): give the laugh + splash 500ms to land
+        // before catharsis cuts in. Comedy needs the silent beat.
+        postGapMs: 500,
       },
       // M3.3 (Docter empathic arc): Kaaliya's defeat-recognition beat.
       // The villain disappearing without a single "what just happened?!"
