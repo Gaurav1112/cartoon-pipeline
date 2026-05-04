@@ -17,6 +17,7 @@ import { getBaseVoice } from './voice-bank';
 import { getVoiceProfile, buildFfmpegFilter } from './character-voices';
 import { wrapInSSML } from './emotion-prosody';
 import { selectMotivatedSfx } from './sfx-triggers';
+import { planCharacterSignatureLayers, type SignatureSchedulingScene } from './character-signatures';
 import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
@@ -391,6 +392,10 @@ export async function generateEpisodeAudio(
   let currentTimeMs = 0;
   const sceneStartMs: number[] = [];
   const allSfxResults: SFXTriggerResult[] = [];
+  // M7 (Peppa/Bheem): collect dialogue timing per scene so we can plan
+  // a creature-voice "signature" SFX before each character's first line
+  // in every scene. Distinct from the once-per-episode Zimmer motif.
+  const signatureScenes: SignatureSchedulingScene[] = [];
   // M4.3 (Zimmer): one leitmotif stinger per character, scheduled
   // ~400 ms before that character's first dialogue line.
   const motifFiltersByCharacter = new Map<CharacterId, string>();
@@ -407,6 +412,8 @@ export async function generateEpisodeAudio(
   // Process each scene
   for (const scene of episode.scenes) {
     sceneStartMs.push(currentTimeMs);
+    // M7: collect per-scene dialogue timing for signature SFX planning.
+    const sceneDialogueTimings: SignatureSchedulingScene['dialogue'] = [];
     // 1. Generate dialogue audio for each line
     for (let lineIdx = 0; lineIdx < scene.dialogue.length; lineIdx++) {
       const line = scene.dialogue[lineIdx];
@@ -482,6 +489,13 @@ export async function generateEpisodeAudio(
         volumeDb: -5,
       });
 
+      // M7: track for signature SFX planning (after the line's startMs is known).
+      sceneDialogueTimings.push({
+        characterId: line.characterId,
+        startMs: currentTimeMs,
+        durationMs: actualDurationMs,
+      });
+
       // M5.3: record line for hero-moment swell envelope.
       heroLineCandidates.push({
         startMs: currentTimeMs,
@@ -521,6 +535,11 @@ export async function generateEpisodeAudio(
     // `DEFAULT_SCENE_TAIL_MS` in `compositions/episode1/timing.ts`.
     const sceneTailMs = typeof scene.sceneTailMs === 'number' ? scene.sceneTailMs : 300;
     currentTimeMs += sceneTailMs;
+    // M7: bank this scene's dialogue timing for signature-SFX planning.
+    signatureScenes.push({
+      sceneIndex: scene.sceneIndex,
+      dialogue: sceneDialogueTimings,
+    });
   }
 
   // 3. Select background music — per-scene intensity ramp (M1.4 Zimmer).
@@ -535,9 +554,23 @@ export async function generateEpisodeAudio(
   //    inventory (procedural keywords vs hand-curated mp3s); without this
   //    filter a single missing asset aborts the whole episode render in CI.
   //    Dialogue files always exist (we just generated them).
+  // M7: plan creature-voice signature SFX (Peppa snort / Bheem yip style).
+  // One per (scene, character first-appearance), 250ms ahead of the line.
+  const signatureLayers: AudioLayer[] = planCharacterSignatureLayers(signatureScenes).map(
+    (l) => ({
+      type: l.type,
+      filePath: l.filePath,
+      startMs: l.startMs,
+      volumeDb: l.volumeDb,
+      duckDuringDialogue: l.duckDuringDialogue,
+      duckedVolumeDb: l.duckedVolumeDb,
+    }),
+  );
+
   const candidateLayers: AudioLayer[] = [
     ...dialogueLayers,
     ...sfxLayers,
+    ...signatureLayers,
     ...musicLayers,
     ...ambienceLayers,
   ];
