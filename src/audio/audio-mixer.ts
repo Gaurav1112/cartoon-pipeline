@@ -153,8 +153,16 @@ export function buildMixCommand(
     // invisible (ratio=2.5, release=400), restore LRA=11 so quiet beats
     // (Arjun thinking, Guruji whispers, "ma" tail silence) actually feel
     // quiet against shouts. Still YouTube-loudness compliant (I=-14).
-    'loudnorm=I=-14:LRA=11:TP=-1.5,' +
-    'alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=50' +
+    // M19 (audit-v14 Fleischman): retarget loudnorm I=-14→-16 LUFS to
+    // hit the YouTube Kids / Netflix Kids streaming spec exactly. The
+    // audit measured -14.9 LUFS integrated — 1.1 LU over target — which
+    // can flag mobile auto-loudness systems as "too loud" and trigger
+    // gain-down. -16 LUFS keeps dialogue clarity while leaving headroom
+    // for SFX punch. LRA=11 retained (M15 Lievsay revert was correct;
+    // restoring quiet beats matters for kids' parents). TP=-1.5 dBTP
+    // gives alimiter (limit=0.891 ≈ -1.0 dBFS) sample-domain ceiling.
+    'loudnorm=I=-16:LRA=11:TP=-1.5,' +
+    'alimiter=level_in=1:level_out=1:limit=0.891:attack=5:release=50' +
     '[out]';
   if (finalLabels.length === 1) {
     filterParts.push(`${finalLabels[0]}${masterTail}`);

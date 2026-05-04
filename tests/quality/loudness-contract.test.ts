@@ -43,11 +43,11 @@ function tmpFile(name: string): string {
   return path.join(root, name);
 }
 
-describe('M5.4 — integrated -14 LUFS loudness contract', () => {
+describe('M19 (audit-v14) — integrated -16 LUFS loudness contract (YouTube Kids spec)', () => {
   // Async IIFE runs once at import time to decide skip vs run.
   const ffmpegPresentP = ffmpegAvailable();
 
-  it('master loudnorm filter targets I=-14 LUFS within ±1 LU', async () => {
+  it('master loudnorm filter targets I=-16 LUFS within ±1 LU', async () => {
     const ffmpegPresent = await ffmpegPresentP;
     if (!ffmpegPresent) {
       // Contract preserved; CI with ffmpeg will execute the assertion.
@@ -59,16 +59,16 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
     const sourcePath = tmpFile('lufs-source.wav');
     const masteredPath = tmpFile('lufs-mastered.wav');
 
-    // 1. Synthesise a deterministic 2-second 1 kHz sine at -20 dBFS.
-    //    -20 dBFS is a conservative starting point; loudnorm should
-    //    raise it to about -14 LUFS.
+    // 1. Synthesise a deterministic 2-second 1 kHz sine at -22 dBFS.
+    //    -22 dBFS is a conservative starting point; loudnorm should
+    //    raise it to about -16 LUFS.
     await execFileAsync(
       'ffmpeg',
       [
         '-y',
         '-f', 'lavfi',
         '-i', 'sine=frequency=1000:duration=2:sample_rate=44100',
-        '-af', 'volume=-20dB',
+        '-af', 'volume=-22dB',
         '-ac', '1',
         '-c:a', 'pcm_s16le',
         sourcePath,
@@ -77,15 +77,15 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
     );
 
     // 2. Apply the SAME master tail used in audio-mixer.ts:
-    //      loudnorm=I=-14:LRA=11:TP=-1.5, alimiter=...
+    //      loudnorm=I=-16:LRA=11:TP=-1.5, alimiter=...
     await execFileAsync(
       'ffmpeg',
       [
         '-y',
         '-i', sourcePath,
         '-af',
-        'loudnorm=I=-14:LRA=11:TP=-1.5,' +
-          'alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=50',
+        'loudnorm=I=-16:LRA=11:TP=-1.5,' +
+          'alimiter=level_in=1:level_out=1:limit=0.891:attack=5:release=50',
         '-ar', '44100',
         '-ac', '1',
         '-c:a', 'pcm_s16le',
@@ -100,7 +100,7 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
       'ffmpeg',
       [
         '-i', masteredPath,
-        '-af', 'loudnorm=I=-14:LRA=11:TP=-1.5:print_format=json',
+        '-af', 'loudnorm=I=-16:LRA=11:TP=-1.5:print_format=json',
         '-f', 'null',
         '-',
       ],
@@ -114,11 +114,11 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
     const measuredI = parseFloat(report.input_i);
 
     expect(Number.isFinite(measuredI)).toBe(true);
-    // YouTube spec: -14 LUFS ±1 LU. Our pin matches.
-    expect(Math.abs(measuredI - -14)).toBeLessThanOrEqual(1.0);
+    // YouTube Kids / Netflix Kids spec: -16 LUFS ±1 LU.
+    expect(Math.abs(measuredI - -16)).toBeLessThanOrEqual(1.0);
   }, 120_000);
 
-  it('mixer source code references the pinned -14 LUFS target', () => {
+  it('mixer source code references the pinned -16 LUFS target', () => {
     // Static guard: even when ffmpeg is unavailable, this assertion
     // prevents a future refactor from silently changing the LUFS pin
     // in `audio-mixer.ts`.
@@ -126,6 +126,6 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
       path.resolve(__dirname, '..', '..', 'src', 'audio', 'audio-mixer.ts'),
       'utf8',
     );
-    expect(src).toMatch(/loudnorm=I=-14:LRA=11:TP=-1\.5/);
+    expect(src).toMatch(/loudnorm=I=-16:LRA=11:TP=-1\.5/);
   });
 });

@@ -35,8 +35,9 @@ describe('M15: Lievsay mixer params (kid-broadcast LRA, invisible ducking)', () 
     expect(mixerSrc).toMatch(/export const DUCK_THRESHOLD = 0\.015/);
   });
 
-  it('master loudnorm LRA is 11 (was 7 — was crushing dynamic range)', () => {
-    expect(mixerSrc).toContain('loudnorm=I=-14:LRA=11:TP=-1.5');
+  it('M19 (audit-v14): master loudnorm targets I=-16 LUFS, LRA=11', () => {
+    expect(mixerSrc).toContain('loudnorm=I=-16:LRA=11:TP=-1.5');
     expect(mixerSrc).not.toContain('loudnorm=I=-14:LRA=7:TP=-1.5');
+    expect(mixerSrc).not.toContain('loudnorm=I=-14:LRA=11:TP=-1.5');
   });
 });

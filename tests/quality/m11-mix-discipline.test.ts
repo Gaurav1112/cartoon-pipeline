@@ -22,9 +22,10 @@ describe('M15 mix discipline (audit-v12 Lievsay revert)', () => {
     expect(DUCK_THRESHOLD).toBe(0.015);
   });
 
-  it('loudnorm LRA is 11 (audit-v12: LRA=7 measured 4.7 LU — flat)', () => {
-    expect(SRC).toMatch(/loudnorm=I=-14:LRA=11:TP=-1\.5/);
+  it('M19 (audit-v14): loudnorm targets I=-16 LUFS (YouTube Kids / Netflix Kids spec)', () => {
+    expect(SRC).toMatch(/loudnorm=I=-16:LRA=11:TP=-1\.5/);
     expect(SRC).not.toMatch(/loudnorm=I=-14:LRA=7/);
+    expect(SRC).not.toMatch(/loudnorm=I=-14:LRA=11/);
   });
 
   it('buildMixCommand emits ratio=2.5 in the rendered filter graph', () => {
