@@ -20,6 +20,8 @@ import {
 import { Subtitles } from './episode1/Subtitles';
 import { RhythmInterruptOverlay } from './episode1/RhythmInterrupt';
 import { extractExplicitInterruptFrames } from './episode1/extract-interrupts';
+import { RhythmInterruptOverlay } from './episode1/RhythmInterrupt';
+import { extractExplicitInterruptFrames } from './episode1/extract-interrupts';
 
 const FPS = 30;
 // FIX(minor): use even number so Math.floor(TRANSITION_FRAMES/2) is symmetric
