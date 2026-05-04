@@ -1,7 +1,7 @@
 import React from 'react';
 import { Composition } from 'remotion';
 import { CartoonEpisode } from './compositions/CartoonEpisode';
-import { Episode1, EPISODE1_DURATION } from './compositions/Episode1';
+import { Episode1, EPISODE1_DURATION, calcEpisode1DurationFromProps } from './compositions/Episode1';
 import {
   ShortsEpisode, calcShortsDuration,
   SHORTS_FPS, SHORTS_WIDTH, SHORTS_HEIGHT,
@@ -40,7 +40,11 @@ const defaultProps = buildDefaultProps();
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      {/* Episode 1: Hand-crafted Monkey & Crocodile */}
+      {/* Episode 1: Hand-crafted Lion-Rabbit. M16 (audit-v13): use
+          calculateMetadata so durationInFrames is derived from the
+          audio engine's ffprobe-measured TTS timings (passed via
+          --props from render-episode.ts). Without this, the master
+          timeline overshoots the audio by ~98s and produces dead air. */}
       <Composition
         id="Episode1"
         component={Episode1 as React.FC}
@@ -49,6 +53,10 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ language: 'hi' as const }}
+        calculateMetadata={async ({ props }) => {
+          const dur = calcEpisode1DurationFromProps(props as Parameters<typeof calcEpisode1DurationFromProps>[0]);
+          return { durationInFrames: dur };
+        }}
       />
 
       {/* Generic engine-driven episodes */}
