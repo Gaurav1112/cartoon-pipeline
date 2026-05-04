@@ -126,6 +126,6 @@ describe('M5.4 — integrated -14 LUFS loudness contract', () => {
       path.resolve(__dirname, '..', '..', 'src', 'audio', 'audio-mixer.ts'),
       'utf8',
     );
-    expect(src).toMatch(/loudnorm=I=-14:LRA=7:TP=-1\.5/);
+    expect(src).toMatch(/loudnorm=I=-14:LRA=11:TP=-1\.5/);
   });
 });

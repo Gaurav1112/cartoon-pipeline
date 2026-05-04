@@ -425,16 +425,21 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                   </>
                 )}
 
-                {/* M12 audit-v10-debate (Miyazaki): Kaaliya scar — diagonal
-                    slash across the right brow/cheek so silhouette
-                    differentiates from Raja immediately. */}
+                {/* M12+M15 (Baker v12 fix): Kaaliya scar must read at
+                    postage-stamp size on a phone screen. v12 measured
+                    1.2:1 contrast against #3A0A0A skin (WCAG fails);
+                    bump to bright #FF3333 + 3.5px stroke + drop-shadow
+                    so silhouette differentiates from Raja and reads
+                    even when Kaaliya is in shadow. */}
+                {/* Kaaliya scar */}
                 {characterId === 'kaaliya' && (
                   <path
                     d={`M 4 ${-cfg.headH - 14} L 18 ${-cfg.headH + 4}`}
-                    stroke="#3A0A0A"
-                    strokeWidth={2.2}
+                    stroke="#FF3333"
+                    strokeWidth={3.5}
                     strokeLinecap="round"
                     fill="none"
+                    style={{ filter: 'drop-shadow(0 0 1.5px #2A0000)' }}
                   />
                 )}
                 {/* M12 (Miyazaki) Kaaliya ear-notch — torn-mane chip on
