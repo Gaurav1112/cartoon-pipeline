@@ -329,17 +329,13 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       },
       {
         char: 'arjun',
-        // BEFORE: "दूसरे शेर ने रोका।" — 3 words, the twist delivered flat.
-        //         This is the setup for the well-trick and it was invisible.
-        // AFTER: calm apology + specific location detail. Arjun sounds like
-        //        he's describing a minor inconvenience. His nonchalance while
-        //        a furious lion threatens to eat him IS the comedy. The longer
-        //        delivery gives Kaaliya — and the viewer — time to process the
-        //        absurdity before the "क्या?!" reaction hits.
-        text: 'माफ़ करना... रास्ते में दूसरे शेर ने रोका।',
+        // M9 (story-panel Fix 1, tightened to fit 165s cap): explicit setup
+        // for the well-trick. The "तुम किसके?" quote is what makes Kaaliya's
+        // mirror reflection a satisfying payoff later.
+        text: 'माफ़ करना — दूसरे शेर ने पूछा, "तुम किसके?"',
         dur: 'auto',
         sfxKey: 'suspense',
-        textOverlay: '🤯 दूसरा शेर??',
+        textOverlay: '🚨 दूसरा शेर!',
         patternInterrupt: 'freeze_frame',
         shortsFlag: true,
       },

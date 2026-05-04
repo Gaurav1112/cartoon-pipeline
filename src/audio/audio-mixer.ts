@@ -115,7 +115,7 @@ export function buildMixCommand(
 
       duckableIndices.forEach((layerIdx, j) => {
         filterParts.push(
-          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=${duckThreshold}:ratio=8:attack=10:release=250[dk${layerIdx}]`,
+          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=${duckThreshold}:ratio=2:attack=10:release=250[dk${layerIdx}]`,
         );
         finalLabels.push(`[dk${layerIdx}]`);
       });
