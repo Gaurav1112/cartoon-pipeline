@@ -8,12 +8,12 @@ describe('M9 polish constants — animation smoothness + audio mix breath', () =
     expect(EMOTION_BLEND_FRAMES).toBeGreaterThanOrEqual(10);
   });
 
-  it('audio-mixer sidechaincompress uses ratio 4 (M11: was 2 — too gentle)', () => {
+  it('audio-mixer sidechaincompress uses ratio 2.5 (M15 audit-v12: ratio=4 over-crushed)', () => {
     const src = readFileSync(
       resolve(process.cwd(), 'src/audio/audio-mixer.ts'),
       'utf8',
     );
-    expect(src).toMatch(/sidechaincompress=threshold=\$\{[^}]+\}:ratio=4:/);
+    expect(src).toMatch(/sidechaincompress=threshold=\$\{[^}]+\}:ratio=2\.5:/);
     expect(src).not.toMatch(/sidechaincompress=[^[]*:ratio=8:/);
   });
 });

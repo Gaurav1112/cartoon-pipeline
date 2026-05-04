@@ -142,15 +142,17 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'bablu',
-        // BEFORE: "रोज़ एक जानवर?!" — gasp with no punchline. Comedy dies.
-        // AFTER: gasp + escape-fantasy confession. Two beats = full joke arc.
-        // "मैं तो भागूँ!" is the relatable self-preservation punchline that
-        // gets the laugh AFTER the shock lands.
-        text: 'रोज़ एक जानवर?! मैं तो भागूँ!',
+        // M15 audit-v12 (Murch): setup was 4 lines / 17.5s — over the
+        // YouTube 8-sec attention cliff for kids 4-10. Compressed to
+        // 3 lines / ~11s by merging Bablu's gasp + thesis-foreshadow
+        // into one line. The "ताकत बेकार" thesis still seeds Arjun's
+        // brain-flip without a second Bablu beat.
+        text: 'रोज़ एक जानवर?! ताकत से नहीं जीतेंगे!',
         dur: 'auto',
         sfxKey: 'giggle',
-        textOverlay: '😱 रोज़ एक जानवर!',
+        textOverlay: '😱 ताकत बेकार!',
         shortsFlag: true,
+        heroMomentScore: 0.9,
       },
       {
         char: 'guruji',
@@ -172,23 +174,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         dur: 'auto',
         textOverlay: '🎲 लॉटरी में नाम आएगा...',
         // Murch "ma": let the lottery threat hang before the doubt lands.
-        postGapMs: 350,
-      },
-      {
-        char: 'bablu',
-        // Docter theme spine: foreshadow the thesis. Bablu names brawn
-        // as our ONLY tool — sets up Arjun's brain-flip in volunteer scene.
-        // Without this line the moral "brain beats brawn" arrives unprepared.
-        text: 'ताकत से तो हम जीत नहीं सकते...',
-        dur: 'auto',
-        sfxKey: 'gasp',
-        textOverlay: '💪❌ ताकत काम नहीं आएगी',
         postGapMs: 400,
-        // MrBeast 8-sec rule: this is now the LAST line of setup, so it
-        // must carry an interrupt to keep the trailing run ≤240fr.
         patternInterrupt: 'freeze_frame',
-        // M4.2 (MrBeast): the thesis line — "brain beats brawn" set-up.
-        heroMomentScore: 0.9,
       },
     ],
   },
@@ -326,10 +313,12 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // "लगाई" = took/caused a delay. Maximises anger-to-calm contrast with
         // Arjun's apology on the next line. Roar SFX + shake patternInterrupt
         // carry the lethal threat without the dialogue needing to spell it out.
-        text: 'इतनी देर क्यों लगाई?!',
+        // M15 audit-v12 (Chilaka): "जंगल मेरा!" verbal tic — territorial-claim
+        // brand for kid recall. 2nd appearance (1st in scene 6).
+        text: 'जंगल मेरा! इतनी देर क्यों लगाई?!',
         dur: 'auto',
         sfxKey: 'roar',
-        textOverlay: '🦁 गुस्से में शेर!',
+        textOverlay: '🦁 जंगल मेरा!',
         patternInterrupt: 'shake',
         shortsFlag: true,
       },
@@ -379,18 +368,30 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'arjun',
-        text: 'वो शेर कुएँ में है।',
+        // M15 audit-v12 (Pete Docter + Rajiv Chilaka): hero pre-action
+        // catchphrase. Story v11/v12 noted "दिमाग सबसे बड़ा" only ever
+        // landed AFTER the trick worked — kids could not memorise the
+        // mantra without a pre-action trigger. Bheem's "लड्डू की शक्ति!"
+        // pattern: hero brands the action BEFORE doing it. Now the brain
+        // mantra fires twice — once before (planning), once after (proof).
+        text: 'दिमाग बड़ा है। वो शेर कुएँ में है।',
         dur: 'auto',
         sfxKey: 'suspense',
-        textOverlay: '🕳️ उस कुएँ में...',
+        textOverlay: '🧠 दिमाग बड़ा',
         shortsFlag: true,
+        heroMomentScore: 0.7,
       },
       {
         char: 'kaaliya',
-        text: 'मुझसे बड़ा?! चलो!',
+        // M15 audit-v12 (Rajiv Chilaka): villain verbal tic. v11/v12
+        // panel: 7 Kaaliya lines, 0 recurring phrase — Kaaliya was
+        // forgettable. "जंगल मेरा!" is the territorial-claim tic that
+        // makes him brandable for Indian kid recall (parallels Kalia's
+        // "मैं करूँगा!" in Chhota Bheem). Triggered before threats.
+        text: 'जंगल मेरा! मुझसे बड़ा?! चलो!',
         dur: 'auto',
         sfxKey: 'roar',
-        textOverlay: '🦁 अपनी मौत की तरफ...',
+        textOverlay: '🦁 जंगल मेरा!',
         shortsFlag: true,
       },
       {

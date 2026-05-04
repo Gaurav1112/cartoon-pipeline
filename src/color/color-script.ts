@@ -41,40 +41,47 @@ export interface ColorBeat {
 
 // Defaults pinned by the M4.1 contract test. Adjust here only with a
 // commit message that explains the visual rationale.
+//
+// M15 audit-v12 (Eggleston): saturation deltas widened (0.65..1.5) and
+// exposure deltas widened (-0.6..+0.55) so the mood shift is *visibly*
+// detectable on a phone screen even when the filter sits over stock
+// backgrounds. Previous values (0.85..1.2 sat, -0.4..+0.3 EV) tested
+// at <ΔE 18 — invisible to a 4-year-old. New values target ΔE ≥ 40%
+// between adjacent moods (Eggleston's broadcast-cinematic threshold).
 export const COLOR_SCRIPT_BY_MOOD: Record<Mood, ColorBeat> = {
   peaceful: {
     keyTintHex: '#FFE9C2',
     fillTintHex: '#9FB8CF',
-    exposureEv: 0.0,
-    saturationMul: 1.0,
+    exposureEv: 0.05,
+    saturationMul: 1.05,
     keyDirectionDeg: 45,
   },
   tense: {
     keyTintHex: '#A8C9DC',
     fillTintHex: '#9FB8CF',
-    exposureEv: -0.4,
-    saturationMul: 0.85,
+    exposureEv: -0.6,
+    saturationMul: 0.65,
     keyDirectionDeg: 135,
   },
   climax: {
     keyTintHex: '#FF9C3D',
     fillTintHex: '#FF6B9C',
-    exposureEv: 0.3,
-    saturationMul: 1.2,
+    exposureEv: 0.5,
+    saturationMul: 1.5,
     keyDirectionDeg: 20,
   },
   triumph: {
     keyTintHex: '#FFD580',
     fillTintHex: '#FFC2A0',
-    exposureEv: 0.2,
-    saturationMul: 1.15,
+    exposureEv: 0.45,
+    saturationMul: 1.4,
     keyDirectionDeg: 60,
   },
   moral: {
     keyTintHex: '#FFEFC9',
     fillTintHex: '#B6DCE5',
-    exposureEv: 0.1,
-    saturationMul: 1.05,
+    exposureEv: 0.2,
+    saturationMul: 1.15,
     keyDirectionDeg: 90,
   },
   neutral: {

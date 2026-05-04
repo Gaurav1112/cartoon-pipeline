@@ -32,8 +32,8 @@ function getGraph(cmd: string[]): string {
 }
 
 describe('Beck sidechain threshold calibration (M1.3)', () => {
-  it('DUCK_THRESHOLD default = 0.010 (M11 audit-v10 Lievsay tightened from 0.015)', () => {
-    expect(DUCK_THRESHOLD).toBe(0.010);
+  it('DUCK_THRESHOLD default = 0.015 (M15 audit-v12 Lievsay reverted from 0.010)', () => {
+    expect(DUCK_THRESHOLD).toBe(0.015);
   });
 
   describe('calibrateDuckThreshold', () => {
@@ -68,7 +68,7 @@ describe('Beck sidechain threshold calibration (M1.3)', () => {
     it('custom threshold flows into the filter graph verbatim', () => {
       const graph = getGraph(buildMixCommand('/x/out.wav', ducked(), 0.027));
       expect(graph).toContain('sidechaincompress=threshold=0.027');
-      expect(graph).not.toContain('threshold=0.010');
+      expect(graph).not.toContain('threshold=0.015');
     });
 
     it('a calibrated threshold from a measured peak flows through end-to-end', () => {

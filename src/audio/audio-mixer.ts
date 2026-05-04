@@ -23,7 +23,7 @@ const dbToRatio = (db: number): number => Math.pow(10, db / 20);
 // M11 audit-v10 (Lievsay): 0.015 was triggering on dialogue body, not
 // onset — duck arrived ~80ms late. Tightened to 0.010 so the duck
 // engages on attack transients, returning music headroom 80ms sooner.
-export const DUCK_THRESHOLD = 0.010;
+export const DUCK_THRESHOLD = 0.015;
 
 /**
  * Map a measured linear peak amplitude to a sidechain threshold.
@@ -118,10 +118,14 @@ export function buildMixCommand(
 
       duckableIndices.forEach((layerIdx, j) => {
         filterParts.push(
-          // M11 audit-v10 (Lievsay): ratio=2 only pushed music down ~3dB —
-          // dialogue still buried at 30-40s. ratio=4 produces ~6-8dB duck,
-          // the sweet spot between ratio=2 (inaudible) and ratio=8 (pumpy).
-          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=${duckThreshold}:ratio=4:attack=10:release=250[dk${layerIdx}]`,
+          // M15 audit-v12 (Lievsay revert): ratio=4 with 250ms release was
+          // pumping ~6-8dB on every dialogue attack — the compressor was
+          // audibly "breathing between words" to a 4-year-old. Per
+          // Lievsay's v12 prescription:
+          //   ratio=2.5 + release=400ms = invisible ducking that lets
+          //   music play under dialogue instead of ducking out from
+          //   under it. ~3-4dB duck, kid-friendly, no pumping.
+          `[p${layerIdx}][dkey${j}]sidechaincompress=threshold=${duckThreshold}:ratio=2.5:attack=10:release=400[dk${layerIdx}]`,
         );
         finalLabels.push(`[dk${layerIdx}]`);
       });
@@ -142,11 +146,14 @@ export function buildMixCommand(
   // before it adapts; alimiter at limit=0.95 (~-0.45 dBFS) clamps the
   // peaks deterministically.
   const masterTail =
-    // M11 audit-v10 (Lievsay): LRA=11 was crushing dynamic range to 0.9LU
-    // measured at 30-40s — punchlines and whispers indistinguishable.
-    // LRA=7 lets comedy timing breathe (whispers ~6dB below dialogue
-    // peak instead of 1dB). Still YouTube-loudness compliant.
-    'loudnorm=I=-14:LRA=7:TP=-1.5,' +
+    // M15 audit-v12 (Lievsay revert): LRA=7 was *measured* as 4.7 LU on the
+    // 162.3s episode — punchlines and whispers indistinguishable on phone
+    // speakers. M11's LRA=7 was a misdiagnosis (the real culprit was
+    // ratio=4 / release=250ms pumping the music). Now that ducking is
+    // invisible (ratio=2.5, release=400), restore LRA=11 so quiet beats
+    // (Arjun thinking, Guruji whispers, "ma" tail silence) actually feel
+    // quiet against shouts. Still YouTube-loudness compliant (I=-14).
+    'loudnorm=I=-14:LRA=11:TP=-1.5,' +
     'alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=50' +
     '[out]';
   if (finalLabels.length === 1) {
