@@ -293,6 +293,14 @@ export interface AudioLayer {
 export interface MasterAudioResult {
   masterAudioPath: string;
   totalDurationMs: number;
+  /**
+   * M18: ffprobe-measured duration of the actual mixed master_audio.wav.
+   * Includes music tail / signature SFX / intro jingle that the
+   * dialogue-only `totalDurationMs` accumulator does not track.
+   * Used by `calcEpisode1DurationFromProps` so the video timeline
+   * covers the FULL audio (no truncated dialogue, no dead air).
+   */
+  masterAudioDurationMs?: number;
   wordTimestamps: WordTimestamp[];
   mouthCuesPerCharacter: Record<CharacterId, MouthCue[]>;
   sfxTriggers: SFXTriggerResult[];

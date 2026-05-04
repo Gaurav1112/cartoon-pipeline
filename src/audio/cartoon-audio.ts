@@ -518,7 +518,11 @@ export async function generateEpisodeAudio(
         heroMomentScore: (line as { heroMomentScore?: number }).heroMomentScore,
       });
 
-      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 350;
+      // M18: bump default inter-line gap from 350→500ms. This is the
+      // primary kid-friendly pacing knob (NOT lengthScale, which made
+      // Piper sound robotic at 1.15x). 500ms gap lets the previous
+      // line "land" before the next begins — Peppa/Bheem hallmark.
+      const postGap = typeof line.postGapMs === 'number' ? line.postGapMs : 500;
       currentTimeMs += actualDurationMs + postGap;
       // M16: track for visual sync.
       m16LineDurationsMs.push(actualDurationMs);
@@ -617,6 +621,26 @@ export async function generateEpisodeAudio(
   const masterPath = path.join(outputDir, 'master_audio.wav');
   await mixAudio(masterPath, allLayers);
 
+  // M18: ffprobe the actual mixed master so the visual timeline can
+  // be sized to match (audio includes music tail / signature SFX /
+  // intro jingle that the dialogue accumulator does not track).
+  // Without this, video < audio and the user only hears a fraction.
+  let masterAudioDurationMs = currentTimeMs;
+  try {
+    const probe = await execFileAsync('ffprobe', [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'csv=p=0',
+      masterPath,
+    ]);
+    const probedSec = parseFloat(probe.stdout.trim());
+    if (Number.isFinite(probedSec) && probedSec > 0) {
+      masterAudioDurationMs = Math.round(probedSec * 1000);
+    }
+  } catch (e) {
+    console.warn('[audio] M18 ffprobe of master failed; using accumulator', e);
+  }
+
   // M5.3: hero-moment music swell envelope. Pure-data on the result;
   // downstream post-pass (or the music layer planner in a follow-up)
   // can apply `buildHeroSwellFfmpegFilter(heroSwellEnvelope)` on the
@@ -631,6 +655,7 @@ export async function generateEpisodeAudio(
   return {
     masterAudioPath: masterPath,
     totalDurationMs: currentTimeMs,
+    masterAudioDurationMs,
     wordTimestamps,
     mouthCuesPerCharacter: mouthCuesPerCharacter as Record<CharacterId, MouthCue[]>,
     sfxTriggers: allSfxResults,
