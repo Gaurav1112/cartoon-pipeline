@@ -130,6 +130,14 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const pupilDartX = dart.dx;
   const pupilDartY = dart.dy;
 
+  // M12 audit-v10-debate (Keane): deterministic blink scheduler. Every
+  // ~3 seconds (90 frames @ 30fps) every character closes their eyelids
+  // for 4 frames. Per-character offset (seedX*7) keeps blinks from
+  // syncing across characters. Pure function of `frame` — no Math.random.
+  const blinkOffset = Math.floor(seedX * 7) % 90;
+  const blinkPhase = (frame + blinkOffset) % 90;
+  const isBlinking = blinkPhase < 4;
+
   const skinDark = darken(skin, 0.15);
   const primaryDark = darken(primary, 0.2);
 
@@ -403,6 +411,42 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
                 />
                 <circle cx={9 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 1 + pupilDriftYR + pupilDartY} r={3 + exprData.pupilSize * 3} fill={characterId === 'kaaliya' ? '#8B0000' : '#2A1A0A'} />
                 <circle cx={11 + pupilDriftXR + pupilDartX} cy={-cfg.headH - 3 + pupilDriftYR + pupilDartY} r="2" fill="white" />
+
+                {/* M12 (Keane) blink eyelids — black ellipses cover both
+                    pupils for 4 frames every 90-frame cycle. */}
+                {isBlinking && (
+                  <>
+                    <ellipse cx="-9" cy={-cfg.headH - 2}
+                      rx={7} ry={7} fill="#1a1a1a"
+                    />
+                    <ellipse cx="9" cy={-cfg.headH - 2}
+                      rx={7} ry={7} fill="#1a1a1a"
+                    />
+                  </>
+                )}
+
+                {/* M12 audit-v10-debate (Miyazaki): Kaaliya scar — diagonal
+                    slash across the right brow/cheek so silhouette
+                    differentiates from Raja immediately. */}
+                {characterId === 'kaaliya' && (
+                  <path
+                    d={`M 4 ${-cfg.headH - 14} L 18 ${-cfg.headH + 4}`}
+                    stroke="#3A0A0A"
+                    strokeWidth={2.2}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                )}
+                {/* M12 (Miyazaki) Kaaliya ear-notch — torn-mane chip on
+                    the left ear silhouette: a small wedge cut. */}
+                {characterId === 'kaaliya' && (
+                  <path
+                    d={`M -22 ${-cfg.headH - 18} L -16 ${-cfg.headH - 10} L -24 ${-cfg.headH - 8} Z`}
+                    fill={skinDark}
+                    stroke={OUTLINE_COLOR}
+                    strokeWidth={1.5}
+                  />
+                )}
               </>
             )}
 
