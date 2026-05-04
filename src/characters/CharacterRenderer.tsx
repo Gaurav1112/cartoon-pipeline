@@ -61,9 +61,22 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const basePose = getPose(pose);
   const isTalking = mouthShape !== 'B';
 
-  // Walk cycle: animate legs/arms sinusoidally when in walk_cycle pose
-  const walkPhase = (frame % 24) / 24; // 24-frame cycle = 0.8s per step
-  const walkAngle = Math.sin(walkPhase * Math.PI * 2);
+  // M10 (visual panel #4): organic walk-cycle — spring()-driven contact phase
+  // mixed with a sinusoid swing phase. Contact (toe-strike) is fast/snappy
+  // (high stiffness), swing-through is slow/smooth. Net result: mechanical
+  // sine becomes a real-world walk with weight, instead of a metronome.
+  // Frequency: 24-frame stride (0.8s/step at 30fps). Phase resets each cycle.
+  const stridePeriod = 24;
+  const localStrideFrame = frame % stridePeriod;
+  const contactSpring = spring({
+    frame: localStrideFrame,
+    fps,
+    config: { stiffness: 220, damping: 14, mass: 0.4 },
+  });
+  // Map [0..1] spring → [-1..+1] swing, blended with sin for follow-through.
+  const walkPhase = localStrideFrame / stridePeriod;
+  const sinePart = Math.sin(walkPhase * Math.PI * 2);
+  const walkAngle = 0.55 * sinePart + 0.45 * (contactSpring * 2 - 1);
   const isWalking = pose === 'walk_cycle';
 
   const poseData: PoseData = isWalking ? {

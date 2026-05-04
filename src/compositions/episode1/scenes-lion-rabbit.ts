@@ -32,7 +32,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     chars: [
       { id: 'kaaliya', pos: 'right', pose: 'angry', expr: 'angry' },
     ],
-    cam: 'zoom_in',
+    cam: 'close_up',
     camI: 1.0,
     shortsCutScene: true,
     dialogue: [
@@ -364,7 +364,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       { id: 'kaaliya', pos: 'right', pose: 'idle_stand', expr: 'angry', flip: true },
       { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'neutral' },
     ],
-    cam: 'zoom_in',
+    cam: 'close_up',
     camI: 0.9,
     // M3.4 (Kubrick): well-trick is the climactic beat. Marking it here
     // lets the rule-of-thirds validator target hero scenes specifically.
@@ -447,8 +447,8 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     chars: [
       { id: 'arjun', pos: 'center', pose: 'idle_stand', expr: 'happy' },
     ],
-    cam: 'static',
-    camI: 0.2,
+    cam: 'wide',
+    camI: 0.4,
     mood: 'peaceful',
     dialogue: [
       {

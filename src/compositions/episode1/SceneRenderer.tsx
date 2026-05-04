@@ -72,6 +72,21 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene }) => {
       translateY = Math.cos(frame * 3.7) * shakeAmp * 0.6;
       break;
     }
+    case 'close_up': {
+      // M10 (visual panel #5): emotional close-up. Hold a 1.25-1.5x crop
+      // weighted by intensity so the speaker fills the frame. Subtle drift
+      // upward keeps it cinematic (not static-zoomed).
+      zoom = 1.25 + 0.25 * intensity;
+      translateY = interpolate(progress, [0, 1], [6, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      break;
+    }
+    case 'wide': {
+      // M10 (visual panel #5): establishing wide. Slight pull-back below 1
+      // so environment + character size relationships read clearly.
+      zoom = 1 - 0.08 * intensity;
+      translateY = -4 * intensity;
+      break;
+    }
     default: break;
   }
 

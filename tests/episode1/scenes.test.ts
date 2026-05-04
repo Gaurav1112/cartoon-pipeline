@@ -108,8 +108,10 @@ describe('LION_RABBIT_SCENES data integrity', () => {
 
   // ── NEW: hook scene camera ──────────────────────────────────────────────
 
-  it('hook scene (index 0) uses zoom_in camera', () => {
-    expect(LION_RABBIT_SCENES[0].cam).toBe('zoom_in');
+  it('hook scene (index 0) uses an emotional camera (close_up or zoom_in)', () => {
+    // M10: hook upgraded to close_up to fill frame with Kaaliya's snarl —
+    // matches Peppa/Bheem opening-shot framing for ages 4-10.
+    expect(['close_up', 'zoom_in']).toContain(LION_RABBIT_SCENES[0].cam);
   });
 
   // ── NEW: all sfxKey values are valid SFXKey literals ───────────────────
