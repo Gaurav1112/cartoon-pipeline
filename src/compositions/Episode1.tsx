@@ -7,7 +7,8 @@ import { OutroSequence } from './OutroSequence';
 import { MoralCard } from './MoralCard';
 import { TransitionEffect, getTransitionType } from './TransitionEffects';
 import { SceneRenderer } from './episode1/SceneRenderer';
-import { LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
+import { LION_RABBIT_SCENES as RAW_LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
+import { enforceSideProfile } from './episode1/side-profile-enforcer';
 import { calcSceneDur, calcEpisodeDuration, validateSceneChars } from './episode1/timing';
 import { Subtitles } from './episode1/Subtitles';
 
@@ -17,6 +18,11 @@ const FPS = 30;
 const TRANSITION_FRAMES = 16;
 const MORAL_CARD_FRAMES = 6 * FPS;
 const OUTRO_FRAMES = 5 * FPS;
+
+// M8 (Peppa side-profile): force two-character scenes to face each other so
+// the meeting of profiles reads as "they are talking" without dialogue.
+// Author-set flips win; this is a fill-in-the-gaps pass.
+const LION_RABBIT_SCENES = enforceSideProfile(RAW_LION_RABBIT_SCENES);
 
 /**
  * Language-localised moral text for Episode 1 (Lion & Rabbit).
