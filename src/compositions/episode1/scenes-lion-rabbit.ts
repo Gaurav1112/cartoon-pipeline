@@ -22,10 +22,41 @@ import type { ViralScene } from './types';
 
 export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
-  // HOOK: 0–3s — Villain speaks FIRST. No narration. Max energy.
+  // HOOK: 0–4s — M20 redesign: Rabbit TERROR first (in-medias-res visual punch)
   // ═══════════════════════════════════════════════════════════════════
+  
+  // HOOK BEAT 1 (f1-30): Rabbit terror close-up — pure visual stinger
   {
-    id: 'hook',
+    id: 'hook-terror',
+    mood: 'hook',
+    bg: 'forest',
+    time: 'dusk',
+    dur: 'auto',
+    chars: [
+      { id: 'arjun', pos: 'center', pose: 'surprised', expr: 'scared' },
+    ],
+    cam: 'close_up',
+    camI: 1.0,
+    shortsCutScene: true,
+    dialogue: [
+      {
+        char: 'arjun',
+        // NO spoken text — pure visual stinger with emoji overlay
+        text: '',
+        dur: 30,
+        textOverlay: '😱',
+        patternInterrupt: 'freeze_frame',
+        shortsFlag: true,
+        heroMomentScore: 0.85,
+        // Murch "ma" silence after terror beat
+        postGapMs: 200,
+      },
+    ],
+  },
+
+  // HOOK BEAT 2 (f31-90): Villain reveal + threat
+  {
+    id: 'hook-villain',
     mood: 'hook',
     bg: 'forest',
     time: 'dusk',
@@ -40,21 +71,41 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       {
         char: 'kaaliya',
         // WHY: Specific visceral threat ("you are my food today") > vague menace.
-        // "आज तुम मेरा खाना हो!" sets immediate life-or-death stakes in 3s.
+        // "आज तुम मेरा खाना हो!" sets immediate life-or-death stakes.
         text: 'आज तुम मेरा खाना हो!',
-        // MrBeast hook ≤90 frames (3s) — TikTok max-completion sweet spot.
-        // Auto would be 129 fr (4.3s); explicit clamp keeps the hook punchy.
-        dur: 90,
+        dur: 60,
         sfxKey: 'roar',
-        // WHY: Outcome paradox ("a rabbit defeated this lion") triggers "how??"
-        // instantly — it's the curiosity gap AND the hook in one textOverlay.
-        textOverlay: '🦁 इस शेर को एक खरगोश ने मात दी',
         patternInterrupt: 'zoom_punch',
         shortsFlag: true,
-        // M4.2 (MrBeast): hook villain threat — top-tier stinger material.
         heroMomentScore: 0.95,
-        // Murch "ma" on the threat — let it land before pivoting to rabbit.
-        postGapMs: 250,
+        // Murch "ma" on the threat — let it land before title
+        postGapMs: 200,
+      },
+    ],
+  },
+
+  // HOOK BEAT 3 (f91-120): Title card overlay
+  {
+    id: 'hook-title',
+    mood: 'hook',
+    bg: 'forest',
+    time: 'dusk',
+    dur: 'auto',
+    chars: [],
+    cam: 'static',
+    camI: 0.5,
+    shortsCutScene: true,
+    dialogue: [
+      {
+        char: 'kaaliya',
+        // Silent title card — just the overlay
+        text: '',
+        dur: 30,
+        // WHY: Outcome paradox ("a rabbit defeated this lion") triggers "how??"
+        // instantly — it's the curiosity gap AND the hook in one textOverlay.
+        textOverlay: '🦁 शेर और खरगोश',
+        shortsFlag: true,
+        postGapMs: 150,
       },
     ],
   },
@@ -402,15 +453,111 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         textOverlay: '👀 झाँका...',
         shortsFlag: true,
       },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // M21: COMPLICATION BEAT — The trick is failing (v14 audit-Story 7.40/10)
+  // ═══════════════════════════════════════════════════════════════════
+  // "Climax lacks jeopardy — Kaaliya just immediately jumps. Real top story
+  // films give one ALMOST moment where the hero's plan nearly fails."
+  {
+    id: 'well-laugh',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'kaaliya', pos: 'center', pose: 'laugh', expr: 'happy', flip: true },
+    ],
+    cam: 'close_up',
+    camI: 0.85,
+    mood: 'climax',
+    shortsCutScene: true,
+    dialogue: [
       {
         char: 'kaaliya',
-        text: 'तू कौन है?!',
-        dur: 'auto',
-        sfxKey: 'roar',
-        textOverlay: '💀 खुद की परछाई!',
-        patternInterrupt: 'freeze_frame',
+        // M21: Kaaliya recognizes his own reflection and laughs — the trick
+        // is FAILING. This is the "almost moment" where the plan unravels.
+        text: 'यह तो मैं हूँ! हा हा हा!',
+        dur: 60,
+        emotion: 'happy',
+        textOverlay: '😂 यह तो मैं हूँ!',
+        patternInterrupt: 'shake',
         shortsFlag: true,
       },
+    ],
+  },
+
+  // M21: BAIT — Arjun weaponizes the catchphrase from off-screen
+  {
+    id: 'well-bait',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'kaaliya', pos: 'center', pose: 'idle_stand', expr: 'angry', flip: true },
+    ],
+    cam: 'close_up',
+    camI: 0.9,
+    mood: 'climax',
+    shortsCutScene: true,
+    dialogue: [
+      {
+        char: 'arjun',
+        // M21: Arjun (off-screen, via textOverlay only) weaponizes the
+        // catchphrase. Kaaliya hears his "rival" and turns enraged.
+        text: '',
+        dur: 45,
+        textOverlay: '🦁 जंगल MERA!',
+        sfxKey: 'roar',
+        shortsFlag: true,
+      },
+    ],
+  },
+
+  // M21: RAGE — Kaaliya enraged, threatens and jumps
+  {
+    id: 'well-rage',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'kaaliya', pos: 'center', pose: 'angry', expr: 'angry', flip: true },
+    ],
+    cam: 'close_up',
+    camI: 1.0,
+    mood: 'climax',
+    shortsCutScene: true,
+    dialogue: [
+      {
+        char: 'kaaliya',
+        // M21: Kaaliya's enraged callback before jumping.
+        text: 'तू मेरा शिकार बनेगा!',
+        dur: 75,
+        emotion: 'angry',
+        sfxKey: 'roar',
+        textOverlay: '💀 तू मेरा शिकार बनेगा!',
+        shortsFlag: true,
+        heroMomentScore: 0.95,
+      },
+    ],
+  },
+
+  // M21: SPLASH — The payoff (split from original well-trick)
+  {
+    id: 'well-splash',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'arjun', pos: 'left', pose: 'point', expr: 'determined' },
+      { id: 'guruji', pos: 'center', pose: 'idle_stand', expr: 'neutral' },
+    ],
+    cam: 'wide',
+    camI: 0.8,
+    mood: 'climax',
+    shortsCutScene: true,
+    dialogue: [
       {
         char: 'guruji',
         text: 'शेर कुएँ में कूद गया!',

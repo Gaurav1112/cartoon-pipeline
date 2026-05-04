@@ -18,6 +18,8 @@ import {
   type SceneAudioTiming,
 } from './episode1/timing';
 import { Subtitles } from './episode1/Subtitles';
+import { RhythmInterruptOverlay } from './episode1/RhythmInterrupt';
+import { extractExplicitInterruptFrames } from './episode1/extract-interrupts';
 
 const FPS = 30;
 // FIX(minor): use even number so Math.floor(TRANSITION_FRAMES/2) is symmetric
@@ -156,9 +158,19 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi', audioData }
   );
   currentFrame += finalOutroFrames;
 
+  // M22 (audit-v14): compute explicit interrupt frames for RhythmInterruptOverlay
+  const explicitInterruptFrames = React.useMemo(() => {
+    return extractExplicitInterruptFrames(LION_RABBIT_SCENES, timingByIndex);
+  }, [timingByIndex]);
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {elements}
+      {/* M22 — auto-injected rhythm interrupts every 3s to fill gaps */}
+      <RhythmInterruptOverlay
+        totalFrames={currentFrame}
+        explicitInterruptFrames={explicitInterruptFrames}
+      />
       {/* M5.1 — burnt-in multi-language subtitle layer (Shorts retention +30–40%) */}
       <Subtitles scenes={LION_RABBIT_SCENES} language={language} />
     </AbsoluteFill>
