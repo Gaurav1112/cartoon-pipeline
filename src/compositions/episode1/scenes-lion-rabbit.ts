@@ -488,6 +488,33 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     ],
   },
 
+  // M26: DOUBT — Arjun shows vulnerability before weaponizing catchphrase
+  {
+    id: 'well-doubt',
+    bg: 'well',
+    time: 'day',
+    dur: 'auto',
+    chars: [
+      { id: 'arjun', pos: 'left', pose: 'idle_stand', expr: 'scared' },
+    ],
+    cam: 'close_up',
+    camI: 1.0,
+    mood: 'climax',
+    dialogue: [
+      {
+        char: 'arjun',
+        // M26: Arjun's moment of doubt before he weaponizes the catchphrase.
+        // This is the Truby/Docter fix: hero shows visible fear/vulnerability
+        // during execution, not just confidence throughout.
+        text: 'अब क्या करूँ...?',
+        dur: 45,
+        emotion: 'scared',
+        patternInterrupt: 'shake',
+        postGapMs: 150,
+      },
+    ],
+  },
+
   // M21: BAIT — Arjun weaponizes the catchphrase from off-screen
   {
     id: 'well-bait',
@@ -610,9 +637,11 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
     dialogue: [
       {
         char: 'arjun',
-        // 'happy' is the closest EmotionType to "relieved" in our union.
-        // Soft delivery, no SFX, no overlay — the silence does the work.
-        text: 'बच गए... सब बच गए।',
+        // M26: Hook-callback catharsis. References frame-1 terror beat.
+        // Old line "बच गए... सब बच गए।" was generic relief. New line
+        // "डर लगा था... पर सोचा तो जीत गए।" callbacks the hook's terror
+        // and celebrates the brain-over-brawn thesis in one breath.
+        text: 'डर लगा था... पर सोचा तो जीत गए।',
         dur: 'auto',
         emotion: 'happy',
         postGapMs: 600,
@@ -716,13 +745,6 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         shortsFlag: true,
         // Comedy beat lands harder with a freeze on the punchline.
         patternInterrupt: 'freeze_frame',
-      },
-      {
-        char: 'guruji',
-        text: 'पढ़ाई करो बेटा। धैर्य ही विजय है।',
-        dur: 'auto',
-        sfxKey: 'giggle',
-        textOverlay: '📚 पढ़ाई करो!',
       },
     ],
   },
