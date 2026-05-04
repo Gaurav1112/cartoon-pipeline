@@ -12,6 +12,7 @@ import { firstCharEntranceScale } from './entrance';
 import { MotionSmear } from '../effects/MotionSmear';
 import { poseModifierByEmotion } from '../../characters/animation-life';
 import { applyColorBeat, COLOR_SCRIPT_BY_MOOD, resolveMood } from '../../color/color-script';
+import { chopScene } from './scene-chopper';
 import type { ViralScene } from './types';
 import type { EmotionType } from '../../types';
 
@@ -53,30 +54,42 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene, audioTiming
           0
         );
 
+  // ── M24: Scene Chopper ─────────────────────────────────────────────
+  const subShots = scene.shortsCutScene
+    ? [{ startFrame: 0, endFrame: sceneDurFrames, cam: scene.cam, camI: scene.camI }]
+    : chopScene(scene.id, sceneDurFrames, scene.cam, scene.camI);
+  
+  const activeSubShot = subShots.find(s => frame >= s.startFrame && frame < s.endFrame)
+    || subShots[subShots.length - 1];
+  
+  const activeCam = activeSubShot.cam;
+  const activeCamI = activeSubShot.camI;
+  const subProgress = Math.min(1, (frame - activeSubShot.startFrame) / Math.max(1, activeSubShot.endFrame - activeSubShot.startFrame));
+
   const progress = Math.min(1, frame / Math.max(1, sceneDurFrames));
-  const intensity = scene.camI;
+  const intensity = activeCamI;
   let translateX = 0, translateY = 0, zoom = 1;
 
   // ── Camera ────────────────────────────────────────────────────────
-  switch (scene.cam) {
+  switch (activeCam) {
     case 'pan_left':
-      translateX = interpolate(progress, [0.1, 0.9], [0, -30 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      translateX = interpolate(subProgress, [0.1, 0.9], [0, -30 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
       break;
     case 'pan_right':
-      translateX = interpolate(progress, [0.1, 0.9], [0, 30 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      translateX = interpolate(subProgress, [0.1, 0.9], [0, 30 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
       break;
     case 'zoom_in':
-      zoom = interpolate(progress, [0.1, 0.9], [1, 1 + 0.12 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      zoom = interpolate(subProgress, [0.1, 0.9], [1, 1 + 0.12 * intensity], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
       break;
     case 'zoom_out':
-      zoom = interpolate(progress, [0.1, 0.9], [1 + 0.1 * intensity, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      zoom = interpolate(subProgress, [0.1, 0.9], [1 + 0.1 * intensity, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
       break;
     case 'drift':
-      translateX = Math.sin(progress * Math.PI) * 14 * intensity;
-      translateY = Math.cos(progress * Math.PI) * 7 * intensity;
+      translateX = Math.sin(subProgress * Math.PI) * 14 * intensity;
+      translateY = Math.cos(subProgress * Math.PI) * 7 * intensity;
       break;
     case 'shake': {
-      const shakeAmp = 8 * intensity * Math.exp(-progress * 3);
+      const shakeAmp = 8 * intensity * Math.exp(-subProgress * 3);
       translateX = Math.sin(frame * 2.1) * shakeAmp;
       translateY = Math.cos(frame * 3.7) * shakeAmp * 0.6;
       break;
@@ -86,7 +99,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene, audioTiming
       // weighted by intensity so the speaker fills the frame. Subtle drift
       // upward keeps it cinematic (not static-zoomed).
       zoom = 1.25 + 0.25 * intensity;
-      translateY = interpolate(progress, [0, 1], [6, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+      translateY = interpolate(subProgress, [0, 1], [6, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
       break;
     }
     case 'wide': {
