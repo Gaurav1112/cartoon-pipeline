@@ -26,6 +26,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'hook',
+    mood: 'hook',
     bg: 'forest',
     time: 'dusk',
     dur: 'auto',
@@ -63,6 +64,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'curiosity-gap',
+    mood: 'reveal',
     bg: 'forest',
     time: 'dusk',
     dur: 'auto',
@@ -99,6 +101,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'intro',
+    mood: 'peaceful',
     bg: 'garden',
     time: 'day',
     // WHY 3s: 5s of static branding after a charged 8s hook creates a drop-off
@@ -124,6 +127,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'setup',
+    mood: 'tension',
     bg: 'forest',
     time: 'day',
     dur: 'auto',
@@ -205,6 +209,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'volunteer',
+    mood: 'tension',
     bg: 'forest',
     time: 'day',
     dur: 'auto',
@@ -291,6 +296,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'late-arrival',
+    mood: 'tension',
     bg: 'forest',
     time: 'day',
     dur: 'auto',
@@ -471,6 +477,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'victory',
+    mood: 'comedy',
     bg: 'forest',
     time: 'day',
     dur: 'auto',
@@ -496,9 +503,9 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
         // WHY: Active voice mirrors Arjun's cadence. Passive "दिमाग से जीत होती है"
         // reads like a blackboard caption. "ताकत से नहीं — अक्ल से।" is what
         // someone says AFTER watching something happen. The dash creates a beat.
-        text: 'ताकत से नहीं — अक्ल से।',
+        text: 'दिमाग सबसे बड़ा।',
         dur: 'auto',
-        textOverlay: '💡 Brains > Brawn',
+        textOverlay: '💡 दिमाग सबसे बड़ा',
         shortsFlag: true,
       },
       {
@@ -517,6 +524,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'moral',
+    mood: 'moral',
     bg: 'garden',
     time: 'dusk',
     dur: 'auto',
@@ -539,10 +547,10 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
       },
       {
         char: 'arjun',
-        text: 'अक्ल से सब हल होता है।',
+        text: 'दिमाग सबसे बड़ा।',
         dur: 'auto',
         sfxKey: 'happy_moment',
-        textOverlay: '🧠 अक्ल = ताकत',
+        textOverlay: '🧠 दिमाग सबसे बड़ा',
         // Miyazaki "ma" + MrBeast 8-sec rule converge: freeze on the moral
         // thesis lets the lesson land AND breaks the retention cliff.
         // 600ms post-line silence = the lesson hits a beat of stillness.
@@ -576,6 +584,7 @@ export const LION_RABBIT_SCENES: ViralScene[] = [
   // ═══════════════════════════════════════════════════════════════════
   {
     id: 'loop-hook',
+    mood: 'reveal',
     bg: 'forest',
     time: 'dusk',
     dur: 'auto',
