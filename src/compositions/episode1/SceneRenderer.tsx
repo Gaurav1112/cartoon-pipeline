@@ -295,6 +295,8 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({ scene, audioTiming
                     scale={2.0}
                     flipX={char.flip ?? false}
                     timeOfDay={scene.time}
+                    cam={scene.cam}
+                    camI={scene.camI}
                   />
                 </div>
               </div>

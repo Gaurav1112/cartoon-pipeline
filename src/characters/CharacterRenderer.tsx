@@ -19,6 +19,10 @@ interface CharacterRendererProps {
   flipX?: boolean;
   /** Optional: time-of-day determines shadow direction & color (Deakins). */
   timeOfDay?: TimeOfDay;
+  /** M23a: camera type for rim lighting on close-ups */
+  cam?: string;
+  /** M23a: camera intensity for rim lighting (>=0.8 activates rim) */
+  camI?: number;
 }
 
 // Character-specific body proportions
@@ -49,6 +53,8 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   scale = 1,
   flipX = false,
   timeOfDay = 'day',
+  cam,
+  camI = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -141,6 +147,9 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const skinDark = darken(skin, 0.15);
   const primaryDark = darken(primary, 0.2);
 
+  // M23a: Rim lighting for close-ups (Pixar/Bheem subject separation)
+  const shouldShowRimLight = cam === 'close_up' || (camI !== undefined && camI >= 0.8);
+
   return (
     <div
       style={{
@@ -173,6 +182,20 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
             <stop offset="0%" stopColor="#FFFFFF" />
             <stop offset="100%" stopColor="#E8EEF4" />
           </radialGradient>
+
+          {/* M23a: Rim light filter for close-ups (Pixar/Bheem subject separation) */}
+          {shouldShowRimLight && (
+            <filter id={`${characterId}-rim-light`} x="-50%" y="-50%" width="200%" height="200%">
+              <feFlood floodColor="#FFF8E7" floodOpacity="0.4" result="rimColor" />
+              <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+              <feOffset in="blur" dx="3" dy="-3" result="offsetBlur" />
+              <feComposite in="rimColor" in2="offsetBlur" operator="in" result="rimGlow" />
+              <feMerge>
+                <feMergeNode in="rimGlow" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          )}
         </defs>
 
         {/* Drop shadow on ground — Deakins: direction & length keyed to
@@ -189,6 +212,9 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
             />
           );
         })()}
+
+        {/* M23a: Wrap character in rim-light filter group for close-ups */}
+        <g filter={shouldShowRimLight ? `url(#${characterId}-rim-light)` : undefined}>
 
         {/* === LEGS === */}
         <g transform={`rotate(${poseData.leftLeg.angle}, -8, 50)`}>
@@ -568,6 +594,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
             />
           );
         })()}
+        </g> {/* End M23a rim-light filter group */}
       </svg>
     </div>
   );
