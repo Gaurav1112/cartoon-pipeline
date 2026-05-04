@@ -20,3 +20,5 @@ output/**/*.wav
 
 # Audio cache — committed for determinism, but ignore .tmp during writes
 audio-cache/**/*.tmp
+.audio-backup-m12/
+.audio-backup-m13-pre-fragments/
