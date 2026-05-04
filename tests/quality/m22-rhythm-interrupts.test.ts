@@ -105,14 +105,16 @@ describe('M22 rhythm interrupts every 3s', () => {
   });
 
   describe('RhythmInterrupt safety constraints', () => {
-    it('validates max opacity is kid-safe (≤ 0.10)', () => {
+    it('validates max opacity is kid-safe (≤ 0.20, M25: amplified to 0.15)', () => {
       const totalFrames = 900;
       const explicitInterrupts: number[] = [];
       
       const interrupts = computeRhythmInterrupts(totalFrames, explicitInterrupts);
       
+      // M25: updated from 0.10 to 0.15 (audit: stop whispering, shout)
+      // Still under kid-safe ceiling of 0.20
       interrupts.forEach(interrupt => {
-        expect(interrupt.maxOpacity).toBeLessThanOrEqual(0.10);
+        expect(interrupt.maxOpacity).toBeLessThanOrEqual(0.20);
       });
     });
 

@@ -23,6 +23,8 @@ interface CharacterRendererProps {
   cam?: string;
   /** M23a: camera intensity for rim lighting (>=0.8 activates rim) */
   camI?: number;
+  /** M25: scene start frame for entrance squash-stretch (Brad Bird principle) */
+  sceneStartFrame?: number;
 }
 
 // Character-specific body proportions
@@ -55,6 +57,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   timeOfDay = 'day',
   cam,
   camI = 0,
+  sceneStartFrame,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -62,6 +65,21 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
   const mouth = getMouthShape(mouthShape);
   const { primary, secondary, accent, skin } = character.colors;
   const cfg = BODY_CONFIGS[characterId];
+
+  // M25: Entrance squash-stretch (Brad Bird principle) — 6-frame scale pop
+  // at scene start. Gives characters a "pop in" punch instead of static appear.
+  const entranceScale = (() => {
+    if (sceneStartFrame === undefined) return 1.0;
+    const localFrame = frame - sceneStartFrame;
+    if (localFrame < 0 || localFrame > 6) return 1.0;
+    // 0→3→6 frames: 1.0→1.15→1.0 (symmetric triangle)
+    return interpolate(
+      localFrame,
+      [0, 3, 6],
+      [1.0, 1.15, 1.0],
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    );
+  })();
 
   // ─── Pose interpolation (smooth transitions, not snapping) ───
   const basePose = getPose(pose);
@@ -156,7 +174,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
         position: 'absolute',
         left: position.x,
         top: position.y + walkBob + bodyTalkBobY,
-        transform: `scale(${scale * (flipX ? -1 : 1) * stretchX}, ${scale * squashY})`,
+        transform: `scale(${scale * (flipX ? -1 : 1) * stretchX * entranceScale}, ${scale * squashY * entranceScale})`,
         transformOrigin: 'center bottom',
       }}
     >
@@ -184,10 +202,11 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           </radialGradient>
 
           {/* M23a: Rim light filter for close-ups (Pixar/Bheem subject separation) */}
+          {/* M25: 0.4→0.8 opacity, 3→4 stdDev (audit: stop whispering, shout) */}
           {shouldShowRimLight && (
             <filter id={`${characterId}-rim-light`} x="-50%" y="-50%" width="200%" height="200%">
-              <feFlood floodColor="#FFF8E7" floodOpacity="0.4" result="rimColor" />
-              <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+              <feFlood floodColor="#FFF8E7" floodOpacity="0.8" result="rimColor" />
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
               <feOffset in="blur" dx="3" dy="-3" result="offsetBlur" />
               <feComposite in="rimColor" in2="offsetBlur" operator="in" result="rimGlow" />
               <feMerge>

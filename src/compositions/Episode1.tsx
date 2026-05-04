@@ -167,13 +167,19 @@ export const Episode1: React.FC<Episode1Props> = ({ language = 'hi', audioData }
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
-      {elements}
-      {/* M22 — auto-injected rhythm interrupts every 3s to fill gaps */}
-      <RhythmInterruptOverlay
-        totalFrames={currentFrame}
-        explicitInterruptFrames={explicitInterruptFrames}
-      />
+      {/* M25: +20% saturation boost on scene content (not subtitles layer).
+          Audit v15: "characters look flat" — saturate(1.2) adds punch while
+          staying under the 1.30 kid-safe ceiling. */}
+      <div style={{ filter: 'saturate(1.2)', width: '100%', height: '100%' }}>
+        {elements}
+        {/* M22 — auto-injected rhythm interrupts every 3s to fill gaps */}
+        <RhythmInterruptOverlay
+          totalFrames={currentFrame}
+          explicitInterruptFrames={explicitInterruptFrames}
+        />
+      </div>
       {/* M5.1 — burnt-in multi-language subtitle layer (Shorts retention +30–40%) */}
+      {/* Subtitles rendered OUTSIDE saturate wrapper to keep text crisp */}
       <Subtitles scenes={LION_RABBIT_SCENES} language={language} />
     </AbsoluteFill>
   );
