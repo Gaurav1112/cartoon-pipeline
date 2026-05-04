@@ -11,7 +11,9 @@ import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import type { SupportedLanguage } from '../types';
 import { SceneRenderer } from './episode1/SceneRenderer';
-import { LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
+import { LION_RABBIT_SCENES as RAW_LION_RABBIT_SCENES } from './episode1/scenes-lion-rabbit';
+import { enforceSideProfile } from './episode1/side-profile-enforcer';
+const LION_RABBIT_SCENES = enforceSideProfile(RAW_LION_RABBIT_SCENES);
 import { calcSceneDur } from './episode1/timing';
 
 export const SHORTS_FPS = 30;
