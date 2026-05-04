@@ -30,7 +30,7 @@ export function calcDialogueDur(text: string): number {
  * to lerp `poseModifierByEmotion(prevEmotion)` → `…(currEmotion)` so
  * the silhouette doesn't snap.
  */
-export const EMOTION_BLEND_FRAMES = 6;
+export const EMOTION_BLEND_FRAMES = 10;
 
 /**
  * M3.1 helper — pure. Identifies which dialogue line is active at

@@ -22,6 +22,7 @@ import { getAmbienceLoop } from './ambience';
 import { selectMusic } from './music-selector';
 import { mixAudio } from './audio-mixer';
 import { MOTIF_BY_CHARACTER, buildMotifFfmpegFilter } from './character-motifs';
+import { planIntroJingleLayer } from './intro-jingle';
 
 // ─── Music Intensity Planner (M1.4 / Zimmer) ─────────────────────────────
 //
@@ -568,6 +569,7 @@ export async function generateEpisodeAudio(
   );
 
   const candidateLayers: AudioLayer[] = [
+    ...planIntroJingleLayer(),
     ...dialogueLayers,
     ...sfxLayers,
     ...signatureLayers,
