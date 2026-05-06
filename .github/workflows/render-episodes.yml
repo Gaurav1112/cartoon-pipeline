@@ -59,14 +59,19 @@ jobs:
       - name: Install system deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          pip3 install --quiet edge-tts
+          sudo apt-get install -y -qq ffmpeg python3-venv python3-pip
+          pip3 install --quiet --break-system-packages pipx
+          pipx install piper-tts
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Install Rhubarb
         run: |
           wget -q https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.13.0/Rhubarb-Lip-Sync-1.13.0-Linux.zip
           unzip -q Rhubarb-Lip-Sync-1.13.0-Linux.zip -d /opt/rhubarb
           echo "/opt/rhubarb" >> "$GITHUB_PATH"
+
+      - name: Download Piper voice models
+        run: npm run voices:download
 
       # ── FIX: Rank-10 shell injection at original lines 38-40 ─────────────
       # BEFORE (VULNERABLE): INPUT_EP was set by interpolating the GHA expression
